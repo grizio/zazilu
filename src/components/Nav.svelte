@@ -1,5 +1,19 @@
 <script lang="ts">
+	import { stores } from "@sapper/app"
+	const { session } = stores()
+
 	export let segment: string;
+
+	async function logout() {
+		await fetch("/logout", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			}
+		})
+		session.set("")
+	}
 </script>
 
 <style>
@@ -56,5 +70,11 @@
 		<!-- for the blog link, we're using rel=prefetch so that Sapper prefetches
 		     the blog data when we hover over the link or tap it on a touchscreen -->
 		<li><a rel=prefetch aria-current="{segment === 'blog' ? 'page' : undefined}" href="blog">blog</a></li>
+
+		{#if $session.email === undefined || $session.email === ""}
+			<li><a aria-current="{segment === 'login' ? 'page' : undefined}" href="login">login</a></li>
+		{:else}
+			<li><button on:click={logout}>logout</button></li>
+		{/if}
 	</ul>
 </nav>

@@ -5,7 +5,10 @@
       "DOM",
       "ES2020",
       "WebWorker"
-    ]
+    ],
+    "allowJs": false,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
   },
   "include": [
     "src/**/*",
