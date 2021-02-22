@@ -1,27 +1,46 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte"
   import type { Paragraph } from "../../model/Page"
-  import type { Move, OnNewDetail } from "../types"
+  import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
+  import {
+    createCursorRangeAtBottom,
+    createCursorRangeAtTop,
+    getCurrentSelection, isOnFirstCharacterOf,
+    isOnFirstLineOf, isOnLastCharacterOf,
+    isOnLastLineOf,
+    replaceSelection
+  } from "../../utils/dom"
 
   export let bloc: Paragraph
   export let index: number
 
   let element: HTMLParagraphElement
 
-  const dispatch = createEventDispatcher()
+  const dispatch = createEventDispatcher<PageEditEventDispatcher>()
 
   onMount(() => {
     element.textContent = bloc.content
   })
 
-  export function moveTo(move: Move) {
+  export function move(move: Move) {
     if (element !== undefined) {
-      let range = document.createRange()
-      range.selectNodeContents(element)
-      range.collapse(move === "start")
-      const selection = window.getSelection()
-      selection.removeAllRanges()
-      selection.addRange(range)
+      if (move.type === "start") {
+        let range = document.createRange()
+        range.selectNodeContents(element.firstChild ?? element)
+        range.collapse(true)
+        replaceSelection(range)
+      } else if (move.type === "end") {
+        let range = document.createRange()
+        range.selectNodeContents(element.lastChild ?? element)
+        range.collapse(false)
+        replaceSelection(range)
+      } else if (move.type === "top-relative") {
+        const range = createCursorRangeAtTop(element, move.x)
+        replaceSelection(range)
+      } else if (move.type === "bottom-relative") {
+        const range = createCursorRangeAtBottom(element, move.x)
+        replaceSelection(range)
+      }
     }
   }
 
@@ -29,7 +48,35 @@
     bloc = { ...bloc, content: element.textContent }
   }
 
-  function keypress(event) {
+  function keydown(event: KeyboardEvent) {
+    if (event.key === "ArrowUp" && isOnFirstLineOf(element)) {
+      event.preventDefault()
+      dispatch("move", {
+        index: index - 1,
+        move: { type: "bottom-relative", x: getCurrentSelection().getBoundingClientRect().x }
+      } as OnMoveDetail)
+    } else if (event.key === "ArrowDown" && isOnLastLineOf(element)) {
+      event.preventDefault()
+      dispatch("move", {
+        index: index + 1,
+        move: { type: "top-relative", x: getCurrentSelection().getBoundingClientRect().x }
+      } as OnMoveDetail)
+    } else if (event.key === "ArrowLeft" && isOnFirstCharacterOf(element)) {
+      event.preventDefault()
+      dispatch("move", {
+        index: index - 1,
+        move: { type: "end" }
+      } as OnMoveDetail)
+    } else if (event.key === "ArrowRight" && isOnLastCharacterOf(element)) {
+      event.preventDefault()
+      dispatch("move", {
+        index: index + 1,
+        move: { type: "start" }
+      } as OnMoveDetail)
+    }
+  }
+
+  function keypress(event: KeyboardEvent) {
     if (event.key === "Enter") {
       event.preventDefault()
       const [textToKeep, textForNextParagraph] = extractNextTexts()
@@ -42,7 +89,7 @@
           type: "p",
           content: textForNextParagraph,
         },
-        moveTo: "start"
+        moveTo: { type: "start" }
       } as OnNewDetail)
     }
   }
@@ -83,5 +130,6 @@
   bind:this={element}
   on:input={update}
   on:keypress={keypress}
+  on:keydown={keydown}
   on:paste|preventDefault={paste}
 ></p>

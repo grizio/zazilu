@@ -8,11 +8,17 @@
 
   let element
 
-  export function moveTo(move: Move) {
-    element?.moveTo(move)
+  export function move(move: Move) {
+    element?.move(move)
   }
 </script>
 
 {#if bloc.type === "p"}
-  <ParagraphEdit bind:bloc={bloc} index={index} on:new bind:this={element} />
+  <ParagraphEdit
+    bind:bloc={bloc}
+    index={index}
+    on:new
+    on:move
+    bind:this={element}
+  />
 {/if}

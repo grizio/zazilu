@@ -4,7 +4,7 @@
   import BlocEdit from "../bloc/BlocEdit.svelte"
   import { insert } from "../../utils/arrays"
   import { generateId } from "../../utils/strings"
-  import type { OnNewDetail } from "../types"
+  import type { OnMoveDetail, OnNewDetail } from "../types"
 
   export let page: Page
   let blocs: Array<any> = []
@@ -18,7 +18,14 @@
       content: insert(page.content, index, { ...bloc, id: generateId() })
     }
     if (moveTo !== undefined) {
-      setTimeout(() => blocs[index].moveTo(moveTo), 0)
+      setTimeout(() => blocs[index].move(moveTo), 0)
+    }
+  }
+
+  function onMove(event: CustomEvent<OnMoveDetail>) {
+    const { index, move } = event.detail
+    if (0 <= index && index < blocs.length) {
+      setTimeout(() => blocs[index].move(move))
     }
   }
 
@@ -38,6 +45,7 @@
     bind:this={blocs[index]}
     index={index}
     on:new={onNewBloc}
+    on:move={onMove}
   />
 {/each}
 
