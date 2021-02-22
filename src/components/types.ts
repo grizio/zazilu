@@ -1,8 +1,13 @@
 import type { Bloc } from "../model/Page"
 
+export type BlocEditComponent = {
+  move(move: Move): void
+}
+
 export type PageEditEventDispatcher = {
   new: OnNewDetail,
   move: OnMoveDetail,
+  merge: OnMergeDetail,
 }
 
 export type OnNewDetail = {
@@ -20,4 +25,9 @@ export type Move =
 export type OnMoveDetail = {
   index: number
   move: Move
+}
+
+export type OnMergeDetail = {
+  firstIndex: number
+  secondIndex: number
 }

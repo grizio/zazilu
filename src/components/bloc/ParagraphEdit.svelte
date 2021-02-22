@@ -3,6 +3,7 @@
   import type { Paragraph } from "../../model/Page"
   import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
   import {
+    createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
     getCurrentSelection, isOnFirstCharacterOf,
@@ -13,6 +14,7 @@
 
   export let bloc: Paragraph
   export let index: number
+  let previousBloc: Paragraph | undefined = undefined
 
   let element: HTMLParagraphElement
 
@@ -21,6 +23,21 @@
   onMount(() => {
     element.textContent = bloc.content
   })
+
+  $: {
+    if (bloc !== previousBloc) {
+      const previousContent = previousBloc?.content
+      previousBloc = bloc
+      if (bloc?.content !== previousContent && element !== undefined) {
+        const range = document.createRange()
+        range.selectNodeContents(element.firstChild ?? element)
+        range.collapse(false)
+        const initialOffset = range.endOffset
+        element.textContent = bloc.content
+        replaceSelection(createCollapsedRange(element.firstChild ?? element, initialOffset))
+      }
+    }
+  }
 
   export function move(move: Move) {
     if (element !== undefined) {
@@ -45,10 +62,11 @@
   }
 
   function update() {
-    bloc = { ...bloc, content: element.textContent }
+    previousBloc = bloc = { ...bloc, content: element.textContent }
   }
 
   function keydown(event: KeyboardEvent) {
+    console.log(event)
     if (event.key === "ArrowUp" && isOnFirstLineOf(element)) {
       event.preventDefault()
       dispatch("move", {
@@ -72,6 +90,18 @@
       dispatch("move", {
         index: index + 1,
         move: { type: "start" }
+      } as OnMoveDetail)
+    } else if (event.key === "Backspace" && isOnFirstCharacterOf(element)) {
+      event.preventDefault()
+      dispatch("merge", {
+        firstIndex: index - 1,
+        secondIndex: index
+      } as OnMoveDetail)
+    } else if (event.key === "Delete" && isOnLastCharacterOf(element)) {
+      event.preventDefault()
+      dispatch("merge", {
+        firstIndex: index,
+        secondIndex: index + 1
       } as OnMoveDetail)
     }
   }

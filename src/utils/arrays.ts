@@ -9,3 +9,9 @@ export function replace<A>(array: Array<A>, index: number, element: A): Array<A>
   result[index] = element
   return result
 }
+
+export function remove<A>(array: Array<A>, index: number): Array<A> {
+  const result = [...array]
+  result.splice(index, 1)
+  return result
+}

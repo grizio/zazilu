@@ -1,13 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import type { Page } from "../../model/Page"
+  import type { Page, Paragraph } from "../../model/Page"
   import BlocEdit from "../bloc/BlocEdit.svelte"
-  import { insert } from "../../utils/arrays"
+  import { insert, remove, replace } from "../../utils/arrays"
   import { generateId } from "../../utils/strings"
-  import type { OnMoveDetail, OnNewDetail } from "../types"
+  import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail } from "../types"
 
   export let page: Page
-  let blocs: Array<any> = []
+  let blocs: Array<BlocEditComponent> = []
 
   const dispatchEvent = createEventDispatcher()
 
@@ -24,8 +24,30 @@
 
   function onMove(event: CustomEvent<OnMoveDetail>) {
     const { index, move } = event.detail
-    if (0 <= index && index < blocs.length) {
+    if (0 <= index && index < blocs.length && blocs[index] !== undefined && blocs[index] !== null) {
       setTimeout(() => blocs[index].move(move))
+    }
+  }
+
+  function onMerge(event: CustomEvent<OnMergeDetail>) {
+    const { firstIndex, secondIndex } = event.detail
+    if (0 <= firstIndex && firstIndex < blocs.length && 0 <= secondIndex && secondIndex < blocs.length) {
+      const firstBloc = page.content[firstIndex]
+      const secondBloc = page.content[secondIndex]
+      if (firstBloc.type === "p" && secondBloc.type === "p") {
+        blocs[firstIndex].move({ type: "end" })
+
+        const newBloc: Paragraph = {
+          type: "p",
+          id: firstBloc.id,
+          content: firstBloc.content + secondBloc.content
+        }
+        page = {
+          ...page,
+          content: remove(replace(page.content, firstIndex, newBloc), secondIndex)
+        }
+      }
+      // else: ignore
     }
   }
 
@@ -46,6 +68,7 @@
     index={index}
     on:new={onNewBloc}
     on:move={onMove}
+    on:merge={onMerge}
   />
 {/each}
 

@@ -19,6 +19,7 @@
     index={index}
     on:new
     on:move
+    on:merge
     bind:this={element}
   />
 {/if}
