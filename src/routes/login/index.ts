@@ -12,8 +12,8 @@ export async function post(req: GetRequest, res: AppResponse, next: () => void) 
       if (await bcrypt.compare(password, user.password)) {
         res
           .cookie("auth", user.email, { signed: true })
-          .writeHead(204)
-          .end()
+          .writeHead(200)
+          .end(JSON.stringify({ email: user.email, role: user.role }))
       } else {
         res
           .writeHead(400, { "Content-Type": "application/json" })

@@ -2,7 +2,7 @@ import type { User } from "../model/User"
 import type { AppResponse, AppRequest } from "../routes/types"
 import { app } from "../app"
 
-export async function onAuthenticated(req: AppRequest, res: AppResponse, process: (user: User) => void): Promise<void> {
+export async function onAuthenticated(req: AppRequest, res: AppResponse, process: (user: User) => Promise<void>): Promise<void> {
   const user = await extractUser(req)
   if (user !== undefined) {
     await process(user)

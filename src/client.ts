@@ -1,5 +1,8 @@
 import * as sapper from "@sapper/app"
 
-sapper.start({
-  target: document.querySelector("#sapper"),
-})
+const target = document.querySelector("#sapper")
+if (target !== undefined && target !== null) {
+  sapper.start({ target })
+} else {
+  console.error("No #sapper element found")
+}

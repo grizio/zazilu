@@ -9,6 +9,9 @@
     "allowJs": false,
     "alwaysStrict": true,
     "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "strict": true
   },
   "include": [
     "src/**/*",

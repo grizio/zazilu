@@ -15,7 +15,7 @@
 
 <script lang="ts">
   import type { Page } from "../../model/Page"
-  import Bloc from "../../components/bloc/Bloc.svelte"
+  import PageView from "../../components/page/PageView.svelte"
 
   export let page: Page
 </script>
@@ -24,8 +24,4 @@
   <title>{page.title}</title>
 </svelte:head>
 
-<h1>{page.title}</h1>
-
-{#each page.content as bloc}
-  <Bloc bloc={bloc}/>
-{/each}
+<PageView page={page} />

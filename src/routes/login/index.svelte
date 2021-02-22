@@ -18,8 +18,8 @@
       body: JSON.stringify({ email, password }),
     })
 
-    if (result.status === 204) {
-      session.set({ email })
+    if (result.status === 200) {
+      session.set(await result.json())
       await goto("/")
     } else if (result.status === 400) {
       error = await result.json()

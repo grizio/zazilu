@@ -7,6 +7,7 @@ const ASSETS = `cache${timestamp}`
 const to_cache = (shell as string[]).concat(files as string[])
 const staticAssets = new Set(to_cache)
 
+// @ts-ignore
 self.addEventListener("install", (event: ExtendableEvent) => {
   event.waitUntil(
     caches
@@ -18,6 +19,7 @@ self.addEventListener("install", (event: ExtendableEvent) => {
   )
 })
 
+// @ts-ignore
 self.addEventListener("activate", (event: ExtendableEvent) => {
   event.waitUntil(
     caches.keys().then(async (keys) => {
@@ -50,6 +52,7 @@ async function fetchAndCache(request: Request) {
   }
 }
 
+// @ts-ignore
 self.addEventListener("fetch", (event: FetchEvent) => {
   if (event.request.method !== "GET" || event.request.headers.has("range"))
     return

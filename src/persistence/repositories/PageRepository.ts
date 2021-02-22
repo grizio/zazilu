@@ -1,11 +1,12 @@
 import type { Page } from "../../model/Page"
+import { generateId } from "../../utils/strings"
 
 const defaultHomePage: Page = {
   key: "home",
   title: "Home",
   content: [
-    { type: "p", content: "Welcome here!" },
-    { type: "p", content: "The application is started." }
+    { id: generateId(), type: "p", content: "Welcome here!" },
+    { id: generateId(), type: "p", content: "The application is started." }
   ]
 }
 
@@ -16,6 +17,10 @@ export class PageRepository {
 
   get = async (key: string): Promise<Page | undefined> => {
     return this.inMemory.get(key)
+  }
+
+  getAll = async (): Promise<Array<Page>> => {
+    return Array.from(this.inMemory.values())
   }
 
   post = async (page: Page): Promise<void> => {

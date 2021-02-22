@@ -23,7 +23,7 @@ express() // You can also use Express
         const appRequest = req as AppRequest
         const user = await extractUser(appRequest)
         if (user !== undefined) {
-          return { email: user.email }
+          return { email: user.email, role: user.role }
         } else {
           return {}
         }

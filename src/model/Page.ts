@@ -8,5 +8,6 @@ export type Bloc = Paragraph
 
 export type Paragraph = {
   type: "p"
+  id: string
   content: string
 }

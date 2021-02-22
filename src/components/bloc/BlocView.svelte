@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { Bloc } from "../../model/Page"
-  import Paragraph from "./Paragraph.svelte"
+  import ParagraphView from "./ParagraphView.svelte"
 
   export let bloc: Bloc
 </script>
 
 {#if bloc.type === "p"}
-  <Paragraph bloc={bloc} />
+  <ParagraphView bloc={bloc} />
 {/if}
