@@ -16,6 +16,7 @@
 <script lang="ts">
   import type { Page } from "../../model/Page"
   import PageView from "../../components/page/PageView.svelte"
+  import AdminRestriction from "../../components/security/AdminRestriction.svelte"
 
   export let page: Page
 </script>
@@ -25,3 +26,7 @@
 </svelte:head>
 
 <PageView page={page} />
+
+<AdminRestriction>
+  <a href={`/page/edit/${page.key}`}>Edit</a>
+</AdminRestriction>
