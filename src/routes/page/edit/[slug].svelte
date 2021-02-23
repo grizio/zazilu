@@ -45,6 +45,8 @@
   <title>Edit: {page?.title}</title>
 </svelte:head>
 
+<h1>Edit page</h1>
+
 {#if page !== undefined}
   <PageForm page={page} on:submit={submit} />
 {/if}

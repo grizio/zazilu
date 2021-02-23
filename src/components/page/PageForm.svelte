@@ -56,10 +56,15 @@
   }
 </script>
 
-<h1>Edit page</h1>
+<div>
+  <label for="title">Title</label>
+  <input type="text" name="title" id="title" bind:value={page.title}/>
+</div>
 
-<label for="title">Title</label>
-<input type="text" name="title" id="title" bind:value={page.title}/>
+<div>
+  <label for="key">Key (authorized characters: alphanumeric, "_" and "-")</label>
+  <input type="text" name="key" id="key" bind:value={page.key} pattern="^[0-9A-Za-z_-]+$"/>
+</div>
 
 {#each page.content as bloc, index (bloc.id)}
   <BlocEdit

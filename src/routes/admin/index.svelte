@@ -26,3 +26,5 @@
 {#each pages as page}
   <li><a href={`page/edit/${page.key}`}>{page.title}</a></li>
 {/each}
+
+<a href="page/new">Create a new page</a>
