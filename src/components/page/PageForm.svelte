@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import type { Page, Paragraph } from "../../model/Page"
+  import type { Page, Text } from "../../model/Page"
   import BlocEdit from "../bloc/BlocEdit.svelte"
   import { insert, remove, replace } from "../../utils/arrays"
   import { generateId } from "../../utils/strings"
@@ -37,7 +37,7 @@
       if (firstBloc.type === "p" && secondBloc.type === "p") {
         blocs[firstIndex].move({ type: "end" })
 
-        const newBloc: Paragraph = {
+        const newBloc: Text = {
           type: "p",
           id: firstBloc.id,
           content: firstBloc.content + secondBloc.content

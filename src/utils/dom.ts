@@ -25,6 +25,15 @@ export function getCurrentSelection(): Range | undefined {
   }
 }
 
+export function getCurrentCaretPosition(): Range | undefined {
+  const currentSelection = getCurrentSelection()
+  if (currentSelection?.collapsed === true) {
+    return currentSelection
+  } else {
+    return undefined
+  }
+}
+
 export function isOnFirstLineOf(node: Node): boolean {
   if (!node.hasChildNodes()) {
     return true

@@ -4,10 +4,10 @@ export type Page = {
   content: Array<Bloc>
 }
 
-export type Bloc = Paragraph
+export type Bloc = Text
 
-export type Paragraph = {
-  type: "p"
+export type Text = {
+  type: "p" | `h${1 | 2 | 3 | 4 | 5 | 6}`
   id: string
   content: string
 }

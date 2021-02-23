@@ -1,20 +1,22 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte"
-  import type { Paragraph } from "../../model/Page"
+  import type { Text } from "../../model/Page"
   import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
   import {
     createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
-    getCurrentSelection, isOnFirstCharacterOf,
-    isOnFirstLineOf, isOnLastCharacterOf,
+    getCurrentSelection,
+    isOnFirstCharacterOf,
+    isOnFirstLineOf,
+    isOnLastCharacterOf,
     isOnLastLineOf,
     replaceSelection
   } from "../../utils/dom"
 
-  export let bloc: Paragraph
+  export let bloc: Text
   export let index: number
-  let previousBloc: Paragraph | undefined = undefined
+  let previousBloc: Text | undefined = undefined
 
   let element: HTMLParagraphElement
 
@@ -66,7 +68,6 @@
   }
 
   function keydown(event: KeyboardEvent) {
-    console.log(event)
     if (event.key === "ArrowUp" && isOnFirstLineOf(element)) {
       event.preventDefault()
       dispatch("move", {
@@ -155,11 +156,67 @@
   }
 </script>
 
-<p
-  contenteditable="true"
-  bind:this={element}
-  on:input={update}
-  on:keypress={keypress}
-  on:keydown={keydown}
-  on:paste|preventDefault={paste}
-></p>
+{#if bloc.type === "p"}
+  <p
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></p>
+{:else if bloc.type === "h1"}
+  <h1
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></h1>
+{:else if bloc.type === "h2"}
+  <h2
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></h2>
+{:else if bloc.type === "h3"}
+  <h3
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></h3>
+{:else if bloc.type === "h4"}
+  <h4
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></h4>
+{:else if bloc.type === "h5"}
+  <h5
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></h5>
+{:else if bloc.type === "h6"}
+  <h6
+    contenteditable="true"
+    bind:this={element}
+    on:input={update}
+    on:keypress={keypress}
+    on:keydown={keydown}
+    on:paste|preventDefault={paste}
+  ></h6>
+{/if}
