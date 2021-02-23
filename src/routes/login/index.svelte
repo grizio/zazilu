@@ -41,10 +41,10 @@
 
 <form on:submit|preventDefault={onSubmit}>
   <label for="email">Email</label>
-  <input type="text" name="email" bind:value={email} id="email"/>
+  <input type="text" name="email" bind:value={email} id="email" data-test-id="login-email"/>
 
   <label for="password">Password</label>
-  <input type="password" name="password" bind:value={password} id="password"/>
+  <input type="password" name="password" bind:value={password} id="password" data-test-id="login-password"/>
 
-  <button>Submit</button>
+  <button data-test-id="login-submit">Submit</button>
 </form>

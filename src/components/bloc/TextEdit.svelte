@@ -164,6 +164,7 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></p>
 {:else if bloc.type === "h1"}
   <h1
@@ -173,6 +174,7 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></h1>
 {:else if bloc.type === "h2"}
   <h2
@@ -182,6 +184,7 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></h2>
 {:else if bloc.type === "h3"}
   <h3
@@ -191,6 +194,7 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></h3>
 {:else if bloc.type === "h4"}
   <h4
@@ -200,6 +204,7 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></h4>
 {:else if bloc.type === "h5"}
   <h5
@@ -209,6 +214,7 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></h5>
 {:else if bloc.type === "h6"}
   <h6
@@ -218,5 +224,6 @@
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    data-test-id={bloc.id}
   ></h6>
 {/if}

@@ -1,5 +1,8 @@
 <script lang="ts">
   import { stores } from "@sapper/app"
+  import AuthenticatedRestriction from "./security/AuthenticatedRestriction.svelte"
+  import UnauthenticatedRestriction from "./security/UnauthenticatedRestriction.svelte"
+  import AdminRestriction from "./security/AdminRestriction.svelte"
 
   const { session } = stores()
 
@@ -72,13 +75,14 @@
          the blog data when we hover over the link or tap it on a touchscreen -->
     <li><a rel=prefetch aria-current={segment === 'blog' ? 'page' : undefined} href="blog">blog</a></li>
 
-    {#if $session === undefined || $session === null}
+    <UnauthenticatedRestriction>
       <li><a aria-current="{segment === 'login' ? 'page' : undefined}" href="login">login</a></li>
-    {:else}
-      {#if $session.role === "admin"}
-				<li><a aria-current={segment === 'admin' ? 'page' : undefined} href="admin">administration panel</a></li>
-      {/if}
+    </UnauthenticatedRestriction>
+    <AdminRestriction>
+      <li><a aria-current={segment === 'admin' ? 'page' : undefined} href="admin">administration panel</a></li>
+    </AdminRestriction>
+    <AuthenticatedRestriction>
       <li><button on:click={logout}>logout</button></li>
-    {/if}
+    </AuthenticatedRestriction>
   </ul>
 </nav>

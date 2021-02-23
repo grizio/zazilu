@@ -3,6 +3,6 @@
   const { session } = stores()
 </script>
 
-{#if $session !== undefined && $session !== null && $session.hasOwnProperty("email")}
+{#if $session === undefined || $session === null || !$session.hasOwnProperty("email")}
   <slot/>
 {/if}
