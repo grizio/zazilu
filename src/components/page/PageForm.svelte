@@ -5,6 +5,7 @@
   import { insert, remove, replace } from "../../utils/arrays"
   import { generateId } from "../../utils/strings"
   import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail } from "../types"
+  import { isText } from "../../model/Page"
 
   export let page: Page
   let blocs: Array<BlocEditComponent> = []
@@ -34,11 +35,11 @@
     if (0 <= firstIndex && firstIndex < blocs.length && 0 <= secondIndex && secondIndex < blocs.length) {
       const firstBloc = page.content[firstIndex]
       const secondBloc = page.content[secondIndex]
-      if (firstBloc.type === "p" && secondBloc.type === "p") {
+      if (isText(firstBloc) && isText(secondBloc)) {
         blocs[firstIndex].move({ type: "end" })
 
         const newBloc: Text = {
-          type: "p",
+          type: firstBloc.type,
           id: firstBloc.id,
           content: firstBloc.content + secondBloc.content
         }

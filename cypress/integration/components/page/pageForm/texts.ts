@@ -3,10 +3,14 @@ describe("TextEdit", () => {
     cy.visit("http://localhost:3000/tests/PageFormTest")
   }
 
+  const title1 = "[data-test-id=s6eTVUS5LZ6O3K3FQlPB]"
+  const title2 = "[data-test-id=BixY2XQDgIVUx3A6Gzeg]"
+  const title12 = "[data-test-id=f9BUGtwwdOMuGL2H6A0I]"
   const firstParagraph = "[data-test-id=wCE6PHWsQAcsyM8On2wz]"
   const secondParagraph = "[data-test-id=KkDrx6vdtWZBNMV7SpOK]"
   const thirdParagraph = "[data-test-id=HdVEMtWlRqytL7YHz7rt]"
   const fourthParagraph = "[data-test-id=h409p9NGTYsdQntU8lZO]"
+  const fifthParagraph = "[data-test-id=ZP5qjnTIdlTirqySjcsV]"
 
   it("should update accordingly to user writing", () => {
     initialize()
@@ -134,5 +138,68 @@ describe("TextEdit", () => {
     cy.get(secondParagraph).should("not.exist")
     cy.get(firstParagraph).type("xxx")
     cy.get(firstParagraph).should("have.text", "This is some text.xxxClass aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
+  })
+
+  it("should correctly merge two titles when using backspace", () => {
+    initialize()
+    cy.get(title2).click()
+    cy.get(title2).type("{movetostart}")
+    cy.get(title2).type("{backspace}")
+    cy.get(title1).should("have.text", "Title 1Title 2")
+    cy.get(title2).should("not.exist")
+    cy.get(title1).type("xxx")
+    cy.get(title1).should("have.text", "Title 1xxxTitle 2")
+  })
+
+  it("should correctly merge two titles when using delete", () => {
+    initialize()
+    cy.get(title1).click()
+    cy.get(title1).type("{del}")
+    cy.get(title1).should("have.text", "Title 1Title 2")
+    cy.get(title2).should("not.exist")
+    cy.get(title1).type("xxx")
+    cy.get(title1).should("have.text", "Title 1xxxTitle 2")
+  })
+
+  it("should correctly merge a title and a paragraph when using backspace", () => {
+    initialize()
+    cy.get(firstParagraph).click()
+    cy.get(firstParagraph).type("{movetostart}")
+    cy.get(firstParagraph).type("{backspace}")
+    cy.get(title2).should("have.text", "Title 2This is some text.")
+    cy.get(firstParagraph).should("not.exist")
+    cy.get(title2).type("xxx")
+    cy.get(title2).should("have.text", "Title 2xxxThis is some text.")
+  })
+
+  it("should correctly merge a title and a paragraph when using delete", () => {
+    initialize()
+    cy.get(title2).click()
+    cy.get(title2).type("{del}")
+    cy.get(title2).should("have.text", "Title 2This is some text.")
+    cy.get(firstParagraph).should("not.exist")
+    cy.get(title2).type("xxx")
+    cy.get(title2).should("have.text", "Title 2xxxThis is some text.")
+  })
+
+  it("should correctly merge a paragraph and a title when using backspace", () => {
+    initialize()
+    cy.get(title12).click()
+    cy.get(title12).type("{movetostart}")
+    cy.get(title12).type("{backspace}")
+    cy.get(fifthParagraph).should("have.text", "Another paragraphTitle 12")
+    cy.get(title12).should("not.exist")
+    cy.get(fifthParagraph).type("xxx")
+    cy.get(fifthParagraph).should("have.text", "Another paragraphxxxTitle 12")
+  })
+
+  it("should correctly merge a paragraph and a title when using delete", () => {
+    initialize()
+    cy.get(fifthParagraph).click()
+    cy.get(fifthParagraph).type("{del}")
+    cy.get(fifthParagraph).should("have.text", "Another paragraphTitle 12")
+    cy.get(title12).should("not.exist")
+    cy.get(fifthParagraph).type("xxx")
+    cy.get(fifthParagraph).should("have.text", "Another paragraphxxxTitle 12")
   })
 })

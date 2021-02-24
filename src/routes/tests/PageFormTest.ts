@@ -31,6 +31,16 @@ export const initialPage = {
       "id": "h409p9NGTYsdQntU8lZO",
       "type": "p",
       "content": " Aliquam erat volutpat. Proin ornare luctus iaculis. Duis ac dolor dui. Fusce non pretium metus, et ullamcorper velit. Maecenas ornare massa in orci varius posuere. Nam sollicitudin ullamcorper pulvinar. In libero magna, pretium quis felis sit amet, aliquam interdum est. Suspendisse pretium magna vitae turpis molestie scelerisque. Curabitur vel neque a sem lacinia fringilla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis eget sapien pulvinar, vestibulum enim id, euismod ipsum. Morbi aliquam vestibulum aliquam. Suspendisse elementum ex at posuere lobortis. Nulla nisl velit, ultricies id sodales vel, bibendum quis nulla. Nulla facilisi."
+    },
+    {
+      "id": "ZP5qjnTIdlTirqySjcsV",
+      "type": "p",
+      "content": "Another paragraph"
+    },
+    {
+      "id": "f9BUGtwwdOMuGL2H6A0I",
+      "type": "h1",
+      "content": "Title 12"
     }
   ]
 }

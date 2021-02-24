@@ -11,3 +11,8 @@ export type Text = {
   id: string
   content: string
 }
+
+const isTextTypes = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
+export function isText(bloc: Bloc): bloc is Text {
+  return isTextTypes.includes(bloc.type)
+}
