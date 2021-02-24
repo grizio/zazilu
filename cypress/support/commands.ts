@@ -23,3 +23,29 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("selectNextCharacters", { prevSubject: false }, (numberOfCharacters: number) => {
+  return cy.document()
+    .then($document => {
+      const selection = $document.getSelection() ?? undefined
+      if (selection !== undefined && selection.rangeCount === 1) {
+        const range = selection.getRangeAt(0)
+        range.setEnd(range.endContainer, range.endOffset + numberOfCharacters)
+      } else {
+        console.warn("Multiple ranges, ignoring command")
+      }
+    })
+})
+
+Cypress.Commands.add("selectPreviousCharacters", { prevSubject: false }, (numberOfCharacters: number) => {
+  return cy.document()
+    .then($document => {
+      const selection = $document.getSelection() ?? undefined
+      if (selection !== undefined && selection.rangeCount === 1) {
+        const range = selection.getRangeAt(0)
+        range.setStart(range.endContainer, range.startOffset - numberOfCharacters)
+      } else {
+        console.warn("Multiple ranges, ignoring command")
+      }
+    })
+})

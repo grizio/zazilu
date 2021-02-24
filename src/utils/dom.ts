@@ -63,7 +63,7 @@ export function isOnFirstCharacterOf(node: Node): boolean {
     return true
   } else {
     const firstLineDOMRect = getFirstLineDOMRect(node)
-    const selection = getCurrentSelection()?.getBoundingClientRect()
+    const selection = getCurrentCaretPosition()?.getBoundingClientRect()
     return firstLineDOMRect !== undefined
       && selection !== undefined
       && equalsWithMargin(firstLineDOMRect.left, selection.left, 1)
@@ -75,7 +75,7 @@ export function isOnLastCharacterOf(node: Node): boolean {
     return true
   } else {
     const lastLineDOMRect = getLastLineDOMRect(node)
-    const selection = getCurrentSelection()?.getBoundingClientRect()
+    const selection = getCurrentCaretPosition()?.getBoundingClientRect()
     return lastLineDOMRect !== undefined
       && selection !== undefined
       && equalsWithMargin(lastLineDOMRect.right, selection.right, 1)

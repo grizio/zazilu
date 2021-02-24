@@ -48,7 +48,9 @@
       contentToUpdate = undefined
     }
     if (caretPositionToKeep !== undefined) {
-      replaceSelection(createCollapsedRange(element.firstChild, caretPositionToKeep))
+      const elementToSelect = element.firstChild ?? element
+      const newCaret = Math.min(caretPositionToKeep, element.firstChild?.textContent?.length ?? 0 )
+      replaceSelection(createCollapsedRange(elementToSelect, newCaret))
       caretPositionToKeep = undefined
     }
   })

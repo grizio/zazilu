@@ -130,6 +130,25 @@ describe("TextEdit", () => {
     cy.get(firstParagraph).should("have.text", "This is some text.xxxClass aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
   })
 
+  it("should not merge two paragraphs when using backspace with a non collapsed selection", () => {
+    initialize()
+    cy.get(secondParagraph).click()
+    cy.get(secondParagraph).type("{movetostart}")
+    cy.selectNextCharacters(6)
+    cy.get(secondParagraph).type("{backspace}")
+    cy.get(firstParagraph).should("have.text", "This is some text.")
+    cy.get(secondParagraph).should("have.text", "aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
+  })
+
+  it("should not merge two paragraphs when using delete with a non collapsed selection", () => {
+    initialize()
+    cy.get(firstParagraph).click()
+    cy.selectPreviousCharacters(6)
+    cy.get(firstParagraph).type("{del}")
+    cy.get(firstParagraph).should("have.text", "This is some")
+    cy.get(secondParagraph).should("have.text", "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
+  })
+
   it("should correctly merge two paragraphs when using delete", () => {
     initialize()
     cy.get(firstParagraph).click()
