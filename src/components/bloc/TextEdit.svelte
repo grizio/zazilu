@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte"
+  import { afterUpdate, beforeUpdate, createEventDispatcher, onMount, tick } from "svelte"
   import type { Text } from "../../model/Page"
   import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
   import {
     createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
+    getCurrentCaretPosition,
     getCurrentSelection,
     isOnFirstCharacterOf,
     isOnFirstLineOf,
@@ -26,20 +27,31 @@
     element.textContent = bloc.content
   })
 
-  $: {
-    if (bloc !== previousBloc) {
-      const previousContent = previousBloc?.content
-      previousBloc = bloc
-      if (bloc?.content !== previousContent && element !== undefined) {
-        const range = document.createRange()
-        range.selectNodeContents(element.firstChild ?? element)
-        range.collapse(false)
-        const initialOffset = range.endOffset
-        element.textContent = bloc.content
-        replaceSelection(createCollapsedRange(element.firstChild ?? element, initialOffset))
+  let contentToUpdate: string | undefined = undefined
+  let caretPositionToKeep: number | undefined = undefined
+  beforeUpdate(() => {
+    if (element !== undefined && bloc !== undefined && previousBloc !== undefined) {
+      if (bloc.content !== previousBloc.content) {
+        contentToUpdate = bloc.content
+        const currentCaretPosition = getCurrentCaretPosition()
+        if (currentCaretPosition.intersectsNode(element)) {
+          caretPositionToKeep = currentCaretPosition.startOffset
+        }
       }
     }
-  }
+    previousBloc = bloc
+  })
+
+  afterUpdate(() => {
+    if (contentToUpdate !== undefined) {
+      element.textContent = contentToUpdate
+      contentToUpdate = undefined
+    }
+    if (caretPositionToKeep !== undefined) {
+      replaceSelection(createCollapsedRange(element.firstChild, caretPositionToKeep))
+      caretPositionToKeep = undefined
+    }
+  })
 
   export function move(move: Move) {
     if (element !== undefined) {
@@ -67,7 +79,16 @@
     previousBloc = bloc = { ...bloc, content: element.textContent }
   }
 
-  function keydown(event: KeyboardEvent) {
+  const blocCodeMapping = {
+    "#": "h1",
+    "##": "h2",
+    "###": "h3",
+    "####": "h4",
+    "#####": "h5",
+    "######": "h6",
+    "!#": "p",
+  }
+  async function keydown(event: KeyboardEvent) {
     if (event.key === "ArrowUp" && isOnFirstLineOf(element)) {
       event.preventDefault()
       dispatch("move", {
@@ -104,6 +125,23 @@
         firstIndex: index,
         secondIndex: index + 1
       } as OnMoveDetail)
+    } else if (event.key === " ") {
+      const currentCaretPosition = getCurrentCaretPosition()
+      if (currentCaretPosition !== undefined) {
+        const textContent = (element.firstChild?.textContent ?? "")
+        const blocCode = textContent.substring(0, currentCaretPosition.startOffset)
+        const blocType = blocCodeMapping[blocCode]
+        if (blocType !== undefined) {
+          event.preventDefault()
+          bloc = {
+            ...bloc,
+            type: blocType,
+            content: textContent.substring(blocCode.length)
+          }
+          await tick()
+          move({ type: "start" })
+        }
+      }
     }
   }
 
