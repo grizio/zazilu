@@ -25,11 +25,12 @@
 
 <svelte:component
   this={componentMapping[bloc.type]}
-  bind:bloc={bloc}
+  bloc={bloc}
   index={index}
   on:new
   on:move
   on:merge
   on:replace
+  on:update
   bind:this={element}
 />

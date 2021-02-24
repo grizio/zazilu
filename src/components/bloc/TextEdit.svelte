@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { afterUpdate, beforeUpdate, createEventDispatcher, onMount, tick } from "svelte"
+  import { afterUpdate, createEventDispatcher, tick } from "svelte"
   import type { Text } from "../../model/Page"
   import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
   import {
-    createCollapsedRange,
+    clearElement, createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
     getCurrentCaretPosition,
@@ -14,6 +14,7 @@
     isOnLastLineOf,
     replaceSelection
   } from "../../utils/dom"
+  import { contentToDom, domToContent, wasUpdated } from "./TextEditLogic"
 
   export let bloc: Text
   export let index: number
@@ -23,35 +24,11 @@
 
   const dispatch = createEventDispatcher<PageEditEventDispatcher>()
 
-  onMount(() => {
-    element.textContent = bloc.content
-  })
-
-  let contentToUpdate: string | undefined = undefined
-  let caretPositionToKeep: number | undefined = undefined
-  beforeUpdate(() => {
-    if (element !== undefined && bloc !== undefined && previousBloc !== undefined) {
-      if (bloc.content !== previousBloc.content) {
-        contentToUpdate = bloc.content
-        const currentCaretPosition = getCurrentCaretPosition()
-        if (currentCaretPosition.intersectsNode(element)) {
-          caretPositionToKeep = currentCaretPosition.startOffset
-        }
-      }
-    }
-    previousBloc = bloc
-  })
-
   afterUpdate(() => {
-    if (contentToUpdate !== undefined) {
-      element.textContent = contentToUpdate
-      contentToUpdate = undefined
-    }
-    if (caretPositionToKeep !== undefined) {
-      const elementToSelect = element.firstChild ?? element
-      const newCaret = Math.min(caretPositionToKeep, element.firstChild?.textContent?.length ?? 0 )
-      replaceSelection(createCollapsedRange(elementToSelect, newCaret))
-      caretPositionToKeep = undefined
+    if (wasUpdated(bloc, previousBloc)) {
+      previousBloc = bloc
+      clearElement(element)
+      contentToDom(bloc.content).forEach(node => element.appendChild(node))
     }
   })
 
@@ -73,12 +50,24 @@
       } else if (move.type === "bottom-relative") {
         const range = createCursorRangeAtBottom(element, move.x)
         replaceSelection(range)
+      } else if (move.type === "offset-start") {
+        const range = createCollapsedRange(element.firstChild ?? element, move.at)
+        replaceSelection(range)
+      } else if (move.type === "offset-end") {
+        const range = createCollapsedRange(element.firstChild ?? element, element.textContent.length - move.at)
+        replaceSelection(range)
       }
     }
   }
 
-  function update() {
-    previousBloc = bloc = { ...bloc, content: element.textContent }
+  function blur() {
+    dispatch("update", {
+      index,
+      bloc: {
+        ...bloc,
+        content: domToContent(element.childNodes)
+      }
+    })
   }
 
   const blocCodeMapping = {
@@ -90,6 +79,7 @@
     "######": "h6",
     "!#": "p",
   }
+
   async function keydown(event: KeyboardEvent) {
     if (event.key === "ArrowUp" && isOnFirstLineOf(element)) {
       event.preventDefault()
@@ -117,15 +107,19 @@
       } as OnMoveDetail)
     } else if (event.key === "Backspace" && isOnFirstCharacterOf(element)) {
       event.preventDefault()
+      blur()
       dispatch("merge", {
         firstIndex: index - 1,
-        secondIndex: index
+        secondIndex: index,
+        move: { type: "offset-end", at: element.textContent.length }
       } as OnMoveDetail)
     } else if (event.key === "Delete" && isOnLastCharacterOf(element)) {
       event.preventDefault()
+      blur()
       dispatch("merge", {
         firstIndex: index,
-        secondIndex: index + 1
+        secondIndex: index + 1,
+        move: { type: "offset-start", at: element.textContent.length }
       } as OnMoveDetail)
     } else if (event.key === " ") {
       const currentCaretPosition = getCurrentCaretPosition()
@@ -138,7 +132,7 @@
           bloc = {
             ...bloc,
             type: blocType,
-            content: textContent.substring(blocCode.length)
+            content: [{ type: "text", content: textContent.substring(blocCode.length) }]
           }
           await tick()
           move({ type: "start" })
@@ -149,19 +143,34 @@
 
   function keypress(event: KeyboardEvent) {
     if (event.key === "Enter") {
-      event.preventDefault()
-      const [textToKeep, textForNextParagraph] = extractNextTexts()
-      element.textContent = textToKeep
-      update()
+      const selection = window.getSelection()
+      if (selection.rangeCount === 1) {
+        event.preventDefault()
+        const currentSelection = selection.getRangeAt(0)
+        const leftRange = document.createRange()
+        leftRange.setStart(element.firstChild, 0)
+        leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
 
-      dispatch("new", {
-        index: index + 1,
-        bloc: {
-          type: "p",
-          content: textForNextParagraph,
-        },
-        moveTo: { type: "start" }
-      } as OnNewDetail)
+        const rightRange = document.createRange()
+        rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+        rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
+
+        const leftPart = leftRange.extractContents()
+        const rightPart = rightRange.extractContents()
+
+        clearElement(element)
+        element.appendChild(leftPart)
+        blur()
+        dispatch("new", {
+          index: index + 1,
+          bloc: {
+            type: "p",
+            content: domToContent(rightPart.childNodes)
+          },
+          moveTo: { type: "start" }
+        } as OnNewDetail)
+      }
+      // else ignore
     }
   }
 
@@ -169,6 +178,14 @@
     const selection = window.getSelection()
     if (selection.rangeCount === 1) {
       const currentSelection = selection.getRangeAt(0)
+      const leftRange = document.createRange()
+      leftRange.setStart(element.firstChild, 0)
+      leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+
+      const rightRange = document.createRange()
+      rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+      rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
+
 
       const rangeBeforeCaret = document.createRange()
       rangeBeforeCaret.selectNodeContents(element)
@@ -200,7 +217,7 @@
   <p
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
@@ -210,7 +227,7 @@
   <h1
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
@@ -220,7 +237,7 @@
   <h2
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
@@ -230,7 +247,7 @@
   <h3
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
@@ -240,7 +257,7 @@
   <h4
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
@@ -250,7 +267,7 @@
   <h5
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
@@ -260,7 +277,7 @@
   <h6
     contenteditable="true"
     bind:this={element}
-    on:input={update}
+    on:blur={blur}
     on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}

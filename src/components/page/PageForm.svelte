@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte"
+  import { createEventDispatcher, tick } from "svelte"
   import type { Page, Text } from "../../model/Page"
   import BlocEdit from "../bloc/BlocEdit.svelte"
   import { insert, remove, replace } from "../../utils/arrays"
   import { generateId } from "../../utils/strings"
-  import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail } from "../types"
+  import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "../types"
   import { isText } from "../../model/Page"
 
   export let page: Page
@@ -30,25 +30,37 @@
     }
   }
 
-  function onMerge(event: CustomEvent<OnMergeDetail>) {
-    const { firstIndex, secondIndex } = event.detail
+  async function onMerge(event: CustomEvent<OnMergeDetail>) {
+    const { firstIndex, secondIndex, move } = event.detail
     if (0 <= firstIndex && firstIndex < blocs.length && 0 <= secondIndex && secondIndex < blocs.length) {
       const firstBloc = page.content[firstIndex]
       const secondBloc = page.content[secondIndex]
       if (isText(firstBloc) && isText(secondBloc)) {
-        blocs[firstIndex].move({ type: "end" })
-
         const newBloc: Text = {
           type: firstBloc.type,
           id: firstBloc.id,
-          content: firstBloc.content + secondBloc.content
+          content: [...firstBloc.content, ...secondBloc.content]
         }
         page = {
           ...page,
           content: remove(replace(page.content, firstIndex, newBloc), secondIndex)
         }
+        if (move) {
+          await tick()
+          blocs[firstIndex].move(move)
+        }
       }
       // else: ignore
+    }
+  }
+
+  function onUpdate(event: CustomEvent<OnUpdateDetail>) {
+    const { index, bloc } = event.detail
+    if (0 <= index && index < page.content.length) {
+      page = {
+        ...page,
+        content: replace(page.content, index, bloc)
+      }
     }
   }
 
@@ -75,6 +87,7 @@
     on:new={onNewBloc}
     on:move={onMove}
     on:merge={onMerge}
+    on:update={onUpdate}
   />
 {/each}
 

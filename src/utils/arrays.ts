@@ -30,3 +30,7 @@ export function unique<A>(array: Array<A>): boolean {
 export function uniqueBy<A, B>(array: Array<A>, by: (value: A) => B): boolean {
   return unique(array.map(by))
 }
+
+export function isDefined<A>(value: A | undefined): value is A {
+  return value !== undefined
+}

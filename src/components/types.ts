@@ -5,14 +5,15 @@ export type BlocEditComponent = {
 }
 
 export type PageEditEventDispatcher = {
-  new: OnNewDetail,
-  move: OnMoveDetail,
-  merge: OnMergeDetail,
+  new: OnNewDetail
+  move: OnMoveDetail
+  merge: OnMergeDetail
+  update: OnUpdateDetail
 }
 
 export type OnNewDetail = {
   index: number
-  bloc: Exclude<Bloc, "id">
+  bloc: Omit<Bloc, "id">
   moveTo?: Move
 }
 
@@ -21,6 +22,8 @@ export type Move =
   | { type: "end" }
   | { type: "top-relative", x: number }
   | { type: "bottom-relative", x: number }
+  | { type: "offset-start", at: number }
+  | { type: "offset-end", at: number }
 
 export type OnMoveDetail = {
   index: number
@@ -30,4 +33,10 @@ export type OnMoveDetail = {
 export type OnMergeDetail = {
   firstIndex: number
   secondIndex: number
+  move?: Move
+}
+
+export type OnUpdateDetail = {
+  index: number
+  bloc: Bloc
 }

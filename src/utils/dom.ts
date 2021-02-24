@@ -206,3 +206,9 @@ export function createCollapsedRange(node: Node, offset: number): Range {
   range.setEnd(node, offset)
   return range
 }
+
+export function clearElement(element: Element): void {
+  while (element.firstChild !== undefined && element.firstChild !== null) {
+    element.firstChild.remove()
+  }
+}
