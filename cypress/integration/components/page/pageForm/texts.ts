@@ -15,6 +15,7 @@ describe("TextEdit", () => {
   const fifthParagraph = "[data-test-id=ZP5qjnTIdlTirqySjcsV]"
   const firstRichParagraph = "[data-test-id=nUPMs4xi8RgJXDoCTJGY]"
   const secondRichParagraph = "[data-test-id=7iGFyeZlNddiRpqX3FbN]"
+  const thirdRichParagraph = "[data-test-id=n9tAhhR0lup1StIFKCnE]"
 
   it("should update accordingly to user writing", () => {
     initialize()
@@ -328,7 +329,7 @@ describe("TextEdit", () => {
     cy.get(firstRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
     cy.selectNextCharacters(5)
     cy.get(firstRichParagraph).type("{ctrl+b}")
-    cy.get(`${firstRichParagraph} > strong:first-of-type`).should("have.text", "terdu")
+    cy.get(firstRichParagraph).should("have.html", "In<strong>terdu</strong>m et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
   })
 
   it("should remove selected text from strong when all already strong", () => {
@@ -337,8 +338,7 @@ describe("TextEdit", () => {
     cy.get(secondRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
     cy.selectNextCharacters(5)
     cy.get(secondRichParagraph).type("{ctrl+b}")
-    cy.get(`${secondRichParagraph} > strong:nth-of-type(1)`).should("have.text", "Al")
-    cy.get(`${secondRichParagraph} > strong:nth-of-type(2)`).should("have.text", " dapibus, ")
+    cy.get(secondRichParagraph).should("have.html", "<strong>Al</strong>iquam<strong> dapibus, </strong>lorem eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
   })
 
   it("should remove selected text from strong when some part already strong", () => {
@@ -347,14 +347,14 @@ describe("TextEdit", () => {
     cy.get(firstRichParagraph).click()
     cy.get(firstRichParagraph).selectText(27, 51)
     cy.get(firstRichParagraph).type("{ctrl+b}")
+    cy.get(firstRichParagraph).should("have.html", "Interdum et malesuada fames ac ante ipsum primis in faucibus")
     cy.get(`${firstRichParagraph} > strong`).should("not.exist")
 
     // case: str[ong - te]xt
     cy.get(secondRichParagraph).click()
     cy.get(secondRichParagraph).selectText(7, 22)
     cy.get(secondRichParagraph).type("{ctrl+b}")
-    cy.get(`${secondRichParagraph} > strong:nth-of-type(1)`).should("have.text", "Aliquam")
-    cy.get(`${secondRichParagraph} > strong:nth-of-type(2)`).should("have.text", ", mi massa egestas velit, et dapibus dui est at quam")
+    cy.get(secondRichParagraph).should("have.html", "<strong>Aliquam</strong> dapibus, lorem eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
   })
 
   it("should keep the selection when making text strong", () => {
@@ -364,8 +364,7 @@ describe("TextEdit", () => {
     cy.selectNextCharacters(5)
     cy.get(firstRichParagraph).type("{ctrl+b}")
     cy.get(firstRichParagraph).type("xxx")
-    cy.get(firstRichParagraph).should("have.text", "Inxxxm et malesuada fames ac ante ipsum primis in faucibus")
-    cy.get(`${firstRichParagraph} > strong:first-of-type`).should("have.text", "ante ipsum")
+    cy.get(firstRichParagraph).should("have.html", "Inxxxm et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
   })
 
   it("should keep the selection when removing the strong on text", () => {
@@ -375,7 +374,42 @@ describe("TextEdit", () => {
     cy.selectNextCharacters(5)
     cy.get(secondRichParagraph).type("{ctrl+b}")
     cy.get(secondRichParagraph).type("xxx")
-    cy.get(secondRichParagraph).should("have.text", "Alxxx dapibus, lorem eu molestie volutpat, mi massa egestas velit, et dapibus dui est at quam")
-    cy.get(`${secondRichParagraph} > strong:first-of-type`).should("have.text", "Alxxx dapibus, ")
+    cy.get(secondRichParagraph).should("have.html", "<strong>Alxxx dapibus, </strong>lorem eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
+  })
+
+  it("should put selected text in emphasis when not already emphasized", () => {
+    initialize()
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).selectText(22, 35)
+    cy.get(firstRichParagraph).type("{ctrl+i}")
+    cy.get(firstRichParagraph).should("have.html", "Interdum et malesuada <em>fames ac <strong>ante</strong></em><strong> ipsum</strong> primis in faucibus")
+  })
+
+  it("should put selected strong text in emphasis when not already emphasized", () => {
+    initialize()
+    cy.get(secondRichParagraph).click()
+    cy.get(secondRichParagraph).selectText(8, 15)
+    cy.get(secondRichParagraph).type("{ctrl+i}")
+    cy.get(secondRichParagraph).should("have.html", "<strong>Aliquam <em>dapibus</em>, </strong>lorem eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
+  })
+
+  it("should remove emphasize in selected text in emphasis when already emphasized", () => {
+    initialize()
+    cy.get(thirdRichParagraph).click()
+    cy.get(thirdRichParagraph).selectText(24, 30)
+    cy.get(thirdRichParagraph).type("{ctrl+i}")
+    cy.get(thirdRichParagraph).should("have.html", "<strong>Nulla condimentum <em>vitae </em>lectus feugiat sodales.</strong>")
+  })
+
+  it("should add and remove emphasize in selected text across several nodes", () => {
+    initialize()
+    cy.get(secondRichParagraph).click()
+    cy.get(secondRichParagraph).selectText(8, 22)
+
+    cy.get(secondRichParagraph).type("{ctrl+i}")
+    cy.get(secondRichParagraph).should("have.html", "<strong>Aliquam </strong><em><strong>dapibus, </strong>lorem</em> eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
+
+    cy.get(secondRichParagraph).type("{ctrl+i}")
+    cy.get(secondRichParagraph).should("have.html", "<strong>Aliquam dapibus, </strong>lorem eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
   })
 })

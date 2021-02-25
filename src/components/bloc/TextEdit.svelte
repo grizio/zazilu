@@ -11,7 +11,7 @@
     createCursorRangeAtTop,
     createRangeFrom,
     getCurrentCaretPosition,
-    getCurrentSelection, getFirstTextNode, getLastTextNode,
+    getCurrentSelection,
     isOnFirstCharacterOf,
     isOnFirstLineOf,
     isOnLastCharacterOf,
@@ -153,56 +153,88 @@
         }
       }
     } else if (event.key === "b" && event.ctrlKey) {
-      const currentSelection = getCurrentSelection()
-      if (currentSelection !== undefined) {
-        event.preventDefault()
-        if (containsNodeType(currentSelection, "STRONG")) {
-          const leftRange = document.createRange()
-          leftRange.selectNode(element.firstChild)
-          leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+      tryToggleElementSelection(event, "STRONG", () => document.createElement("strong"))
+    } else if (event.key === "i" && event.ctrlKey) {
+      tryToggleElementSelection(event, "EM", () => document.createElement("em"))
+    }
+  }
 
-          const rightRange = document.createRange()
-          rightRange.selectNode(element.lastChild)
-          rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-
-          const leftFragment = leftRange.extractContents()
-          const middleFragment = currentSelection.extractContents()
-          const rightFragment = rightRange.extractContents()
-          removeNodeType(middleFragment, "STRONG")
-
-          const startOffset = leftFragment.textContent.toString().length
-          const endOffset = startOffset + middleFragment.textContent.toString().length
-
-          clearElement(element)
-          element.appendChild(leftFragment)
-          element.appendChild(middleFragment)
-          element.appendChild(rightFragment)
-          cleanDom(element)
-          move({ type: "selection", start: startOffset, end: endOffset })
-        } else {
-          const leftRange = document.createRange()
-          leftRange.setStart(element.firstChild, 0)
-          leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
-
-          const rightRange = document.createRange()
-          rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-          rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
-
-          const leftFragment = leftRange.extractContents()
-          const middleFragment = currentSelection.extractContents()
-          const rightFragment = rightRange.extractContents()
-          const strong = document.createElement("strong")
-          strong.appendChild(middleFragment)
-
-          clearElement(element)
-          element.appendChild(leftFragment)
-          element.appendChild(strong)
-          element.appendChild(rightFragment)
-          cleanDom(element)
-          currentSelection.selectNode(strong)
-        }
+  function tryToggleElementSelection(sourceEvent: KeyboardEvent, nodeName: string, elementBuilder: () => Element) {
+    const currentSelection = getCurrentSelection()
+    if (currentSelection !== undefined) {
+      sourceEvent.preventDefault()
+      if (containsNodeType(currentSelection, nodeName)) {
+        removeElementSelection(currentSelection, nodeName)
+      } else {
+        addElementSelection(currentSelection, elementBuilder)
       }
     }
+  }
+
+  function addElementSelection(currentSelection: Range, elementBuilder: () => Element) {
+    const leftRange = document.createRange()
+    leftRange.selectNode(element.firstChild)
+    leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+
+    const rightRange = document.createRange()
+    rightRange.selectNode(element.lastChild)
+    rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+
+    const leftFragment = leftRange.extractContents()
+    const middleFragment = currentSelection.extractContents()
+    const rightFragment = rightRange.extractContents()
+
+    const middleLeafContainer = elementBuilder()
+    middleLeafContainer.appendChild(middleFragment)
+    const middleContainer = wrapWithCurrentAncestors(middleLeafContainer, currentSelection)
+
+    clearElement(element)
+    element.appendChild(leftFragment)
+    element.appendChild(middleContainer)
+    element.appendChild(rightFragment)
+    cleanDom(element)
+    currentSelection.selectNode(middleLeafContainer)
+  }
+
+  function wrapWithCurrentAncestors(node: Node, currentSelection: Range, exceptNodeName?: string): Node {
+    let current = currentSelection.commonAncestorContainer
+    let childNode = node
+    while (current !== undefined && current !== null && current !== element) {
+      if (current.nodeName !== "#text" && current.nodeName !== exceptNodeName) {
+        const newParent = document.createElement(current.nodeName)
+        newParent.appendChild(childNode)
+        childNode = newParent
+      }
+      current = current.parentNode
+    }
+    return childNode
+  }
+
+  function removeElementSelection(currentSelection: Range, nodeName: string) {
+    const leftRange = document.createRange()
+    leftRange.selectNode(element.firstChild)
+    leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+
+    const rightRange = document.createRange()
+    rightRange.selectNode(element.lastChild)
+    rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+
+    const leftFragment = leftRange.extractContents()
+    const middleFragment = currentSelection.extractContents()
+    const rightFragment = rightRange.extractContents()
+    removeNodeType(middleFragment, nodeName)
+
+    const startOffset = leftFragment.textContent.toString().length
+    const endOffset = startOffset + middleFragment.textContent.toString().length
+
+    const middleLeafContainer = wrapWithCurrentAncestors(middleFragment, currentSelection, nodeName)
+
+    clearElement(element)
+    element.appendChild(leftFragment)
+    element.appendChild(middleLeafContainer)
+    element.appendChild(rightFragment)
+    cleanDom(element)
+    move({ type: "selection", start: startOffset, end: endOffset })
   }
 
   function keypress(event: KeyboardEvent) {

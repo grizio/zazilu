@@ -12,7 +12,7 @@ export type Text = {
   content: Array<TextPart>
 }
 
-export type TextPart = PlainText | Strong
+export type TextPart = PlainText | Strong | Emphasis
 
 export type PlainText = {
   type: "text"
@@ -21,6 +21,11 @@ export type PlainText = {
 
 export type Strong = {
   type: "strong"
+  content: Array<TextPart>
+}
+
+export type Emphasis = {
+  type: "em"
   content: Array<TextPart>
 }
 
@@ -40,5 +45,12 @@ export function strong(value: Omit<Strong, "type">): Strong {
   return {
     ...value,
     type: "strong"
+  }
+}
+
+export function em(value: Omit<Strong, "type">): Emphasis {
+  return {
+    ...value,
+    type: "em"
   }
 }

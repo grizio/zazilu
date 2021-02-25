@@ -284,8 +284,10 @@ export function removeNodeType(node: Node, nodeName: string): void {
     const child = node.childNodes.item(i)
     if (child.nodeName === nodeName) {
       const numberOfChildren = child.childNodes.length
-      child.childNodes.forEach(_ => node.insertBefore(_, child))
-      node.removeChild(child)
+      while (child.firstChild !== null) {
+        node.insertBefore(child.firstChild, child)
+      }
+      child.remove()
       i = i + numberOfChildren - 1
     }
   }

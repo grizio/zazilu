@@ -1,4 +1,4 @@
-import type { Page, PlainText, Strong } from "../../model/Page"
+import type { Emphasis, Page, PlainText, Strong } from "../../model/Page"
 
 function text(content: string): PlainText {
   return { type: "text", content }
@@ -6,6 +6,10 @@ function text(content: string): PlainText {
 
 function strong(content: string): Strong {
   return { type: "strong", content: [text(content)] }
+}
+
+function em(content: string): Emphasis {
+  return { type: "em", content: [text(content)] }
 }
 
 export const initialPage: Page = {
@@ -61,6 +65,11 @@ export const initialPage: Page = {
       "id": "7iGFyeZlNddiRpqX3FbN",
       "type": "p",
       "content": [strong("Aliquam dapibus, "), text("lorem eu molestie volutpat"), strong(", mi massa egestas velit, et dapibus dui est at quam")]
+    },
+    {
+      "id": "n9tAhhR0lup1StIFKCnE",
+      "type": "p",
+      "content": [{ type: "strong", content: [text("Nulla condimentum "), em("vitae lectus"), text(" feugiat sodales.")] }]
     }
   ]
 }
