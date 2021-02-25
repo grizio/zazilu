@@ -12,11 +12,16 @@ export type Text = {
   content: Array<TextPart>
 }
 
-export type TextPart = PlainText
+export type TextPart = PlainText | Strong
 
 export type PlainText = {
   type: "text"
   content: string
+}
+
+export type Strong = {
+  type: "strong"
+  content: Array<TextPart>
 }
 
 const isTextTypes = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
@@ -28,5 +33,12 @@ export function plainText(value: Omit<PlainText, "type">): PlainText {
   return {
     ...value,
     type: "text"
+  }
+}
+
+export function strong(value: Omit<Strong, "type">): Strong {
+  return {
+    ...value,
+    type: "strong"
   }
 }

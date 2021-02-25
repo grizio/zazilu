@@ -8,5 +8,5 @@
 <h1>Test: <code>PageForm</code></h1>
 
 {#if page !== undefined}
-  <PageForm page={page} on:submit={console.log} />
+  <PageForm page={page} on:submit={event => console.log(event.detail)} />
 {/if}

@@ -24,6 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+import { createRangeFrom, replaceSelection } from "../../src/utils/dom"
+
 Cypress.Commands.add("selectNextCharacters", { prevSubject: false }, (numberOfCharacters: number) => {
   return cy.document()
     .then($document => {
@@ -46,6 +48,27 @@ Cypress.Commands.add("selectPreviousCharacters", { prevSubject: false }, (number
         range.setStart(range.endContainer, range.startOffset - numberOfCharacters)
       } else {
         console.warn("Multiple ranges, ignoring command")
+      }
+    })
+})
+
+Cypress.Commands.add("selectText", { prevSubject: "element" }, (element, startOffset, endOffset) => {
+  return cy.wrap(element)
+    .then($element => {
+      // @ts-ignore
+      const range = createRangeFrom($element[0], startOffset, endOffset)
+      if (range !== undefined) {
+        console.log("replace selection with", range.startContainer, range.startOffset, range.endContainer, range.endOffset)
+        cy.document()
+          .then($document => {
+            const selection = $document.getSelection()
+            if (selection !== undefined && selection !== null) {
+              selection.removeAllRanges()
+              selection.addRange(range)
+            }
+          })
+      } else {
+        console.warn("Could not create selection")
       }
     })
 })

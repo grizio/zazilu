@@ -99,31 +99,63 @@ export function replaceSelection(range: Range): void {
   }
 }
 
-export function createCursorRangeAtTop(parentElement: Node, x: number): Range {
-  if (parentElement instanceof Text) {
-    const baseY = getFirstLineDOMRect(parentElement)?.y ?? 0
-    return findRangeAt(parentElement, x, baseY)
-  } else {
-    if (parentElement.childNodes.length > 0) {
-      const firstElement = parentElement.childNodes.item(0)
-      return createCursorRangeAtTop(firstElement, x)
+export function createCursorRangeAtTop(node: Node, x: number): Range | undefined {
+  const firstTextNode = getFirstTextNode(node)
+  if (firstTextNode !== undefined) {
+    const range = document.createRange()
+    range.selectNode(firstTextNode)
+    const requiredY = getFirstClientRect(range)?.y
+    if (requiredY !== undefined) {
+      return findRangeAt(node, x, requiredY)
     } else {
-      return createCollapsedRange(parentElement, 0)
+      return undefined
     }
+  } else {
+    return undefined
   }
 }
 
-export function createCursorRangeAtBottom(parentElement: Node, x: number): Range {
-  if (parentElement instanceof Text) {
-    const baseY = getLastLineDOMRect(parentElement)?.y ?? 0
-    return findRangeAt(parentElement, x, baseY)
-  } else {
-    if (parentElement.childNodes.length > 0) {
-      const firstElement = parentElement.childNodes.item(0)
-      return createCursorRangeAtBottom(firstElement, x)
+export function createCursorRangeAtBottom(node: Node, x: number): Range | undefined {
+  const lastTextNode = getLastTextNode(node)
+  if (lastTextNode !== undefined) {
+    const range = document.createRange()
+    range.selectNode(lastTextNode)
+    const requiredY = getLastClientRect(range)?.y
+    if (requiredY !== undefined) {
+      return findRangeAt(node, x, requiredY)
     } else {
-      return createCollapsedRange(parentElement, 0)
+      return undefined
     }
+  } else {
+    return undefined
+  }
+}
+
+export function getFirstTextNode(node: Node): Node | undefined {
+  if (node.nodeName === "#text") {
+    return node
+  } else {
+    for (let i = 0; i < node.childNodes.length ; i++) {
+      const firstTextNode = getFirstTextNode(node.childNodes.item(i))
+      if (firstTextNode !== undefined) {
+        return firstTextNode
+      }
+    }
+    return undefined
+  }
+}
+
+export function getLastTextNode(node: Node): Node | undefined {
+  if (node.nodeName === "#text") {
+    return node
+  } else {
+    for (let i = node.childNodes.length - 1; i >= 0 ; i--) {
+      const firstTextNode = getLastTextNode(node.childNodes.item(i))
+      if (firstTextNode !== undefined) {
+        return firstTextNode
+      }
+    }
+    return undefined
   }
 }
 
@@ -161,16 +193,34 @@ class CollapsedRange {
   }
 }
 
+function findRangeAt(node: Node, expectedX: number, requiredY: number): Range | undefined {
+  let testingRange = document.createRange()
+  for (let i = 0; i < node.childNodes.length; i++) {
+    const child = node.childNodes.item(i)
+    testingRange.selectNodeContents(child)
+    const containsPosition = Array.from(testingRange.getClientRects())
+      .some(clientRect => equalsWithMargin(clientRect.y, requiredY, 1) && clientRect.left <= expectedX && expectedX <= clientRect.right)
+    if (containsPosition) {
+      if (child instanceof Text) {
+        return findLeafRangeAt(child, expectedX, requiredY)
+      } else {
+        return findRangeAt(child, expectedX, requiredY)
+      }
+    }
+  }
+  return undefined
+}
+
 // binary search
-function findRangeAt(element: Node, expectedX: number, requiredY: number): Range {
-  let security = 0 // Security to avoid infinite loop
+function findLeafRangeAt(textNode: Text, expectedX: number, requiredY: number): Range {
+  let security = 100 // Security to avoid infinite loop
   let collapsedRange = new CollapsedRange()
   let min = 0
-  let max = element.textContent?.length ?? 0
-  while (min + 1 < max && security < 100) {
-    security++
+  let max = textNode.textContent?.length ?? 0
+  while (min + 1 < max && security > 0) {
+    security--
     const testingPosition = median(min, max)
-    collapsedRange.setPosition(element, testingPosition)
+    collapsedRange.setPosition(textNode, testingPosition)
     if (!collapsedRange.isOnYPosition(requiredY)) {
       if (collapsedRange.getYPosition() < requiredY) {
         min = testingPosition
@@ -188,8 +238,8 @@ function findRangeAt(element: Node, expectedX: number, requiredY: number): Range
   if (min === max) {
     return collapsedRange.getRange()
   } else {
-    const minPosition = createCollapsedRange(element, min)
-    const maxPosition = createCollapsedRange(element, max)
+    const minPosition = createCollapsedRange(textNode, min)
+    const maxPosition = createCollapsedRange(textNode, max)
     let diffMinPosition = Math.abs(minPosition.getBoundingClientRect().x - expectedX)
     let diffMaxPosition = Math.abs(maxPosition.getBoundingClientRect().x - expectedX)
     if (diffMinPosition < diffMaxPosition) {
@@ -210,5 +260,85 @@ export function createCollapsedRange(node: Node, offset: number): Range {
 export function clearElement(element: Element): void {
   while (element.firstChild !== undefined && element.firstChild !== null) {
     element.firstChild.remove()
+  }
+}
+
+export function hasNodeType(element: Node, nodeName: string): boolean {
+  return element.nodeName === nodeName
+    || Array.from(element.childNodes).some(child => hasNodeType(child, nodeName))
+}
+
+export function containsNodeType(range: Range, nodeName: string): boolean {
+  return hasNodeType(range.cloneContents(), nodeName)
+    || hasParentType(range.startContainer, nodeName)
+    || hasParentType(range.endContainer, nodeName)
+}
+
+function hasParentType(element: Node | undefined, nodeName: string): boolean {
+  return element !== undefined && (element.nodeName === nodeName || hasParentType(element.parentNode ?? undefined, nodeName))
+}
+
+/** Not pure, update the node directly */
+export function removeNodeType(node: Node, nodeName: string): void {
+  for (let i = 0; i < node.childNodes.length; i++) {
+    const child = node.childNodes.item(i)
+    if (child.nodeName === nodeName) {
+      const numberOfChildren = child.childNodes.length
+      child.childNodes.forEach(_ => node.insertBefore(_, child))
+      node.removeChild(child)
+      i = i + numberOfChildren - 1
+    }
+  }
+}
+
+/** Not pure, update the node directly */
+export function cleanDom(node: Node): void {
+  for (let i = 1; i < node.childNodes.length; i++) {
+    const previousNode = node.childNodes.item(i - 1)
+    const currentNode = node.childNodes.item(i)
+    if (previousNode.nodeName === "#text" && currentNode.nodeName === "#text") {
+      previousNode.textContent = (previousNode.textContent ?? "") + (currentNode.textContent ?? "")
+      currentNode.remove()
+      i--
+    } else if (previousNode.nodeName === "STRONG" && currentNode.nodeName === "STRONG") {
+      currentNode.childNodes.forEach(_ => previousNode.appendChild(_))
+      currentNode.remove()
+      i--
+    }
+  }
+  node.childNodes.forEach(_ => cleanDom(_))
+}
+
+export function createRangeFrom(element: Element, startOffset: number, endOffset: number): Range | undefined {
+  const range = document.createRange()
+  const start = findOffset(element, startOffset)
+  const end = findOffset(element, endOffset)
+  if (start !== undefined && end !== undefined) {
+    range.setStart(start[0], start[1])
+    range.setEnd(end[0], end[1])
+    return range
+  } else {
+    return undefined
+  }
+}
+
+export function findOffset(node: Node, offset: number): [Node, number] | undefined {
+  if (0 <= offset && offset < (node.textContent ?? "").length) {
+    if (node.nodeName === "#text") {
+      return [node, offset]
+    } else {
+      let previousOffset = 0
+      for (let i = 0; i < node.childNodes.length; i++) {
+        const child = node.childNodes.item(i)
+        const foundOffset = findOffset(child, offset - previousOffset)
+        if (foundOffset !== undefined) {
+          return foundOffset
+        }
+        previousOffset = previousOffset + (child.textContent?.length ?? 0)
+      }
+      return undefined
+    }
+  } else {
+    return undefined
   }
 }

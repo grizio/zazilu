@@ -24,6 +24,7 @@ export type Move =
   | { type: "bottom-relative", x: number }
   | { type: "offset-start", at: number }
   | { type: "offset-end", at: number }
+  | { type: "selection", start: number, end: number }
 
 export type OnMoveDetail = {
   index: number

@@ -1,7 +1,11 @@
-import type { Page, PlainText } from "../../model/Page"
+import type { Page, PlainText, Strong } from "../../model/Page"
 
 function text(content: string): PlainText {
   return { type: "text", content }
+}
+
+function strong(content: string): Strong {
+  return { type: "strong", content: [text(content)] }
 }
 
 export const initialPage: Page = {
@@ -47,6 +51,16 @@ export const initialPage: Page = {
       "id": "f9BUGtwwdOMuGL2H6A0I",
       "type": "h1",
       "content": [text("Title 12")]
+    },
+    {
+      "id": "nUPMs4xi8RgJXDoCTJGY",
+      "type": "p",
+      "content": [text("Interdum et malesuada fames ac "), strong("ante ipsum"), text(" primis in faucibus")]
+    },
+    {
+      "id": "7iGFyeZlNddiRpqX3FbN",
+      "type": "p",
+      "content": [strong("Aliquam dapibus, "), text("lorem eu molestie volutpat"), strong(", mi massa egestas velit, et dapibus dui est at quam")]
     }
   ]
 }

@@ -3,15 +3,20 @@
   import type { Text } from "../../model/Page"
   import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
   import {
-    clearElement, createCollapsedRange,
+    cleanDom,
+    clearElement,
+    containsNodeType,
+    createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
+    createRangeFrom,
     getCurrentCaretPosition,
-    getCurrentSelection,
+    getCurrentSelection, getFirstTextNode, getLastTextNode,
     isOnFirstCharacterOf,
     isOnFirstLineOf,
     isOnLastCharacterOf,
     isOnLastLineOf,
+    removeNodeType,
     replaceSelection
   } from "../../utils/dom"
   import { contentToDom, domToContent, wasUpdated } from "./TextEditLogic"
@@ -46,16 +51,25 @@
         replaceSelection(range)
       } else if (move.type === "top-relative") {
         const range = createCursorRangeAtTop(element, move.x)
-        replaceSelection(range)
+        if (range !== undefined) {
+          replaceSelection(range)
+        }
       } else if (move.type === "bottom-relative") {
         const range = createCursorRangeAtBottom(element, move.x)
-        replaceSelection(range)
+        if (range !== undefined) {
+          replaceSelection(range)
+        }
       } else if (move.type === "offset-start") {
         const range = createCollapsedRange(element.firstChild ?? element, move.at)
         replaceSelection(range)
       } else if (move.type === "offset-end") {
         const range = createCollapsedRange(element.firstChild ?? element, element.textContent.length - move.at)
         replaceSelection(range)
+      } else if (move.type === "selection") {
+        const range = createRangeFrom(element, move.start, move.end)
+        if (range !== undefined) {
+          replaceSelection(range)
+        }
       }
     }
   }
@@ -138,6 +152,56 @@
           move({ type: "start" })
         }
       }
+    } else if (event.key === "b" && event.ctrlKey) {
+      const currentSelection = getCurrentSelection()
+      if (currentSelection !== undefined) {
+        event.preventDefault()
+        if (containsNodeType(currentSelection, "STRONG")) {
+          const leftRange = document.createRange()
+          leftRange.selectNode(element.firstChild)
+          leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+
+          const rightRange = document.createRange()
+          rightRange.selectNode(element.lastChild)
+          rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+
+          const leftFragment = leftRange.extractContents()
+          const middleFragment = currentSelection.extractContents()
+          const rightFragment = rightRange.extractContents()
+          removeNodeType(middleFragment, "STRONG")
+
+          const startOffset = leftFragment.textContent.toString().length
+          const endOffset = startOffset + middleFragment.textContent.toString().length
+
+          clearElement(element)
+          element.appendChild(leftFragment)
+          element.appendChild(middleFragment)
+          element.appendChild(rightFragment)
+          cleanDom(element)
+          move({ type: "selection", start: startOffset, end: endOffset })
+        } else {
+          const leftRange = document.createRange()
+          leftRange.setStart(element.firstChild, 0)
+          leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+
+          const rightRange = document.createRange()
+          rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+          rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
+
+          const leftFragment = leftRange.extractContents()
+          const middleFragment = currentSelection.extractContents()
+          const rightFragment = rightRange.extractContents()
+          const strong = document.createElement("strong")
+          strong.appendChild(middleFragment)
+
+          clearElement(element)
+          element.appendChild(leftFragment)
+          element.appendChild(strong)
+          element.appendChild(rightFragment)
+          cleanDom(element)
+          currentSelection.selectNode(strong)
+        }
+      }
     }
   }
 
@@ -171,37 +235,6 @@
         } as OnNewDetail)
       }
       // else ignore
-    }
-  }
-
-  function extractNextTexts() {
-    const selection = window.getSelection()
-    if (selection.rangeCount === 1) {
-      const currentSelection = selection.getRangeAt(0)
-      const leftRange = document.createRange()
-      leftRange.setStart(element.firstChild, 0)
-      leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
-
-      const rightRange = document.createRange()
-      rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-      rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
-
-
-      const rangeBeforeCaret = document.createRange()
-      rangeBeforeCaret.selectNodeContents(element)
-      rangeBeforeCaret.collapse(true)
-      rangeBeforeCaret.setEnd(currentSelection.startContainer, currentSelection.startOffset)
-      const textBeforeCaret = rangeBeforeCaret.cloneContents().textContent
-
-      const rangeAfterCaret = document.createRange()
-      rangeAfterCaret.selectNodeContents(element)
-      rangeBeforeCaret.collapse(false)
-      rangeAfterCaret.setStart(currentSelection.endContainer, currentSelection.endOffset)
-      const textAfterCaret = rangeAfterCaret.cloneContents().textContent
-
-      return [textBeforeCaret, textAfterCaret]
-    } else {
-      return [element.textContent, ""]
     }
   }
 

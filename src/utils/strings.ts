@@ -8,3 +8,15 @@ export function generateId(): string {
   }
   return result
 }
+
+export function repeat(str: string, times: number): string {
+  if (times === 0) {
+    return ""
+  } else {
+    let result = str
+    for (let i = 1 ; i < times ; i++) {
+      result += str
+    }
+    return result
+  }
+}

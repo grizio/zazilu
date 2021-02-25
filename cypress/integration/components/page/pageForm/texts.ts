@@ -1,3 +1,5 @@
+import { repeat } from "../../../../../src/utils/strings"
+
 describe("TextEdit", () => {
   function initialize() {
     cy.visit("http://localhost:3000/tests/PageFormTest")
@@ -11,6 +13,8 @@ describe("TextEdit", () => {
   const thirdParagraph = "[data-test-id=HdVEMtWlRqytL7YHz7rt]"
   const fourthParagraph = "[data-test-id=h409p9NGTYsdQntU8lZO]"
   const fifthParagraph = "[data-test-id=ZP5qjnTIdlTirqySjcsV]"
+  const firstRichParagraph = "[data-test-id=nUPMs4xi8RgJXDoCTJGY]"
+  const secondRichParagraph = "[data-test-id=7iGFyeZlNddiRpqX3FbN]"
 
   it("should update accordingly to user writing", () => {
     initialize()
@@ -19,12 +23,27 @@ describe("TextEdit", () => {
     cy.get(firstParagraph).should("have.text", "This is some text.Added text")
   })
 
+  it("should update accordingly to user writing in bold component", () => {
+    initialize()
+    cy.get(`${firstRichParagraph} > strong:first-of-type`).click()
+    cy.get(firstRichParagraph).type("Added text")
+    cy.get(firstRichParagraph).should("have.text", "Interdum et malesuada fames ac ante ipsumAdded text primis in faucibus")
+  })
+
   it("should correctly move cursor to the left", () => {
     initialize()
     cy.get(firstParagraph).click()
     cy.get(firstParagraph).type("{leftarrow}{leftarrow}{leftarrow}{leftarrow}{leftarrow}")
     cy.get(firstParagraph).type("modified ")
     cy.get(firstParagraph).should("have.text", "This is some modified text.")
+  })
+
+  it("should correctly move cursor to the left in bold component", () => {
+    initialize()
+    cy.get(`${firstRichParagraph} > strong:first-of-type`).click()
+    cy.get(firstRichParagraph).type("{leftarrow}")
+    cy.get(firstRichParagraph).type("xxx")
+    cy.get(firstRichParagraph).should("have.text", "Interdum et malesuada fames ac ante ipsuxxxm primis in faucibus")
   })
 
   it("should correctly move cursor to the beginning", () => {
@@ -62,6 +81,15 @@ describe("TextEdit", () => {
     cy.get(secondParagraph).should("have.text", "Class aptent xxxxtaciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
   })
 
+  it("should correctly move cursor to the bottom, going on the next bloc when one line when having bold parts", () => {
+    initialize()
+    cy.get(`${firstRichParagraph} > strong:first-of-type`).click()
+    cy.get(firstRichParagraph).type("{leftarrow}{leftarrow}{leftarrow}{leftarrow}{leftarrow}")
+    cy.get(firstRichParagraph).type("{downarrow}")
+    cy.get(secondRichParagraph).type("xxx")
+    cy.get(secondRichParagraph).should("have.text", "Aliquam dapibus, lorem eu molestie vxxxolutpat, mi massa egestas velit, et dapibus dui est at quam")
+  })
+
   it("should correctly move cursor to the bottom, going on the next bloc when multiline and on last line", () => {
     initialize()
     cy.get(thirdParagraph).click()
@@ -87,6 +115,15 @@ describe("TextEdit", () => {
     cy.get(secondParagraph).type("{uparrow}")
     cy.get(firstParagraph).type("xxxx")
     cy.get(firstParagraph).should("have.text", "Thixxxxs is some text.")
+  })
+
+  it("should correctly move cursor to the top, going on the previous bloc when one line when having bold parts", () => {
+    initialize()
+    cy.get(secondRichParagraph).click()
+    cy.get(secondRichParagraph).type(repeat("{leftarrow}", 47))
+    cy.get(secondRichParagraph).type("{uparrow}")
+    cy.get(firstRichParagraph).type("xxx")
+    cy.get(firstRichParagraph).should("have.text", "Interdum et malesuada fames ac ante ipsum primxxxis in faucibus")
   })
 
   it("should correctly move cursor to the top, going on the previous bloc when multiline and on first line", () => {
@@ -283,5 +320,62 @@ describe("TextEdit", () => {
     cy.get(title2).type("!# ")
     cy.get(`p${title2}`).should("have.text", "Title 2")
     cy.get(`h2${title2}`).should("not.exist")
+  })
+
+  it("should put selected text in strong when not already strong", () => {
+    initialize()
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.selectNextCharacters(5)
+    cy.get(firstRichParagraph).type("{ctrl+b}")
+    cy.get(`${firstRichParagraph} > strong:first-of-type`).should("have.text", "terdu")
+  })
+
+  it("should remove selected text from strong when all already strong", () => {
+    initialize()
+    cy.get(secondRichParagraph).click()
+    cy.get(secondRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.selectNextCharacters(5)
+    cy.get(secondRichParagraph).type("{ctrl+b}")
+    cy.get(`${secondRichParagraph} > strong:nth-of-type(1)`).should("have.text", "Al")
+    cy.get(`${secondRichParagraph} > strong:nth-of-type(2)`).should("have.text", " dapibus, ")
+  })
+
+  it("should remove selected text from strong when some part already strong", () => {
+    initialize()
+    // case: te[xt - strong - te]xt
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).selectText(27, 51)
+    cy.get(firstRichParagraph).type("{ctrl+b}")
+    cy.get(`${firstRichParagraph} > strong`).should("not.exist")
+
+    // case: str[ong - te]xt
+    cy.get(secondRichParagraph).click()
+    cy.get(secondRichParagraph).selectText(7, 22)
+    cy.get(secondRichParagraph).type("{ctrl+b}")
+    cy.get(`${secondRichParagraph} > strong:nth-of-type(1)`).should("have.text", "Aliquam")
+    cy.get(`${secondRichParagraph} > strong:nth-of-type(2)`).should("have.text", ", mi massa egestas velit, et dapibus dui est at quam")
+  })
+
+  it("should keep the selection when making text strong", () => {
+    initialize()
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.selectNextCharacters(5)
+    cy.get(firstRichParagraph).type("{ctrl+b}")
+    cy.get(firstRichParagraph).type("xxx")
+    cy.get(firstRichParagraph).should("have.text", "Inxxxm et malesuada fames ac ante ipsum primis in faucibus")
+    cy.get(`${firstRichParagraph} > strong:first-of-type`).should("have.text", "ante ipsum")
+  })
+
+  it("should keep the selection when removing the strong on text", () => {
+    initialize()
+    cy.get(secondRichParagraph).click()
+    cy.get(secondRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.selectNextCharacters(5)
+    cy.get(secondRichParagraph).type("{ctrl+b}")
+    cy.get(secondRichParagraph).type("xxx")
+    cy.get(secondRichParagraph).should("have.text", "Alxxx dapibus, lorem eu molestie volutpat, mi massa egestas velit, et dapibus dui est at quam")
+    cy.get(`${secondRichParagraph} > strong:first-of-type`).should("have.text", "Alxxx dapibus, ")
   })
 })
