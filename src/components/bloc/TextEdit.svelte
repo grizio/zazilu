@@ -1,26 +1,17 @@
 <script lang="ts">
-  import { afterUpdate, createEventDispatcher, tick } from "svelte"
-  import type { Text } from "../../model/Page"
-  import type { Move, OnMoveDetail, OnNewDetail, PageEditEventDispatcher } from "../types"
+  import { afterUpdate, createEventDispatcher } from "svelte"
+  import type { Bloc, Text } from "../../model/Page"
+  import type { Move, PageEditEventDispatcher } from "../types"
   import {
-    cleanDom,
     clearElement,
-    containsNodeType,
     createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
     createRangeFrom,
-    getCurrentSelection,
-    isOnFirstCharacterOf,
-    isOnFirstLineOf,
-    isOnLastCharacterOf,
-    isOnLastLineOf,
-    removeNodeType,
     replaceSelection
   } from "../../utils/dom"
   import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
-  import { KeyboardListener } from "./helpers/KeyboardListener"
-  import { UniqueSelection } from "./helpers/Selection"
+  import { keyboardActions } from "./helpers/TextEditKeyboardActions"
 
   export let bloc: Text
   export let index: number
@@ -85,211 +76,8 @@
     })
   }
 
-  const blocCodeMapping = {
-    "#": "h1",
-    "##": "h2",
-    "###": "h3",
-    "####": "h4",
-    "#####": "h5",
-    "######": "h6",
-    "!#": "p",
-  }
-
-  const keyboardActions = new KeyboardListener()
-    .on("ArrowUp")
-    .withUniqueSelection()
-    .filter(({ selection }) => isOnFirstLineOf(element, selection))
-    .process(() => {
-      dispatch("move", {
-        index: index - 1,
-        move: { type: "bottom-relative", x: getCurrentSelection().getBoundingClientRect().x }
-      } as OnMoveDetail)
-    })
-
-    .on("ArrowDown")
-    .withUniqueSelection()
-    .filter(({ selection }) => isOnLastLineOf(element, selection))
-    .process(() => {
-      dispatch("move", {
-        index: index + 1,
-        move: { type: "top-relative", x: getCurrentSelection().getBoundingClientRect().x }
-      } as OnMoveDetail)
-    })
-
-    .on("ArrowLeft")
-    .withCaret()
-    .filter(({ caret }) => isOnFirstCharacterOf(element, caret))
-    .process(() => {
-      dispatch("move", {
-        index: index - 1,
-        move: { type: "end" }
-      } as OnMoveDetail)
-    })
-
-    .on("ArrowRight")
-    .withCaret()
-    .filter(({ caret }) => isOnLastCharacterOf(element, caret))
-    .process(() => {
-      dispatch("move", {
-        index: index + 1,
-        move: { type: "start" }
-      } as OnMoveDetail)
-    })
-
-    .on("Backspace")
-    .withCaret()
-    .filter(({ caret }) => isOnFirstCharacterOf(element, caret))
-    .process(() => {
-      blur()
-      dispatch("merge", {
-        firstIndex: index - 1,
-        secondIndex: index,
-        move: { type: "offset-end", at: element.textContent.length }
-      } as OnMoveDetail)
-    })
-
-    .on("Delete")
-    .withCaret()
-    .filter(({caret}) => isOnLastCharacterOf(element, caret))
-    .process(() => {
-      blur()
-      dispatch("merge", {
-        firstIndex: index,
-        secondIndex: index + 1,
-        move: { type: "offset-start", at: element.textContent.length }
-      } as OnMoveDetail)
-    })
-
-    .on(" ")
-    .withCaret()
-    .tryProcess(({caret}) => {
-      const textContent = (element.firstChild?.textContent ?? "")
-      const blocCode = textContent.substring(0, caret.offset)
-      const blocType = blocCodeMapping[blocCode]
-      if (blocType !== undefined) {
-        bloc = {
-          ...bloc,
-          type: blocType,
-          content: [{ type: "text", content: textContent.substring(blocCode.length) }]
-        }
-        tick().then(() => move({ type: "start" }))
-        return true
-      } else {
-        return false
-      }
-    })
-
-    .on("ctrl+b")
-    .withUniqueSelection()
-    .process(({ selection }) => tryToggleElementSelection(selection, "STRONG", () => document.createElement("strong")))
-
-    .on("ctrl+i")
-    .withUniqueSelection()
-    .process(({ selection }) => tryToggleElementSelection(selection, "EM", () => document.createElement("em")))
-
-    .on("Enter")
-    .withUniqueSelection()
-    .process(({ selection }) => {
-      const leftRange = document.createRange()
-      leftRange.setStart(element.firstChild, 0)
-      leftRange.setEnd(selection.startContainer, selection.startOffset)
-
-      const rightRange = document.createRange()
-      rightRange.setStart(selection.endContainer, selection.endOffset)
-      rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
-
-      const leftPart = leftRange.extractContents()
-      const rightPart = rightRange.extractContents()
-
-      clearElement(element)
-      element.appendChild(leftPart)
-      blur()
-      dispatch("new", {
-        index: index + 1,
-        bloc: {
-          type: "p",
-          content: domToContent(rightPart.childNodes)
-        },
-        moveTo: { type: "start" }
-      } as OnNewDetail)
-    })
-
   async function keydown(event: KeyboardEvent) {
-    keyboardActions.onEvent(event)
-  }
-
-  function tryToggleElementSelection(selection: UniqueSelection, nodeName: string, elementBuilder: () => Element) {
-    if (containsNodeType(selection, nodeName)) {
-      removeElementSelection(selection, nodeName)
-    } else {
-      addElementSelection(selection, elementBuilder)
-    }
-  }
-
-  function addElementSelection(currentSelection: UniqueSelection, elementBuilder: () => Element) {
-    const leftRange = document.createRange()
-    leftRange.selectNode(element.firstChild)
-    leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
-
-    const rightRange = document.createRange()
-    rightRange.selectNode(element.lastChild)
-    rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-
-    const leftFragment = leftRange.extractContents()
-    const middleFragment = currentSelection.extractContents()
-    const rightFragment = rightRange.extractContents()
-
-    const middleLeafContainer = elementBuilder()
-    middleLeafContainer.appendChild(middleFragment)
-    const middleContainer = wrapWithCurrentAncestors(middleLeafContainer, currentSelection)
-
-    clearElement(element)
-    element.appendChild(leftFragment)
-    element.appendChild(middleContainer)
-    element.appendChild(rightFragment)
-    cleanDom(element)
-    currentSelection.selectNode(middleLeafContainer)
-  }
-
-  function wrapWithCurrentAncestors(node: Node, currentSelection: UniqueSelection, exceptNodeName?: string): Node {
-    let current = currentSelection.commonAncestorContainer
-    let childNode = node
-    while (current !== undefined && current !== null && current !== element) {
-      if (current.nodeName !== "#text" && current.nodeName !== exceptNodeName) {
-        const newParent = document.createElement(current.nodeName)
-        newParent.appendChild(childNode)
-        childNode = newParent
-      }
-      current = current.parentNode
-    }
-    return childNode
-  }
-
-  function removeElementSelection(currentSelection: UniqueSelection, nodeName: string) {
-    const leftRange = document.createRange()
-    leftRange.selectNode(element.firstChild)
-    leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
-
-    const rightRange = document.createRange()
-    rightRange.selectNode(element.lastChild)
-    rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-
-    const leftFragment = leftRange.extractContents()
-    const middleFragment = currentSelection.extractContents()
-    const rightFragment = rightRange.extractContents()
-    removeNodeType(middleFragment, nodeName)
-
-    const startOffset = leftFragment.textContent.toString().length
-    const endOffset = startOffset + middleFragment.textContent.toString().length
-
-    const middleLeafContainer = wrapWithCurrentAncestors(middleFragment, currentSelection, nodeName)
-
-    clearElement(element)
-    element.appendChild(leftFragment)
-    element.appendChild(middleLeafContainer)
-    element.appendChild(rightFragment)
-    cleanDom(element)
-    move({ type: "selection", start: startOffset, end: endOffset })
+    keyboardActions.onEvent(event, { dispatch, index, element, bloc })
   }
 
   function paste(event: ClipboardEvent) {

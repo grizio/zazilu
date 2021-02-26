@@ -16,16 +16,16 @@ type Key =
   | Letter
 type ActionKey = `${"ctrl+" | ""}${"alt+" | ""}${"shift+" | ""}${Key}`
 
-type KeyboardAction = (event: KeyboardEvent) => boolean
+type KeyboardAction<RequiredDetail> = (event: KeyboardEvent, requiredDetails: RequiredDetail) => boolean
 
-export class KeyboardListener {
-  readonly actions: Partial<Record<ActionKey, Array<KeyboardAction>>>
+export class KeyboardListener<RequiredDetail> {
+  readonly actions: Partial<Record<ActionKey, Array<KeyboardAction<RequiredDetail>>>>
 
-  constructor(actions: Partial<Record<ActionKey, Array<KeyboardAction>>> = {}) {
+  constructor(actions: Partial<Record<ActionKey, Array<KeyboardAction<RequiredDetail>>>> = {}) {
     this.actions = actions
   }
 
-  on = (actionKey: ActionKey): ActionBuilder<{}> => {
+  on = (actionKey: ActionKey): ActionBuilder<RequiredDetail, {}> => {
     return new ActionBuilder({
       actionKey,
       filter: () => true,
@@ -34,10 +34,10 @@ export class KeyboardListener {
     })
   }
 
-  onEvent = (event: KeyboardEvent): void => {
+  onEvent = (event: KeyboardEvent, requiredDetail: RequiredDetail): void => {
     const actionsForKey = this.actions[this.buildActionKeyCode(event)] ?? []
     for (let i = 0; i < actionsForKey.length; i++) {
-      if (actionsForKey[i](event)) {
+      if (actionsForKey[i](event, requiredDetail)) {
         event.preventDefault()
         return
       }
@@ -52,20 +52,20 @@ export class KeyboardListener {
   }
 }
 
-type ActionBuilderState<Detail> = {
+type ActionBuilderState<RequiredDetail extends {}, ExtractedDetail extends {}> = {
   actionKey: ActionKey
-  filter: (event: KeyboardEvent, detail: Detail) => boolean
-  extractor: (event: KeyboardEvent) => Detail | undefined
-  listener: KeyboardListener
+  filter: (event: KeyboardEvent, detail: RequiredDetail & ExtractedDetail) => boolean
+  extractor: (event: KeyboardEvent) => ExtractedDetail | undefined
+  listener: KeyboardListener<RequiredDetail>
 }
-class ActionBuilder<Detail extends {}> {
-  private readonly state: ActionBuilderState<Detail>
+class ActionBuilder<RequiredDetail extends {}, ExtractedDetail extends {}> {
+  private readonly state: ActionBuilderState<RequiredDetail, ExtractedDetail>
 
-  constructor(state: ActionBuilderState<Detail>) {
+  constructor(state: ActionBuilderState<RequiredDetail, ExtractedDetail>) {
     this.state = state
   }
 
-  withCaret = (): ActionBuilder<Detail & { caret: Caret }> => {
+  withCaret = (): ActionBuilder<RequiredDetail, ExtractedDetail & { caret: Caret }> => {
     return new ActionBuilder(
       {
         ...this.state,
@@ -86,7 +86,7 @@ class ActionBuilder<Detail extends {}> {
     )
   }
 
-  withUniqueSelection = (): ActionBuilder<Detail & { selection: UniqueSelection }> => {
+  withUniqueSelection = (): ActionBuilder<RequiredDetail, ExtractedDetail & { selection: UniqueSelection }> => {
     return new ActionBuilder(
       {
         ...this.state,
@@ -107,30 +107,35 @@ class ActionBuilder<Detail extends {}> {
     )
   }
 
-  filter = (fn: (params: { event: KeyboardEvent } & Detail) => boolean): ActionBuilder<Detail> => {
-    return new ActionBuilder<Detail>({
+  filter = (fn: (params: { event: KeyboardEvent } & RequiredDetail & ExtractedDetail) => boolean): ActionBuilder<RequiredDetail, ExtractedDetail> => {
+    return new ActionBuilder<RequiredDetail, ExtractedDetail>({
       ...this.state,
       filter: (event, detail) => this.state.filter(event, detail) && fn({ event, ...detail })
     })
   }
 
-  process = (fn: (params: { event: KeyboardEvent } & Detail) => void): KeyboardListener => {
+  process = (fn: (params: { event: KeyboardEvent } & RequiredDetail & ExtractedDetail) => void): KeyboardListener<RequiredDetail> => {
     return this.tryProcess(params => {
       fn(params)
       return true
     })
   }
 
-  tryProcess = (fn: (params: { event: KeyboardEvent } & Detail) => boolean): KeyboardListener => {
+  tryProcess = (fn: (params: { event: KeyboardEvent } & RequiredDetail & ExtractedDetail) => boolean): KeyboardListener<RequiredDetail> => {
     const existingActionsForCode = this.state.listener.actions[this.state.actionKey] ?? []
     const newActions = {
       ...this.state.listener.actions,
       [this.state.actionKey]: [
         ...existingActionsForCode,
-        (event: KeyboardEvent) => {
-          const detail = this.state.extractor(event)
-          if (detail !== undefined && this.state.filter(event, detail)) {
-            return fn({ event, ...detail })
+        (event: KeyboardEvent, requiredDetail: RequiredDetail) => {
+          const extractedDetail = this.state.extractor(event)
+          if (extractedDetail !== undefined) {
+            const detail = {...requiredDetail, ...extractedDetail}
+            if (this.state.filter(event, detail)) {
+              return fn({ event, ...detail })
+            } else {
+              return false
+            }
           } else {
             return false
           }
