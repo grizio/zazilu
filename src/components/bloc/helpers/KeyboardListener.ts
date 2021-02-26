@@ -115,23 +115,10 @@ class ActionBuilder<Detail extends {}> {
   }
 
   process = (fn: (params: { event: KeyboardEvent } & Detail) => void): KeyboardListener => {
-    const existingActionsForCode = this.state.listener.actions[this.state.actionKey] ?? []
-    const newActions = {
-      ...this.state.listener.actions,
-      [this.state.actionKey]: [
-        ...existingActionsForCode,
-        (event: KeyboardEvent) => {
-          const detail = this.state.extractor(event)
-          if (detail !== undefined && this.state.filter(event, detail)) {
-            fn({ event, ...detail })
-            return true
-          } else {
-            return false
-          }
-        }
-      ]
-    }
-    return new KeyboardListener(newActions)
+    return this.tryProcess(params => {
+      fn(params)
+      return true
+    })
   }
 
   tryProcess = (fn: (params: { event: KeyboardEvent } & Detail) => boolean): KeyboardListener => {
