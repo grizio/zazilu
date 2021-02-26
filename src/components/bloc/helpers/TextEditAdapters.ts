@@ -1,6 +1,6 @@
-import type { TextPart } from "../../model/Page"
-import { em, plainText, strong, Text } from "../../model/Page"
-import { isDefined } from "../../utils/arrays"
+import type { TextPart } from "../../../model/Page"
+import { em, plainText, strong, Text } from "../../../model/Page"
+import { isDefined } from "../../../utils/arrays"
 
 export function contentToDom(content: Array<TextPart>): Array<Node> {
   return content.map(part => {

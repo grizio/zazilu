@@ -19,13 +19,14 @@
     removeNodeType,
     replaceSelection
   } from "../../utils/dom"
-  import { contentToDom, domToContent, wasUpdated } from "./TextEditLogic"
+  import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
+  import { KeyboardListener } from "./helpers/KeyboardListener"
 
   export let bloc: Text
   export let index: number
   let previousBloc: Text | undefined = undefined
 
-  let element: HTMLParagraphElement
+  export let element: HTMLElement
 
   const dispatch = createEventDispatcher<PageEditEventDispatcher>()
 
@@ -94,75 +95,130 @@
     "!#": "p",
   }
 
-  async function keydown(event: KeyboardEvent) {
-    if (event.key === "ArrowUp" && isOnFirstLineOf(element)) {
-      event.preventDefault()
+  const keyboardActions = new KeyboardListener()
+    .on("ArrowUp")
+    .filter(() => isOnFirstLineOf(element))
+    .process(() => {
       dispatch("move", {
         index: index - 1,
         move: { type: "bottom-relative", x: getCurrentSelection().getBoundingClientRect().x }
       } as OnMoveDetail)
-    } else if (event.key === "ArrowDown" && isOnLastLineOf(element)) {
-      event.preventDefault()
+    })
+
+    .on("ArrowDown")
+    .filter(() => isOnLastLineOf(element))
+    .process(() => {
       dispatch("move", {
         index: index + 1,
         move: { type: "top-relative", x: getCurrentSelection().getBoundingClientRect().x }
       } as OnMoveDetail)
-    } else if (event.key === "ArrowLeft" && isOnFirstCharacterOf(element)) {
-      event.preventDefault()
+    })
+
+    .on("ArrowLeft")
+    .filter(() => isOnFirstCharacterOf(element))
+    .process(() => {
       dispatch("move", {
         index: index - 1,
         move: { type: "end" }
       } as OnMoveDetail)
-    } else if (event.key === "ArrowRight" && isOnLastCharacterOf(element)) {
-      event.preventDefault()
+    })
+
+    .on("ArrowRight")
+    .filter(() => isOnLastCharacterOf(element))
+    .process(() => {
       dispatch("move", {
         index: index + 1,
         move: { type: "start" }
       } as OnMoveDetail)
-    } else if (event.key === "Backspace" && isOnFirstCharacterOf(element)) {
-      event.preventDefault()
+    })
+
+    .on("Backspace")
+    .filter(() => isOnFirstCharacterOf(element))
+    .process(() => {
       blur()
       dispatch("merge", {
         firstIndex: index - 1,
         secondIndex: index,
         move: { type: "offset-end", at: element.textContent.length }
       } as OnMoveDetail)
-    } else if (event.key === "Delete" && isOnLastCharacterOf(element)) {
-      event.preventDefault()
+    })
+
+    .on("Delete")
+    .filter(() => isOnLastCharacterOf(element))
+    .process(() => {
       blur()
       dispatch("merge", {
         firstIndex: index,
         secondIndex: index + 1,
         move: { type: "offset-start", at: element.textContent.length }
       } as OnMoveDetail)
-    } else if (event.key === " ") {
+    })
+
+    .on(" ")
+    .tryProcess(() => {
       const currentCaretPosition = getCurrentCaretPosition()
       if (currentCaretPosition !== undefined) {
         const textContent = (element.firstChild?.textContent ?? "")
         const blocCode = textContent.substring(0, currentCaretPosition.startOffset)
         const blocType = blocCodeMapping[blocCode]
         if (blocType !== undefined) {
-          event.preventDefault()
           bloc = {
             ...bloc,
             type: blocType,
             content: [{ type: "text", content: textContent.substring(blocCode.length) }]
           }
-          await tick()
-          move({ type: "start" })
+          tick().then(() => move({ type: "start" }))
+          return true
+        } else {
+          return false
         }
+      } else {
+        return false
       }
-    } else if (event.key === "b" && event.ctrlKey) {
-      tryToggleElementSelection(event, "STRONG", () => document.createElement("strong"))
-    } else if (event.key === "i" && event.ctrlKey) {
-      tryToggleElementSelection(event, "EM", () => document.createElement("em"))
-    }
+    })
+
+    .on("ctrl+b")
+    .process(() => tryToggleElementSelection("STRONG", () => document.createElement("strong")))
+
+    .on("ctrl+i")
+    .process(() => tryToggleElementSelection("EM", () => document.createElement("em")))
+
+    .on("Enter")
+    .process(() => {
+      const currentSelection = getCurrentSelection()
+      if (currentSelection !== undefined) {
+        const leftRange = document.createRange()
+        leftRange.setStart(element.firstChild, 0)
+        leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+
+        const rightRange = document.createRange()
+        rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+        rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
+
+        const leftPart = leftRange.extractContents()
+        const rightPart = rightRange.extractContents()
+
+        clearElement(element)
+        element.appendChild(leftPart)
+        blur()
+        dispatch("new", {
+          index: index + 1,
+          bloc: {
+            type: "p",
+            content: domToContent(rightPart.childNodes)
+          },
+          moveTo: { type: "start" }
+        } as OnNewDetail)
+      }
+    })
+
+  async function keydown(event: KeyboardEvent) {
+    keyboardActions.onEvent(event)
   }
 
-  function tryToggleElementSelection(sourceEvent: KeyboardEvent, nodeName: string, elementBuilder: () => Element) {
+  function tryToggleElementSelection(nodeName: string, elementBuilder: () => Element) {
     const currentSelection = getCurrentSelection()
     if (currentSelection !== undefined) {
-      sourceEvent.preventDefault()
       if (containsNodeType(currentSelection, nodeName)) {
         removeElementSelection(currentSelection, nodeName)
       } else {
@@ -237,39 +293,6 @@
     move({ type: "selection", start: startOffset, end: endOffset })
   }
 
-  function keypress(event: KeyboardEvent) {
-    if (event.key === "Enter") {
-      const selection = window.getSelection()
-      if (selection.rangeCount === 1) {
-        event.preventDefault()
-        const currentSelection = selection.getRangeAt(0)
-        const leftRange = document.createRange()
-        leftRange.setStart(element.firstChild, 0)
-        leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
-
-        const rightRange = document.createRange()
-        rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-        rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
-
-        const leftPart = leftRange.extractContents()
-        const rightPart = rightRange.extractContents()
-
-        clearElement(element)
-        element.appendChild(leftPart)
-        blur()
-        dispatch("new", {
-          index: index + 1,
-          bloc: {
-            type: "p",
-            content: domToContent(rightPart.childNodes)
-          },
-          moveTo: { type: "start" }
-        } as OnNewDetail)
-      }
-      // else ignore
-    }
-  }
-
   function paste(event: ClipboardEvent) {
     const pastedContent = event.clipboardData.getData("text/plain")
     if (pastedContent !== undefined) {
@@ -283,7 +306,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
@@ -293,7 +315,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
@@ -303,7 +324,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
@@ -313,7 +333,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
@@ -323,7 +342,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
@@ -333,7 +351,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
@@ -343,7 +360,6 @@
     contenteditable="true"
     bind:this={element}
     on:blur={blur}
-    on:keypress={keypress}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
     data-test-id={bloc.id}
