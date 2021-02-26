@@ -10,7 +10,6 @@
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
     createRangeFrom,
-    getCurrentCaretPosition,
     getCurrentSelection,
     isOnFirstCharacterOf,
     isOnFirstLineOf,
@@ -21,6 +20,7 @@
   } from "../../utils/dom"
   import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
   import { KeyboardListener } from "./helpers/KeyboardListener"
+  import { UniqueSelection } from "./helpers/Selection"
 
   export let bloc: Text
   export let index: number
@@ -97,7 +97,8 @@
 
   const keyboardActions = new KeyboardListener()
     .on("ArrowUp")
-    .filter(() => isOnFirstLineOf(element))
+    .withUniqueSelection()
+    .filter(({ selection }) => isOnFirstLineOf(element, selection))
     .process(() => {
       dispatch("move", {
         index: index - 1,
@@ -106,7 +107,8 @@
     })
 
     .on("ArrowDown")
-    .filter(() => isOnLastLineOf(element))
+    .withUniqueSelection()
+    .filter(({ selection }) => isOnLastLineOf(element, selection))
     .process(() => {
       dispatch("move", {
         index: index + 1,
@@ -115,7 +117,8 @@
     })
 
     .on("ArrowLeft")
-    .filter(() => isOnFirstCharacterOf(element))
+    .withCaret()
+    .filter(({ caret }) => isOnFirstCharacterOf(element, caret))
     .process(() => {
       dispatch("move", {
         index: index - 1,
@@ -124,7 +127,8 @@
     })
 
     .on("ArrowRight")
-    .filter(() => isOnLastCharacterOf(element))
+    .withCaret()
+    .filter(({ caret }) => isOnLastCharacterOf(element, caret))
     .process(() => {
       dispatch("move", {
         index: index + 1,
@@ -133,7 +137,8 @@
     })
 
     .on("Backspace")
-    .filter(() => isOnFirstCharacterOf(element))
+    .withCaret()
+    .filter(({ caret }) => isOnFirstCharacterOf(element, caret))
     .process(() => {
       blur()
       dispatch("merge", {
@@ -144,7 +149,8 @@
     })
 
     .on("Delete")
-    .filter(() => isOnLastCharacterOf(element))
+    .withCaret()
+    .filter(({caret}) => isOnLastCharacterOf(element, caret))
     .process(() => {
       blur()
       dispatch("merge", {
@@ -155,79 +161,72 @@
     })
 
     .on(" ")
-    .tryProcess(() => {
-      const currentCaretPosition = getCurrentCaretPosition()
-      if (currentCaretPosition !== undefined) {
-        const textContent = (element.firstChild?.textContent ?? "")
-        const blocCode = textContent.substring(0, currentCaretPosition.startOffset)
-        const blocType = blocCodeMapping[blocCode]
-        if (blocType !== undefined) {
-          bloc = {
-            ...bloc,
-            type: blocType,
-            content: [{ type: "text", content: textContent.substring(blocCode.length) }]
-          }
-          tick().then(() => move({ type: "start" }))
-          return true
-        } else {
-          return false
+    .withCaret()
+    .tryProcess(({caret}) => {
+      const textContent = (element.firstChild?.textContent ?? "")
+      const blocCode = textContent.substring(0, caret.offset)
+      const blocType = blocCodeMapping[blocCode]
+      if (blocType !== undefined) {
+        bloc = {
+          ...bloc,
+          type: blocType,
+          content: [{ type: "text", content: textContent.substring(blocCode.length) }]
         }
+        tick().then(() => move({ type: "start" }))
+        return true
       } else {
         return false
       }
     })
 
     .on("ctrl+b")
-    .process(() => tryToggleElementSelection("STRONG", () => document.createElement("strong")))
+    .withUniqueSelection()
+    .process(({ selection }) => tryToggleElementSelection(selection, "STRONG", () => document.createElement("strong")))
 
     .on("ctrl+i")
-    .process(() => tryToggleElementSelection("EM", () => document.createElement("em")))
+    .withUniqueSelection()
+    .process(({ selection }) => tryToggleElementSelection(selection, "EM", () => document.createElement("em")))
 
     .on("Enter")
-    .process(() => {
-      const currentSelection = getCurrentSelection()
-      if (currentSelection !== undefined) {
-        const leftRange = document.createRange()
-        leftRange.setStart(element.firstChild, 0)
-        leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+    .withUniqueSelection()
+    .process(({ selection }) => {
+      const leftRange = document.createRange()
+      leftRange.setStart(element.firstChild, 0)
+      leftRange.setEnd(selection.startContainer, selection.startOffset)
 
-        const rightRange = document.createRange()
-        rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
-        rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
+      const rightRange = document.createRange()
+      rightRange.setStart(selection.endContainer, selection.endOffset)
+      rightRange.setEnd(element.lastChild, element.lastChild.textContent.length)
 
-        const leftPart = leftRange.extractContents()
-        const rightPart = rightRange.extractContents()
+      const leftPart = leftRange.extractContents()
+      const rightPart = rightRange.extractContents()
 
-        clearElement(element)
-        element.appendChild(leftPart)
-        blur()
-        dispatch("new", {
-          index: index + 1,
-          bloc: {
-            type: "p",
-            content: domToContent(rightPart.childNodes)
-          },
-          moveTo: { type: "start" }
-        } as OnNewDetail)
-      }
+      clearElement(element)
+      element.appendChild(leftPart)
+      blur()
+      dispatch("new", {
+        index: index + 1,
+        bloc: {
+          type: "p",
+          content: domToContent(rightPart.childNodes)
+        },
+        moveTo: { type: "start" }
+      } as OnNewDetail)
     })
 
   async function keydown(event: KeyboardEvent) {
     keyboardActions.onEvent(event)
   }
 
-  function tryToggleElementSelection(nodeName: string, elementBuilder: () => Element) {
-    const currentSelection = getCurrentSelection()
-    if (currentSelection !== undefined) {
-      if (containsNodeType(currentSelection, nodeName)) {
-        removeElementSelection(currentSelection, nodeName)
-      } else {
-        addElementSelection(currentSelection, elementBuilder)
-      }
+  function tryToggleElementSelection(selection: UniqueSelection, nodeName: string, elementBuilder: () => Element) {
+    if (containsNodeType(selection, nodeName)) {
+      removeElementSelection(selection, nodeName)
+    } else {
+      addElementSelection(selection, elementBuilder)
     }
   }
 
-  function addElementSelection(currentSelection: Range, elementBuilder: () => Element) {
+  function addElementSelection(currentSelection: UniqueSelection, elementBuilder: () => Element) {
     const leftRange = document.createRange()
     leftRange.selectNode(element.firstChild)
     leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
@@ -252,7 +251,7 @@
     currentSelection.selectNode(middleLeafContainer)
   }
 
-  function wrapWithCurrentAncestors(node: Node, currentSelection: Range, exceptNodeName?: string): Node {
+  function wrapWithCurrentAncestors(node: Node, currentSelection: UniqueSelection, exceptNodeName?: string): Node {
     let current = currentSelection.commonAncestorContainer
     let childNode = node
     while (current !== undefined && current !== null && current !== element) {
@@ -266,7 +265,7 @@
     return childNode
   }
 
-  function removeElementSelection(currentSelection: Range, nodeName: string) {
+  function removeElementSelection(currentSelection: UniqueSelection, nodeName: string) {
     const leftRange = document.createRange()
     leftRange.selectNode(element.firstChild)
     leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)

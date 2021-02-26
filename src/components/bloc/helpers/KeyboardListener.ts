@@ -1,3 +1,6 @@
+import { Caret, UniqueSelection } from "./Selection"
+import { getCurrentCaretPosition, getCurrentSelection } from "../../../utils/dom"
+
 type Letter =
   | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
   | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
@@ -27,8 +30,8 @@ export class KeyboardListener {
     this.actions = actions
   }
 
-  on = (actionKey: ActionKey): ActionBuilder => {
-    return new ActionBuilder(this.buildKeyFilter(actionKey), this)
+  on = (actionKey: ActionKey): ActionBuilder<{}> => {
+    return new ActionBuilder(this.buildKeyFilter(actionKey), this, () => ({}))
   }
 
   private buildKeyFilter = (actionKey: ActionKey): (event: KeyboardEvent) => boolean => {
@@ -54,29 +57,73 @@ export class KeyboardListener {
   }
 }
 
-class ActionBuilder {
-  private readonly _filter: (event: KeyboardEvent) => boolean
+class ActionBuilder<Detail extends {}> {
+  private readonly _filter: (event: KeyboardEvent, detail: Detail) => boolean
   private readonly _listener: KeyboardListener
+  private readonly _extractor: (event: KeyboardEvent) => Detail | undefined
 
-  constructor(filter: (event: KeyboardEvent) => boolean, listener: KeyboardListener) {
+  constructor(filter: (event: KeyboardEvent, detail: Detail) => boolean, listener: KeyboardListener, extractor: (event: KeyboardEvent) => Detail | undefined) {
     this._filter = filter
     this._listener = listener
+    this._extractor = extractor
   }
 
-  filter = (fn: (event: KeyboardEvent) => boolean): ActionBuilder => {
+  withCaret = (): ActionBuilder<Detail & { caret: Caret }> => {
     return new ActionBuilder(
-      _ => this._filter(_) && fn(_),
-      this._listener
+      this._filter,
+      this._listener,
+      (event) => {
+        const previousDetail = this._extractor(event)
+        if (previousDetail !== undefined) {
+          const caret = getCurrentCaretPosition()
+          if (caret !== undefined) {
+            return { ...previousDetail, caret: new Caret(caret) }
+          } else {
+            return undefined
+          }
+        } else {
+          return undefined
+        }
+      }
     )
   }
 
-  process = (fn: (event: KeyboardEvent) => void): KeyboardListener => {
+  withUniqueSelection = (): ActionBuilder<Detail & { selection: UniqueSelection }> => {
+    return new ActionBuilder(
+      this._filter,
+      this._listener,
+      (event) => {
+        const previousDetail = this._extractor(event)
+        if (previousDetail !== undefined) {
+          const selection = getCurrentSelection()
+          if (selection !== undefined) {
+            return { ...previousDetail, selection: new UniqueSelection(selection) }
+          } else {
+            return undefined
+          }
+        } else {
+          return undefined
+        }
+      }
+    )
+  }
+
+  filter = (fn: (params: { event: KeyboardEvent } & Detail) => boolean): ActionBuilder<Detail> => {
+    return new ActionBuilder<Detail>(
+      (event, detail) => this._filter(event, detail) && fn({ event, ...detail }),
+      this._listener,
+      this._extractor
+    )
+  }
+
+  process = (fn: (params: { event: KeyboardEvent } & Detail) => void): KeyboardListener => {
     return new KeyboardListener(
       [
         ...this._listener.actions,
         (event: KeyboardEvent) => {
-          if (this._filter(event)) {
-            fn(event)
+          const detail = this._extractor(event)
+          if (detail !== undefined && this._filter(event, detail)) {
+            fn({ event, ...detail })
             return true
           } else {
             return false
@@ -86,13 +133,14 @@ class ActionBuilder {
     )
   }
 
-  tryProcess = (fn: (event: KeyboardEvent) => boolean): KeyboardListener => {
+  tryProcess = (fn: (params: { event: KeyboardEvent } & Detail) => boolean): KeyboardListener => {
     return new KeyboardListener(
       [
         ...this._listener.actions,
         (event: KeyboardEvent) => {
-          if (this._filter(event)) {
-            return fn(event)
+          const detail = this._extractor(event)
+          if (detail !== undefined && this._filter(event, detail)) {
+            return fn({ event, ...detail })
           } else {
             return false
           }

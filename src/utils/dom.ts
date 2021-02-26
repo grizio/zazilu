@@ -1,4 +1,5 @@
 import { equalsWithMargin, median } from "./numbers"
+import type { Caret, UniqueSelection } from "../components/bloc/helpers/Selection"
 
 export type CustomEvent<A> = Event & {
   detail: A
@@ -34,50 +35,46 @@ export function getCurrentCaretPosition(): Range | undefined {
   }
 }
 
-export function isOnFirstLineOf(node: Node): boolean {
+export function isOnFirstLineOf(node: Node, selection: UniqueSelection): boolean {
   if (!node.hasChildNodes()) {
     return true
   } else {
     const firstLineDOMRect = getFirstLineDOMRect(node)
-    const selection = getCurrentSelection()?.getBoundingClientRect()
+    const selectionDOMRect = selection.getBoundingClientRect()
     return firstLineDOMRect !== undefined
-      && selection !== undefined
-      && equalsWithMargin(firstLineDOMRect.top, selection.top, 1)
+      && equalsWithMargin(firstLineDOMRect.top, selectionDOMRect.top, 1)
   }
 }
 
-export function isOnLastLineOf(node: Node): boolean {
+export function isOnLastLineOf(node: Node, selection: UniqueSelection): boolean {
   if (!node.hasChildNodes()) {
     return true
   } else {
     const lastLineDOMRect = getLastLineDOMRect(node)
-    const selection = getCurrentSelection()?.getBoundingClientRect()
+    const selectionDOMRect = selection.getBoundingClientRect()
     return lastLineDOMRect !== undefined
-      && selection !== undefined
-      && equalsWithMargin(lastLineDOMRect.bottom, selection.bottom, 1)
+      && equalsWithMargin(lastLineDOMRect.bottom, selectionDOMRect.bottom, 1)
   }
 }
 
-export function isOnFirstCharacterOf(node: Node): boolean {
+export function isOnFirstCharacterOf(node: Node, caret: Caret): boolean {
   if (!node.hasChildNodes()) {
     return true
   } else {
     const firstLineDOMRect = getFirstLineDOMRect(node)
-    const selection = getCurrentCaretPosition()?.getBoundingClientRect()
+    const selection = caret.getBoundingClientRect()
     return firstLineDOMRect !== undefined
-      && selection !== undefined
       && equalsWithMargin(firstLineDOMRect.left, selection.left, 1)
   }
 }
 
-export function isOnLastCharacterOf(node: Node): boolean {
+export function isOnLastCharacterOf(node: Node, caret: Caret): boolean {
   if (!node.hasChildNodes()) {
     return true
   } else {
     const lastLineDOMRect = getLastLineDOMRect(node)
-    const selection = getCurrentCaretPosition()?.getBoundingClientRect()
+    const selection = caret.getBoundingClientRect()
     return lastLineDOMRect !== undefined
-      && selection !== undefined
       && equalsWithMargin(lastLineDOMRect.right, selection.right, 1)
   }
 }
@@ -268,10 +265,10 @@ export function hasNodeType(element: Node, nodeName: string): boolean {
     || Array.from(element.childNodes).some(child => hasNodeType(child, nodeName))
 }
 
-export function containsNodeType(range: Range, nodeName: string): boolean {
-  return hasNodeType(range.cloneContents(), nodeName)
-    || hasParentType(range.startContainer, nodeName)
-    || hasParentType(range.endContainer, nodeName)
+export function containsNodeType(selection: UniqueSelection, nodeName: string): boolean {
+  return hasNodeType(selection.cloneContents(), nodeName)
+    || hasParentType(selection.startContainer, nodeName)
+    || hasParentType(selection.endContainer, nodeName)
 }
 
 function hasParentType(element: Node | undefined, nodeName: string): boolean {
