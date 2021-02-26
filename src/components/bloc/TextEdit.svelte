@@ -1,17 +1,16 @@
 <script lang="ts">
   import { afterUpdate, createEventDispatcher } from "svelte"
-  import type { Bloc, Text } from "../../model/Page"
+  import type { Text } from "../../model/Page"
   import type { Move, PageEditEventDispatcher } from "../types"
   import {
-    clearElement,
-    createCollapsedRange,
     createCursorRangeAtBottom,
     createCursorRangeAtTop,
-    createRangeFrom,
     replaceSelection
   } from "../../utils/dom"
   import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
   import { keyboardActions } from "./helpers/TextEditKeyboardActions"
+  import { XNode } from "../../utils/dom/XNode"
+  import { Caret, XRange } from "../../utils/dom/Selection"
 
   export let bloc: Text
   export let index: number
@@ -24,8 +23,9 @@
   afterUpdate(() => {
     if (wasUpdated(bloc, previousBloc)) {
       previousBloc = bloc
-      clearElement(element)
-      contentToDom(bloc.content).forEach(node => element.appendChild(node))
+      new XNode(element)
+        .clear()
+        .append(...contentToDom(bloc.content))
     }
   })
 
@@ -42,25 +42,25 @@
         range.collapse(false)
         replaceSelection(range)
       } else if (move.type === "top-relative") {
-        const range = createCursorRangeAtTop(element, move.x)
-        if (range !== undefined) {
-          replaceSelection(range)
+        const caret = createCursorRangeAtTop(element, move.x)
+        if (caret !== undefined) {
+          replaceSelection(caret.range.range)
         }
       } else if (move.type === "bottom-relative") {
-        const range = createCursorRangeAtBottom(element, move.x)
-        if (range !== undefined) {
-          replaceSelection(range)
+        const caret = createCursorRangeAtBottom(element, move.x)
+        if (caret !== undefined) {
+          replaceSelection(caret.range.range)
         }
       } else if (move.type === "offset-start") {
-        const range = createCollapsedRange(element.firstChild ?? element, move.at)
-        replaceSelection(range)
+        const caret = Caret.at(new XNode(element.firstChild ?? element), move.at)
+        replaceSelection(caret.range.range)
       } else if (move.type === "offset-end") {
-        const range = createCollapsedRange(element.firstChild ?? element, element.textContent.length - move.at)
-        replaceSelection(range)
+        const range = Caret.at(new XNode(element.firstChild ?? element), element.textContent.length - move.at)
+        replaceSelection(range.range.range)
       } else if (move.type === "selection") {
-        const range = createRangeFrom(element, move.start, move.end)
+        const range = XRange.from(new XNode(element), move.start, move.end)
         if (range !== undefined) {
-          replaceSelection(range)
+          replaceSelection(range.range)
         }
       }
     }

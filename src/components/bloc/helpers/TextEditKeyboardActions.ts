@@ -1,19 +1,17 @@
 import { KeyboardListener } from "./KeyboardListener"
 import {
-  cleanDom,
-  clearElement,
-  containsNodeType,
   isOnFirstCharacterOf,
   isOnFirstLineOf,
   isOnLastCharacterOf,
   isOnLastLineOf,
-  removeNodeType
 } from "../../../utils/dom"
 import { tick } from "svelte"
 import { domToContent } from "./TextEditAdapters"
 import type { PageEditEventDispatcher } from "../../types"
 import type { Bloc } from "../../../model/Page"
-import type { UniqueSelection } from "./Selection"
+import type { UniqueSelection } from "../../../utils/dom/Selection"
+import { XRange } from "../../../utils/dom/Selection"
+import { XNode } from "../../../utils/dom/XNode"
 
 type RequiredDetail = {
   dispatch: <EventKey extends keyof PageEditEventDispatcher>(type: EventKey, detail?: PageEditEventDispatcher[EventKey]) => void
@@ -121,32 +119,28 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
 
   .on("ctrl+b")
   .withUniqueSelection()
-  .process((detail) => tryToggleElementSelection(detail.selection, "STRONG", () => document.createElement("strong"), detail))
+  .process((detail) => tryToggleElementSelection(detail.selection, "STRONG", () => XNode.create("strong"), detail))
 
   .on("ctrl+i")
   .withUniqueSelection()
-  .process((detail) => tryToggleElementSelection(detail.selection, "EM", () => document.createElement("em"), detail))
+  .process((detail) => tryToggleElementSelection(detail.selection, "EM", () => XNode.create("em"), detail))
 
   .on("Enter")
   .withUniqueSelection()
   .process(({ element, selection, dispatch, index, bloc }) => {
-    const leftRange = document.createRange()
-    if (element.firstChild !== null) {
-      leftRange.setStart(element.firstChild, 0)
-    }
-    leftRange.setEnd(selection.startContainer, selection.startOffset)
+    const leftPart = XRange.create()
+      .selectNode(element.firstChild)
+      .setEndAtSelectionStart(selection)
+      .cloneContents()
 
-    const rightRange = document.createRange()
-    rightRange.setStart(selection.endContainer, selection.endOffset)
-    if (element.lastChild !== null) {
-      rightRange.setEnd(element.lastChild, (element.lastChild.textContent ?? "").length)
-    }
+    const rightPart = XRange.create()
+      .selectNode(element.lastChild)
+      .setStartAtSelectionEnd(selection)
+      .cloneContents()
 
-    const leftPart = leftRange.extractContents()
-    const rightPart = rightRange.extractContents()
-
-    clearElement(element)
-    element.appendChild(leftPart)
+    new XNode(element)
+      .clear()
+      .append(leftPart)
     dispatch("update", { index, bloc: { ...bloc, content: domToContent(element.childNodes) } })
     dispatch("new", {
       index: index + 1,
@@ -158,51 +152,43 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
     })
   })
 
-function tryToggleElementSelection(selection: UniqueSelection, nodeName: string, elementBuilder: () => Element, detail: RequiredDetail) {
-  if (containsNodeType(selection, nodeName)) {
+function tryToggleElementSelection(selection: UniqueSelection, nodeName: string, elementBuilder: () => XNode<Node>, detail: RequiredDetail) {
+  if (selection.containsNodeType(nodeName)) {
     removeElementSelection(selection, nodeName, detail)
   } else {
     addElementSelection(selection, elementBuilder, detail)
   }
 }
 
-function addElementSelection(currentSelection: UniqueSelection, elementBuilder: () => Element, { element }: RequiredDetail) {
-  const leftRange = document.createRange()
-  if (element.firstChild !== null) {
-    leftRange.selectNode(element.firstChild)
-  }
-  leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+function addElementSelection(currentSelection: UniqueSelection, elementBuilder: () => XNode<Node>, { element }: RequiredDetail) {
+  const leftFragment = XRange.create()
+    .selectNode(element.firstChild)
+    .setEndAtSelectionStart(currentSelection)
+    .cloneContents()
 
-  const rightRange = document.createRange()
-  if (element.lastChild !== null) {
-    rightRange.selectNode(element.lastChild)
-  }
-  rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+  const rightFragment = XRange.create()
+    .selectNode(element.lastChild)
+    .setStartAtSelectionEnd(currentSelection)
+    .cloneContents()
 
-  const leftFragment = leftRange.extractContents()
   const middleFragment = currentSelection.extractContents()
-  const rightFragment = rightRange.extractContents()
 
-  const middleLeafContainer = elementBuilder()
-  middleLeafContainer.appendChild(middleFragment)
+  const middleLeafContainer = elementBuilder().append(middleFragment)
   const middleContainer = wrapWithCurrentAncestors(middleLeafContainer, currentSelection, element)
 
-  clearElement(element)
-  element.appendChild(leftFragment)
-  element.appendChild(middleContainer)
-  element.appendChild(rightFragment)
-  cleanDom(element)
+  new XNode(element)
+    .clear()
+    .append(leftFragment, middleContainer, rightFragment)
+    .clean()
   currentSelection.selectNode(middleLeafContainer)
 }
 
-function wrapWithCurrentAncestors(node: Node, currentSelection: UniqueSelection, element: HTMLElement, exceptNodeName?: string): Node {
-  let current: Node | undefined | null = currentSelection.commonAncestorContainer
-  let childNode = node
-  while (current !== undefined && current !== null && current !== element) {
+function wrapWithCurrentAncestors(node: XNode, currentSelection: UniqueSelection, element: HTMLElement, exceptNodeName?: string): XNode {
+  let current = currentSelection.commonAncestorContainer
+  let childNode: XNode = node
+  while (current !== undefined && current.node !== element) {
     if (current.nodeName !== "#text" && current.nodeName !== exceptNodeName) {
-      const newParent = document.createElement(current.nodeName)
-      newParent.appendChild(childNode)
-      childNode = newParent
+      childNode = XNode.create(current.nodeName).append(childNode)
     }
     current = current.parentNode
   }
@@ -214,32 +200,27 @@ function removeElementSelection(
   nodeName: string,
   { dispatch, element, index }: RequiredDetail
 ) {
-  const leftRange = document.createRange()
-  if (element.firstChild !== null) {
-    leftRange.selectNode(element.firstChild)
-  }
-  leftRange.setEnd(currentSelection.startContainer, currentSelection.startOffset)
+  const leftFragment = XRange.create()
+    .selectNode(element.firstChild)
+    .setEndAtSelectionStart(currentSelection)
+    .cloneContents()
 
-  const rightRange = document.createRange()
-  if (element.lastChild !== null) {
-    rightRange.selectNode(element.lastChild)
-  }
-  rightRange.setStart(currentSelection.endContainer, currentSelection.endOffset)
+  const rightFragment = XRange.create()
+    .selectNode(element.lastChild)
+    .setStartAtSelectionEnd(currentSelection)
+    .cloneContents()
 
-  const leftFragment = leftRange.extractContents()
   const middleFragment = currentSelection.extractContents()
-  const rightFragment = rightRange.extractContents()
-  removeNodeType(middleFragment, nodeName)
+    .removeNodeType(nodeName)
 
-  const startOffset = (leftFragment.textContent ?? "").length
-  const endOffset = startOffset + (middleFragment.textContent ?? "").toString().length
+  const startOffset = leftFragment.textContentLength
+  const endOffset = startOffset + middleFragment.textContentLength
 
   const middleLeafContainer = wrapWithCurrentAncestors(middleFragment, currentSelection, element, nodeName)
 
-  clearElement(element)
-  element.appendChild(leftFragment)
-  element.appendChild(middleLeafContainer)
-  element.appendChild(rightFragment)
-  cleanDom(element)
+  new XNode(element)
+    .clear()
+    .append(leftFragment, middleLeafContainer, rightFragment)
+    .clean()
   dispatch("move", { index, move: { type: "selection", start: startOffset, end: endOffset } })
 }

@@ -1,4 +1,4 @@
-import { Caret, UniqueSelection } from "./Selection"
+import { Caret, UniqueSelection, XRange } from "../../../utils/dom/Selection"
 import { getCurrentCaretPosition, getCurrentSelection } from "../../../utils/dom"
 
 type Letter =
@@ -74,7 +74,7 @@ class ActionBuilder<RequiredDetail extends {}, ExtractedDetail extends {}> {
           if (previousDetail !== undefined) {
             const caret = getCurrentCaretPosition()
             if (caret !== undefined) {
-              return { ...previousDetail, caret: new Caret(caret) }
+              return { ...previousDetail, caret: new Caret(new XRange(caret)) }
             } else {
               return undefined
             }

@@ -24,7 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-import { createRangeFrom, replaceSelection } from "../../src/utils/dom"
+import { XRange } from "../../src/utils/dom/Selection"
+import { XNode } from "../../src/utils/dom/XNode"
 
 Cypress.Commands.add("selectNextCharacters", { prevSubject: false }, (numberOfCharacters: number) => {
   return cy.document()
@@ -56,15 +57,15 @@ Cypress.Commands.add("selectText", { prevSubject: "element" }, (element, startOf
   return cy.wrap(element)
     .then($element => {
       // @ts-ignore
-      const range = createRangeFrom($element[0], startOffset, endOffset)
+      const range = XRange.from(new XNode($element[0]), startOffset, endOffset)
       if (range !== undefined) {
-        console.log("replace selection with", range.startContainer, range.startOffset, range.endContainer, range.endOffset)
+        console.log("replace selection with", range.range.startContainer, range.startOffset, range.range.endContainer, range.range.endOffset)
         cy.document()
           .then($document => {
             const selection = $document.getSelection()
             if (selection !== undefined && selection !== null) {
               selection.removeAllRanges()
-              selection.addRange(range)
+              selection.addRange(range.range)
             }
           })
       } else {
