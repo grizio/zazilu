@@ -1,10 +1,5 @@
 import { KeyboardListener } from "./KeyboardListener"
-import {
-  isOnFirstCharacterOf,
-  isOnFirstLineOf,
-  isOnLastCharacterOf,
-  isOnLastLineOf,
-} from "../../../utils/dom"
+import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "../../../utils/dom"
 import { tick } from "svelte"
 import { domToContent } from "./TextEditAdapters"
 import type { PageEditEventDispatcher } from "../../types"
@@ -119,11 +114,11 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
 
   .on("ctrl+b")
   .withUniqueSelection()
-  .process((detail) => tryToggleElementSelection(detail.selection, "STRONG", () => XNode.create("strong"), detail))
+  .process(createToggleElementSelection("STRONG", () => XNode.create("strong")))
 
   .on("ctrl+i")
   .withUniqueSelection()
-  .process((detail) => tryToggleElementSelection(detail.selection, "EM", () => XNode.create("em"), detail))
+  .process(createToggleElementSelection("EM", () => XNode.create("em")))
 
   .on("Enter")
   .withUniqueSelection()
@@ -152,35 +147,39 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
     })
   })
 
-function tryToggleElementSelection(selection: UniqueSelection, nodeName: string, elementBuilder: () => XNode<Node>, detail: RequiredDetail) {
-  if (selection.containsNodeType(nodeName)) {
-    removeElementSelection(selection, nodeName, detail)
-  } else {
-    addElementSelection(selection, elementBuilder, detail)
+type ToggleElementSelectionParams = RequiredDetail & { selection: UniqueSelection }
+
+function createToggleElementSelection(nodeName: string, elementBuilder: () => XNode): (params: ToggleElementSelectionParams) => void {
+  return (params) => {
+    if (params.selection.containsNodeType(nodeName)) {
+      removeElementSelection(nodeName, params)
+    } else {
+      addElementSelection(elementBuilder, params)
+    }
   }
 }
 
-function addElementSelection(currentSelection: UniqueSelection, elementBuilder: () => XNode<Node>, { element }: RequiredDetail) {
+function addElementSelection(elementBuilder: () => XNode, { selection, element }: ToggleElementSelectionParams) {
   const leftFragment = XRange.create()
     .selectNode(element.firstChild)
-    .setEndAtSelectionStart(currentSelection)
+    .setEndAtSelectionStart(selection)
     .cloneContents()
 
   const rightFragment = XRange.create()
     .selectNode(element.lastChild)
-    .setStartAtSelectionEnd(currentSelection)
+    .setStartAtSelectionEnd(selection)
     .cloneContents()
 
-  const middleFragment = currentSelection.extractContents()
+  const middleFragment = selection.extractContents()
 
   const middleLeafContainer = elementBuilder().append(middleFragment)
-  const middleContainer = wrapWithCurrentAncestors(middleLeafContainer, currentSelection, element)
+  const middleContainer = wrapWithCurrentAncestors(middleLeafContainer, selection, element)
 
   new XNode(element)
     .clear()
     .append(leftFragment, middleContainer, rightFragment)
     .clean()
-  currentSelection.selectNode(middleLeafContainer)
+  selection.selectNode(middleLeafContainer)
 }
 
 function wrapWithCurrentAncestors(node: XNode, currentSelection: UniqueSelection, element: HTMLElement, exceptNodeName?: string): XNode {
@@ -196,27 +195,27 @@ function wrapWithCurrentAncestors(node: XNode, currentSelection: UniqueSelection
 }
 
 function removeElementSelection(
-  currentSelection: UniqueSelection,
   nodeName: string,
-  { dispatch, element, index }: RequiredDetail
+  { selection, dispatch, element, index }: ToggleElementSelectionParams
 ) {
   const leftFragment = XRange.create()
     .selectNode(element.firstChild)
-    .setEndAtSelectionStart(currentSelection)
+    .setEndAtSelectionStart(selection)
     .cloneContents()
 
   const rightFragment = XRange.create()
     .selectNode(element.lastChild)
-    .setStartAtSelectionEnd(currentSelection)
+    .setStartAtSelectionEnd(selection)
     .cloneContents()
 
-  const middleFragment = currentSelection.extractContents()
+  const middleFragment = selection
+    .extractContents()
     .removeNodeType(nodeName)
 
   const startOffset = leftFragment.textContentLength
   const endOffset = startOffset + middleFragment.textContentLength
 
-  const middleLeafContainer = wrapWithCurrentAncestors(middleFragment, currentSelection, element, nodeName)
+  const middleLeafContainer = wrapWithCurrentAncestors(middleFragment, selection, element, nodeName)
 
   new XNode(element)
     .clear()

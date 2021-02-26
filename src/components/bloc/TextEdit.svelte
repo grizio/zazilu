@@ -32,36 +32,19 @@
   export function move(move: Move) {
     if (element !== undefined) {
       if (move.type === "start") {
-        let range = document.createRange()
-        range.selectNodeContents(element.firstChild ?? element)
-        range.collapse(true)
-        replaceSelection(range)
+        replaceSelection(Caret.startOf(element).getRange())
       } else if (move.type === "end") {
-        let range = document.createRange()
-        range.selectNodeContents(element.lastChild ?? element)
-        range.collapse(false)
-        replaceSelection(range)
+        replaceSelection(Caret.endOf(element).getRange())
       } else if (move.type === "top-relative") {
-        const caret = createCursorRangeAtTop(element, move.x)
-        if (caret !== undefined) {
-          replaceSelection(caret.range.range)
-        }
+        replaceSelection(createCursorRangeAtTop(element, move.x)?.getRange())
       } else if (move.type === "bottom-relative") {
-        const caret = createCursorRangeAtBottom(element, move.x)
-        if (caret !== undefined) {
-          replaceSelection(caret.range.range)
-        }
+        replaceSelection(createCursorRangeAtBottom(element, move.x)?.getRange())
       } else if (move.type === "offset-start") {
-        const caret = Caret.at(new XNode(element.firstChild ?? element), move.at)
-        replaceSelection(caret.range.range)
+        replaceSelection(Caret.at(new XNode(element.firstChild ?? element), move.at).getRange())
       } else if (move.type === "offset-end") {
-        const range = Caret.at(new XNode(element.firstChild ?? element), element.textContent.length - move.at)
-        replaceSelection(range.range.range)
+        replaceSelection(Caret.at(new XNode(element.firstChild ?? element), element.textContent.length - move.at).getRange())
       } else if (move.type === "selection") {
-        const range = XRange.from(new XNode(element), move.start, move.end)
-        if (range !== undefined) {
-          replaceSelection(range.range)
-        }
+        replaceSelection(XRange.from(new XNode(element), move.start, move.end)?.range)
       }
     }
   }

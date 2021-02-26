@@ -1,5 +1,6 @@
 import { XNode } from "./XNode"
 import { equalsWithMargin } from "../numbers"
+import { replaceSelection } from "../dom"
 
 export class UniqueSelection {
   private readonly range: Range
@@ -72,6 +73,22 @@ export class Caret {
     )
   }
 
+  static startOf(node: Node): Caret {
+    return new Caret(
+      XRange.create()
+        .selectNodeContents(node)
+        .collapse(true)
+    )
+  }
+
+  static endOf(node: Node): Caret {
+    return new Caret(
+      XRange.create()
+        .selectNodeContents(node)
+        .collapse(false)
+    )
+  }
+
   get offset() {
     return this.range.startOffset
   }
@@ -101,6 +118,10 @@ export class Caret {
 
   isOnXPosition = (expectedX: number): boolean => {
     return equalsWithMargin(this.range.getBoundingClientRect().x, expectedX, 2)
+  }
+
+  getRange(): Range {
+    return this.range.range
   }
 }
 
@@ -156,9 +177,21 @@ export class XRange {
     return this.range.getBoundingClientRect()
   }
 
+  collapse = (toStart: boolean): this => {
+    this.range.collapse(toStart)
+    return this
+  }
+
   selectNode = (node: XNode | Node | undefined | null): this => {
     if (node !== undefined && node !== null) {
       this.range.selectNode((node as XNode).node ?? node)
+    }
+    return this
+  }
+
+  selectNodeContents = (node: XNode | Node | undefined | null): this => {
+    if (node !== undefined && node !== null) {
+      this.range.selectNodeContents((node as XNode).node ?? node)
     }
     return this
   }

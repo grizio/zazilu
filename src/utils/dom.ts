@@ -85,11 +85,13 @@ export function getLastClientRect(range: Range | undefined): DOMRect | undefined
   return clientRects?.item(clientRects.length - 1) ?? undefined
 }
 
-export function replaceSelection(range: Range): void {
-  const selection = window.getSelection()
-  if (selection !== null) {
-    selection.removeAllRanges()
-    selection.addRange(range)
+export function replaceSelection(range: Range | undefined): void {
+  if (range !== undefined) {
+    const selection = window.getSelection()
+    if (selection !== null) {
+      selection.removeAllRanges()
+      selection.addRange(range)
+    }
   }
 }
 
