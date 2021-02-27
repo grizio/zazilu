@@ -160,8 +160,10 @@ function findRangeAt(node: Node, expectedX: number, requiredY: number): Caret | 
   for (let i = 0; i < node.childNodes.length; i++) {
     const child = node.childNodes.item(i)
     testingRange.selectNodeContents(child)
-    const containsPosition = Array.from(testingRange.getClientRects())
-      .some(clientRect => equalsWithMargin(clientRect.y, requiredY, 1) && clientRect.left <= expectedX && expectedX <= clientRect.right)
+    const containsPosition = i === node.childNodes.length - 1
+      ? Array.from(testingRange.getClientRects()).some(clientRect => equalsWithMargin(clientRect.y, requiredY, 1))
+      : Array.from(testingRange.getClientRects()).some(clientRect => equalsWithMargin(clientRect.y, requiredY, 1) && clientRect.left <= expectedX && expectedX <= clientRect.right)
+
     if (containsPosition) {
       if (child instanceof Text) {
         return findLeafRangeAt(child, expectedX, requiredY)
