@@ -4,7 +4,12 @@
   import type { Move, PageEditEventDispatcher } from "../types"
   import { createCursorRangeAtBottom, createCursorRangeAtTop, getCurrentSelection } from "../../utils/dom"
   import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
-  import { keyboardActions, toggleBold, toggleItalic } from "./helpers/TextEditKeyboardActions"
+  import {
+    keyboardActions,
+    toggleBold,
+    toggleItalic,
+    wrapWithCurrentAncestors
+  } from "./helpers/TextEditKeyboardActions"
   import { XNode } from "../../utils/dom/XNode"
   import { Caret, UniqueSelection, XRange } from "../../utils/dom/Selection"
   import TextEditToolbox from "./TextEditToolbox.svelte"
@@ -53,14 +58,17 @@
   }
 
   function blur() {
-    hasFocus = false
-    dispatch("update", {
-      index,
-      bloc: {
-        ...bloc,
-        content: domToContent(element.childNodes)
-      }
-    })
+    // Because of toolbox, blur can occur when we do not want it
+    if (document.activeElement !== element) {
+      hasFocus = false
+      dispatch("update", {
+        index,
+        bloc: {
+          ...bloc,
+          content: domToContent(element.childNodes)
+        }
+      })
+    }
   }
 
   async function keydown(event: KeyboardEvent) {
@@ -87,12 +95,40 @@
       toggleItalic({ element, index, dispatch, selection: new UniqueSelection(selection) })
     }
   }
+
+  function onLink(event: CustomEvent<{ link: string, text?: string }>) {
+    const selection = UniqueSelection.getCurrent()
+    if (selection !== undefined) {
+      const link = XNode.create("a")
+        .setAttribute("href", event.detail.link)
+        .setTextContent(event.detail.text)
+      const leftFragment = XRange.create()
+        .selectNode(element.firstChild)
+        .setEndAtSelectionStart(selection)
+        .cloneContents()
+
+      const rightFragment = XRange.create()
+        .selectNode(element.lastChild)
+        .setStartAtSelectionEnd(selection)
+        .cloneContents()
+
+      link.append(selection.cloneContents())
+      const middleContainer = wrapWithCurrentAncestors(link, selection, element)
+
+      new XNode(element)
+        .clear()
+        .append(leftFragment, middleContainer, rightFragment)
+        .clean()
+      selection.selectNode(link)
+    }
+  }
 </script>
 
 {#if hasFocus}
   <TextEditToolbox
     on:bold={onBold}
     on:italic={onItalic}
+    on:link={onLink}
   />
 {/if}
 

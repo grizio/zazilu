@@ -8,6 +8,15 @@ export class UniqueSelection {
     this.range = range
   }
 
+  static getCurrent(): UniqueSelection | undefined {
+    const selection = window.getSelection()
+    if (selection === null || selection.rangeCount !== 1) {
+      return undefined
+    } else {
+      return new UniqueSelection(selection.getRangeAt(0))
+    }
+  }
+
   get startContainer(): XNode {
     return new XNode<Node>(this.range.startContainer)
   }

@@ -430,4 +430,38 @@ describe("TextEdit", () => {
     cy.get("[data-test-id=toolbox-italic]").click()
     cy.get(firstRichParagraph).should("have.html", "In<em>terdu</em>m et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
   })
+
+  it("should be possible to create a new link with a text when nothing is selected", () => {
+    initialize()
+    cy.window().then(($win) => {
+      cy.stub($win, "prompt", (text) => {
+        switch (text) {
+          case "Link": return "some-link"
+          case "Text": return "some-text"
+          default: return ""
+        }
+      })
+    })
+    cy.get(firstParagraph).click()
+    cy.get(firstParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.get("[data-test-id=toolbox-link]").click()
+    cy.get(firstParagraph).should("have.html", `Th<a href="some-link">some-text</a>is is some text.`)
+  })
+
+  it("should be possible to create a new link surrounding the selection", () => {
+    initialize()
+    cy.window().then(($win) => {
+      cy.stub($win, "prompt", (text) => {
+        switch (text) {
+          case "Link": return "some-link"
+          case "Text": return "some-text"
+          default: return ""
+        }
+      })
+    })
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).selectText(22, 35)
+    cy.get("[data-test-id=toolbox-link]").click()
+    cy.get(firstRichParagraph).should("have.html", `Interdum et malesuada <a href="some-link">fames ac <strong>ante</strong></a><strong> ipsum</strong> primis in faucibus`)
+  })
 })

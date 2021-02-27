@@ -129,4 +129,16 @@ export class XNode<Internal extends Node = Node> {
     }
     return this
   }
+
+  setAttribute = (name: string, value: string): this => {
+    if (this.node instanceof HTMLElement) {
+      this.node.setAttribute(name, value)
+    }
+    return this
+  }
+
+  setTextContent = (textContent: string | undefined): this => {
+    this.node.textContent = textContent ?? ""
+    return this
+  }
 }

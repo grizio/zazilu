@@ -1,5 +1,5 @@
 import type { TextPart } from "../../../model/Page"
-import { em, plainText, strong, Text } from "../../../model/Page"
+import { em, link, plainText, strong, Text } from "../../../model/Page"
 import { isDefined } from "../../../utils/arrays"
 
 export function contentToDom(content: Array<TextPart>): Array<Node> {
@@ -15,6 +15,11 @@ export function contentToDom(content: Array<TextPart>): Array<Node> {
         const em = document.createElement("em")
         contentToDom(part.content).forEach(_ => em.appendChild(_))
         return em
+      case "link":
+        const link = document.createElement("a")
+        link.setAttribute("href", part.link)
+        contentToDom(part.content).forEach(_ => link.appendChild(_))
+        return link
     }
   })
 }
@@ -29,6 +34,8 @@ export function domToContent(nodes: NodeList): Array<TextPart> {
           return strong({ content: domToContent(node.childNodes) })
         case "em":
           return em({ content: domToContent(node.childNodes) })
+        case "a":
+          return link({ link: (node as HTMLElement).getAttribute("href") ?? "", content: domToContent(node.childNodes) })
         default:
           return undefined
       }

@@ -185,7 +185,7 @@ function addElementSelection(elementBuilder: () => XNode, { selection, element }
   selection.selectNode(middleLeafContainer)
 }
 
-function wrapWithCurrentAncestors(node: XNode, currentSelection: UniqueSelection, element: HTMLElement, exceptNodeName?: string): XNode {
+export function wrapWithCurrentAncestors(node: XNode, currentSelection: UniqueSelection, element: HTMLElement, exceptNodeName?: string): XNode {
   let current = currentSelection.commonAncestorContainer
   let childNode: XNode = node
   while (current !== undefined && current.node !== element) {

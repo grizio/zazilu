@@ -1,5 +1,5 @@
 import { array, literal, object, recursion, string, union, Validator } from "idonttrustlikethat"
-import type { Bloc, Emphasis, Page, PlainText, Strong, Text, TextPart } from "../Page"
+import type { Bloc, Emphasis, Link, Page, PlainText, Strong, Text, TextPart } from "../Page"
 import { nonEmptyString } from "../../utils/validators"
 import { uniqueBy } from "../../utils/arrays"
 
@@ -19,7 +19,13 @@ const textPartValidator: Validator<TextPart> = recursion(self => {
     content: array(self)
   })
 
-  return union(plainTextValidation, strongValidation, emphasisValidation)
+  const linkValidation: Validator<Link> = object({
+    type: literal("link"),
+    link: string,
+    content: array(self)
+  })
+
+  return union(plainTextValidation, strongValidation, emphasisValidation, linkValidation)
 })
 
 const textValidator: Validator<Text> = object({
