@@ -23,6 +23,10 @@ export class XNode<Internal extends Node = Node> {
     return this.node.childNodes
   }
 
+  get safeTextContent(): string {
+    return this.node.textContent ?? ""
+  }
+
   get textContentLength(): number {
     return this.node.textContent?.length ?? 0
   }

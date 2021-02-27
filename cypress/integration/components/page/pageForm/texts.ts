@@ -323,6 +323,15 @@ describe("TextEdit", () => {
     cy.get(`h2${title2}`).should("not.exist")
   })
 
+  it("should transform a rich paragraph into a h1", () => {
+    initialize()
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).type("{movetostart}")
+    cy.get(firstRichParagraph).type("# ")
+    cy.get(`h1${firstRichParagraph}`).should("have.html", "Interdum et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
+    cy.get(`p${firstRichParagraph}`).should("not.exist")
+  })
+
   it("should put selected text in strong when not already strong", () => {
     initialize()
     cy.get(firstRichParagraph).click()

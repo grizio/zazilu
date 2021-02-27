@@ -98,6 +98,10 @@ export class Caret {
     )
   }
 
+  get container() {
+    return this.range.startContainer
+  }
+
   get offset() {
     return this.range.startOffset
   }
@@ -183,6 +187,10 @@ export class XRange {
     }
   }
 
+  get startContainer(): Node {
+    return this.range.startContainer
+  }
+
   get startOffset(): number {
     return this.range.startOffset
   }
@@ -222,6 +230,14 @@ export class XRange {
   setEnd = (node: Node | XNode, offset: number): this => {
     this.range.setEnd((node as XNode).node ?? node, offset)
     return this
+  }
+
+  setStartAtCaret = (caret: Caret): this => {
+    return this.setStart(caret.container, caret.offset)
+  }
+
+  setEndAtCaret = (caret: Caret): this => {
+    return this.setEnd(caret.container, caret.offset)
   }
 
   setStartAtSelectionEnd = (selection: UniqueSelection): this => {

@@ -95,17 +95,24 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
   .on(" ")
   .withCaret()
   .tryProcess(({ element, caret, dispatch, index, bloc }) => {
-    const textContent = (element.firstChild?.textContent ?? "")
-    const blocCode = textContent.substring(0, caret.offset)
+    const textLeftOfCaret = XRange.create()
+      .selectNodeContents(element)
+      .setEndAtCaret(caret)
+      .cloneContents()
+      .safeTextContent
     // @ts-ignore
-    const blocType = blocCodeMapping[blocCode]
+    const blocType = blocCodeMapping[textLeftOfCaret]
     if (blocType !== undefined) {
+      const contentRightOfCaret = XRange.create()
+        .selectNodeContents(element)
+        .setStartAtCaret(caret)
+        .cloneContents()
       dispatch("update", {
         index: index,
         bloc: {
           ...bloc,
           type: blocType,
-          content: [{ type: "text", content: textContent.substring(blocCode.length) }]
+          content: domToContent(contentRightOfCaret.node.childNodes)
         }
       })
       tick().then(() => dispatch("move", { index, move: { type: "start" } }))
