@@ -2,10 +2,11 @@ import { KeyboardListener } from "./KeyboardListener"
 import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "../../../utils/dom"
 import { tick } from "svelte"
 import { domToContent } from "./TextEditAdapters"
+import type { Text } from "../../../model/Page"
 import type { PageEditEventDispatcher } from "../../types"
 import type { Bloc } from "../../../model/Page"
 import type { UniqueSelection } from "../../../utils/dom/Selection"
-import { XRange } from "../../../utils/dom/Selection"
+import { Caret, XRange } from "../../../utils/dom/Selection"
 import { XNode } from "../../../utils/dom/XNode"
 
 type RequiredDetail = {
@@ -15,15 +16,6 @@ type RequiredDetail = {
   bloc: Bloc
 }
 
-const blocCodeMapping = {
-  "#": "h1",
-  "##": "h2",
-  "###": "h3",
-  "####": "h4",
-  "#####": "h5",
-  "######": "h6",
-  "!#": "p",
-}
 export const toggleBold = createToggleElementSelection("STRONG", () => XNode.create("strong"))
 export const toggleItalic = createToggleElementSelection("EM", () => XNode.create("em"))
 
@@ -94,33 +86,38 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
 
   .on(" ")
   .withCaret()
-  .tryProcess(({ element, caret, dispatch, index, bloc }) => {
-    const textLeftOfCaret = XRange.create()
-      .selectNodeContents(element)
-      .setEndAtCaret(caret)
-      .cloneContents()
-      .safeTextContent
-    // @ts-ignore
-    const blocType = blocCodeMapping[textLeftOfCaret]
-    if (blocType !== undefined) {
-      const contentRightOfCaret = XRange.create()
-        .selectNodeContents(element)
-        .setStartAtCaret(caret)
-        .cloneContents()
-      dispatch("update", {
-        index: index,
-        bloc: {
-          ...bloc,
-          type: blocType,
-          content: domToContent(contentRightOfCaret.node.childNodes)
-        }
-      })
-      tick().then(() => dispatch("move", { index, move: { type: "start" } }))
-      return true
-    } else {
-      return false
-    }
-  })
+  .filter(prefixPredicate("#"))
+  .process(textTransformer("h1"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("##"))
+  .process(textTransformer("h2"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("###"))
+  .process(textTransformer("h3"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("####"))
+  .process(textTransformer("h4"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("#####"))
+  .process(textTransformer("h5"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("######"))
+  .process(textTransformer("h6"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("!#"))
+  .process(textTransformer("p"))
 
   .on("ctrl+b")
   .withUniqueSelection()
@@ -156,6 +153,34 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
       moveTo: { type: "start" }
     })
   })
+
+function prefixPredicate(prefix: string): ({ element, caret }: { element: HTMLElement; caret: Caret }) => boolean {
+  return ({ element, caret }) => {
+    return XRange.create()
+      .selectNodeContents(element)
+      .setEndAtCaret(caret)
+      .cloneContents()
+      .safeTextContent === prefix
+  }
+}
+
+function textTransformer(textType: Text["type"]) {
+  return ({ element, caret, dispatch, index, bloc }: RequiredDetail & { caret: Caret }) => {
+    const contentRightOfCaret = XRange.create()
+      .selectNodeContents(element)
+      .setStartAtCaret(caret)
+      .cloneContents()
+    dispatch("update", {
+      index: index,
+      bloc: {
+        ...bloc,
+        type: textType,
+        content: domToContent(contentRightOfCaret.node.childNodes)
+      }
+    })
+    tick().then(() => dispatch("move", { index, move: { type: "start" } }))
+  }
+}
 
 type ToggleElementSelectionParams = Pick<RequiredDetail, "element" | "dispatch" | "index"> & { selection: UniqueSelection }
 
