@@ -140,9 +140,9 @@ describe("TextEdit", () => {
     initialize()
     cy.get(firstParagraph).click()
     cy.get(firstParagraph).type("{enter}")
-    cy.get(`${firstParagraph} + p`).should("be.empty")
-    cy.get(`${firstParagraph} + p`).type("A new paragraph!")
-    cy.get(`${firstParagraph} + p`).should("have.text", "A new paragraph!")
+    cy.get(`${firstParagraph} + .toolbox-wrapper + p`).should("be.empty")
+    cy.get(`${firstParagraph} + .toolbox-wrapper + p`).type("A new paragraph!")
+    cy.get(`${firstParagraph} + .toolbox-wrapper + p`).should("have.text", "A new paragraph!")
     cy.get(secondParagraph).should("have.text", "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
   })
 
@@ -151,9 +151,9 @@ describe("TextEdit", () => {
     cy.get(firstParagraph).click()
     cy.get(firstParagraph).type("{leftarrow}{leftarrow}{leftarrow}{leftarrow}{leftarrow}")
     cy.get(firstParagraph).type("{enter}")
-    cy.get(`${firstParagraph} + p`).should("have.text", "text.")
-    cy.get(`${firstParagraph} + p`).type("Changed ")
-    cy.get(`${firstParagraph} + p`).should("have.text", "Changed text.")
+    cy.get(`${firstParagraph} + .toolbox-wrapper + p`).should("have.text", "text.")
+    cy.get(`${firstParagraph} + .toolbox-wrapper + p`).type("Changed ")
+    cy.get(`${firstParagraph} + .toolbox-wrapper + p`).should("have.text", "Changed text.")
     cy.get(secondParagraph).should("have.text", "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.")
   })
 
@@ -411,5 +411,23 @@ describe("TextEdit", () => {
 
     cy.get(secondRichParagraph).type("{ctrl+i}")
     cy.get(secondRichParagraph).should("have.html", "<strong>Aliquam dapibus, </strong>lorem eu molestie volutpat<strong>, mi massa egestas velit, et dapibus dui est at quam</strong>")
+  })
+
+  it("should toggle bold when clicking on bold button", () => {
+    initialize()
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.selectNextCharacters(5)
+    cy.get("[data-test-id=toolbox-bold]").click()
+    cy.get(firstRichParagraph).should("have.html", "In<strong>terdu</strong>m et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
+  })
+
+  it("should toggle bold when clicking on bold button", () => {
+    initialize()
+    cy.get(firstRichParagraph).click()
+    cy.get(firstRichParagraph).type("{movetostart}{rightarrow}{rightarrow}")
+    cy.selectNextCharacters(5)
+    cy.get("[data-test-id=toolbox-italic]").click()
+    cy.get(firstRichParagraph).should("have.html", "In<em>terdu</em>m et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
   })
 })

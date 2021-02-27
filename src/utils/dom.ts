@@ -202,8 +202,8 @@ function findLeafRangeAt(textNode: Text, expectedX: number, requiredY: number): 
   if (min === max) {
     return caret
   } else {
-    const minPosition = Caret.at(new XNode(textNode), min)
-    const maxPosition = Caret.at(new XNode(textNode), max)
+    const minPosition = Caret.at(new XNode(textNode), min)!
+    const maxPosition = Caret.at(new XNode(textNode), max)!
     let diffMinPosition = Math.abs(minPosition.getBoundingClientRect().x - expectedX)
     let diffMaxPosition = Math.abs(maxPosition.getBoundingClientRect().x - expectedX)
     if (diffMinPosition < diffMaxPosition) {

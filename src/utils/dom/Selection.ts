@@ -1,6 +1,5 @@
 import { XNode } from "./XNode"
 import { equalsWithMargin } from "../numbers"
-import { replaceSelection } from "../dom"
 
 export class UniqueSelection {
   private readonly range: Range
@@ -65,12 +64,13 @@ export class Caret {
     return new Caret(XRange.create())
   }
 
-  static at(node: XNode, offset: number): Caret {
-    return new Caret(
-      XRange.create()
-        .setStart(node, offset)
-        .setEnd(node, offset)
-    )
+  static at(node: XNode, offset: number): Caret | undefined {
+    const range = XRange.from(node, offset, offset)
+    if (range !== undefined) {
+      return new Caret(range)
+    } else {
+      return undefined
+    }
   }
 
   static startOf(node: Node): Caret {
@@ -118,6 +118,11 @@ export class Caret {
 
   isOnXPosition = (expectedX: number): boolean => {
     return equalsWithMargin(this.range.getBoundingClientRect().x, expectedX, 2)
+  }
+
+  persistOnDOM = (): this => {
+    this.range.persistOnDOM()
+    return this
   }
 
   getRange(): Range {
@@ -173,6 +178,10 @@ export class XRange {
     return this.range.startOffset
   }
 
+  get commonAncestorContainer(): XNode {
+    return new XNode(this.range.commonAncestorContainer)
+  }
+
   getBoundingClientRect = (): DOMRect => {
     return this.range.getBoundingClientRect()
   }
@@ -216,5 +225,17 @@ export class XRange {
 
   cloneContents = (): XNode<DocumentFragment> => {
     return new XNode(this.range.cloneContents())
+  }
+
+  persistOnDOM = (): this => {
+    const selection = window.getSelection()
+    const contentEditableNode = this.commonAncestorContainer
+      .getAncestorWhere(_ => _ instanceof Element && _.getAttribute("contenteditable") === "true")
+    if (selection !== null && contentEditableNode !== undefined) {
+      contentEditableNode.focus()
+      selection.removeAllRanges()
+      selection.addRange(this.range)
+    }
+    return this
   }
 }

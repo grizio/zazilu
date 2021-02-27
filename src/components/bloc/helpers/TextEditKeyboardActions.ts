@@ -24,6 +24,9 @@ const blocCodeMapping = {
   "######": "h6",
   "!#": "p",
 }
+export const toggleBold = createToggleElementSelection("STRONG", () => XNode.create("strong"))
+export const toggleItalic = createToggleElementSelection("EM", () => XNode.create("em"))
+
 export const keyboardActions = new KeyboardListener<RequiredDetail>()
   .on("ArrowUp")
   .withUniqueSelection()
@@ -114,11 +117,11 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
 
   .on("ctrl+b")
   .withUniqueSelection()
-  .process(createToggleElementSelection("STRONG", () => XNode.create("strong")))
+  .process(toggleBold)
 
   .on("ctrl+i")
   .withUniqueSelection()
-  .process(createToggleElementSelection("EM", () => XNode.create("em")))
+  .process(toggleItalic)
 
   .on("Enter")
   .withUniqueSelection()
@@ -147,9 +150,9 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
     })
   })
 
-type ToggleElementSelectionParams = RequiredDetail & { selection: UniqueSelection }
+type ToggleElementSelectionParams = Pick<RequiredDetail, "element" | "dispatch" | "index"> & { selection: UniqueSelection }
 
-function createToggleElementSelection(nodeName: string, elementBuilder: () => XNode): (params: ToggleElementSelectionParams) => void {
+export function createToggleElementSelection(nodeName: string, elementBuilder: () => XNode): (params: ToggleElementSelectionParams) => void {
   return (params) => {
     if (params.selection.containsNodeType(nodeName)) {
       removeElementSelection(nodeName, params)

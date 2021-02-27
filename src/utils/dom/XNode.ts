@@ -63,6 +63,32 @@ export class XNode<Internal extends Node = Node> {
     return process(this.node)
   }
 
+  hasParent = (parent: Node): boolean => {
+    function process(node: Node | null): boolean {
+      if (node === null) {
+        return false
+      } else if (node === parent) {
+        return true
+      } else {
+        return process(node.parentNode)
+      }
+    }
+    return process(this.node)
+  }
+
+  getAncestorWhere = (predicate: (node: Node) => boolean): XNode | undefined => {
+    function process(node: Node | null): XNode | undefined {
+      if (node === null) {
+        return undefined
+      } else if (predicate(node)) {
+        return new XNode(node)
+      } else {
+        return process(node.parentNode)
+      }
+    }
+    return process(this.node)
+  }
+
   clear = (): this => {
     while (this.node.firstChild !== undefined && this.node.firstChild !== null) {
       this.node.firstChild.remove()
@@ -95,5 +121,12 @@ export class XNode<Internal extends Node = Node> {
       }
     }
     node.childNodes.forEach(this.processClean)
+  }
+
+  focus = (): this => {
+    if (this.node instanceof HTMLElement) {
+      this.node.focus()
+    }
+    return this
   }
 }
