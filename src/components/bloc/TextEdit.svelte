@@ -133,6 +133,7 @@
 {/if}
 
 {#if bloc.type === "p"}
+  <!-- svelte-ignore a11y-missing-content -->
   <p
     contenteditable="true"
     bind:this={element}
@@ -143,6 +144,7 @@
     data-test-id={bloc.id}
   ></p>
 {:else if bloc.type === "h1"}
+  <!-- svelte-ignore a11y-missing-content -->
   <h1
     contenteditable="true"
     bind:this={element}
@@ -153,6 +155,7 @@
     data-test-id={bloc.id}
   ></h1>
 {:else if bloc.type === "h2"}
+  <!-- svelte-ignore a11y-missing-content -->
   <h2
     contenteditable="true"
     bind:this={element}
@@ -163,6 +166,7 @@
     data-test-id={bloc.id}
   ></h2>
 {:else if bloc.type === "h3"}
+  <!-- svelte-ignore a11y-missing-content -->
   <h3
     contenteditable="true"
     bind:this={element}
@@ -173,6 +177,7 @@
     data-test-id={bloc.id}
   ></h3>
 {:else if bloc.type === "h4"}
+  <!-- svelte-ignore a11y-missing-content -->
   <h4
     contenteditable="true"
     bind:this={element}
@@ -183,6 +188,7 @@
     data-test-id={bloc.id}
   ></h4>
 {:else if bloc.type === "h5"}
+  <!-- svelte-ignore a11y-missing-content -->
   <h5
     contenteditable="true"
     bind:this={element}
@@ -193,6 +199,7 @@
     data-test-id={bloc.id}
   ></h5>
 {:else if bloc.type === "h6"}
+  <!-- svelte-ignore a11y-missing-content -->
   <h6
     contenteditable="true"
     bind:this={element}
