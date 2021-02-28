@@ -4,7 +4,7 @@ import { json } from "body-parser"
 import cookieParser from "cookie-parser"
 import compression from "compression"
 import * as sapper from "@sapper/server"
-import type { AppRequest } from "~/routes/types"
+import type { AppRequest } from "~/utils/requests"
 import { extractUser } from "~/security/authentication"
 
 const { PORT, NODE_ENV } = process.env

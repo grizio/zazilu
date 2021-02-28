@@ -1,8 +1,5 @@
-import type { GetRequest, AppResponse } from "~/routes/types"
+import { AppResponse, GetRequest, noContent } from "~/utils/requests"
 
-export async function post(req: GetRequest, res: AppResponse, next: () => void) {
-  res
-    .clearCookie("auth")
-    .writeHead(204)
-    .end()
+export async function post(req: GetRequest, res: AppResponse) {
+  noContent(res, { cookies: { auth: null } })
 }

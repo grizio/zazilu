@@ -1,16 +1,14 @@
-import type { Role, User } from "~/model/User"
-import type { AppRequest, AppResponse } from "~/routes/types"
 import { app } from "~/app"
+import type { Role, User } from "~/model/User"
+import type { AppRequest, AppResponse } from "~/utils/requests"
+import { forbidden, unauthenticated } from "~/utils/requests"
 
 export async function onAuthenticated(req: AppRequest, res: AppResponse, process: (user: User) => Promise<void>): Promise<void> {
   const user = await extractUser(req)
   if (user !== undefined) {
     await process(user)
   } else {
-    res.cookie("auth", undefined, { signed: true })
-    res
-      .writeHead(401, "Unauthenticated")
-      .end()
+    unauthenticated(res, undefined, { cookies: { auth: null } })
   }
 }
 
@@ -19,9 +17,7 @@ export async function onAuthenticatedWithRole(req: AppRequest, res: AppResponse,
     if (user.role === role) {
       await process(user)
     } else {
-      res
-        .writeHead(403, "Forbidden")
-        .end()
+      forbidden(res, undefined)
     }
   })
 }

@@ -1,7 +1,8 @@
 import { app } from "~/app"
-import type { AppResponse, GetRequest, PostRequest, PutRequest } from "~/routes/types"
 import { pageValidation } from "~/model/validation/PageValidation"
 import { onAuthenticatedAdmin } from "~/security/authentication"
+import { badRequest, conflict, created, notFound, ok } from "~/utils/requests"
+import type { AppResponse, GetRequest, PostRequest, PutRequest } from "~/utils/requests"
 
 type Params = { slug: string }
 
@@ -9,13 +10,9 @@ export async function get(req: GetRequest<Params>, res: AppResponse) {
   const pageContent = await app.pageRepository.get(req.params.slug)
 
   if (pageContent !== undefined) {
-    res
-      .writeHead(200, { "Content-Type": "application/json" })
-      .end(JSON.stringify(pageContent))
+    ok(res, pageContent)
   } else {
-    res
-      .writeHead(404, { "Content-Type": "application/json" })
-      .end(JSON.stringify({ message: `Not found` }))
+    notFound(res, { message: `Not found` })
   }
 }
 
@@ -28,23 +25,15 @@ export async function post(req: PostRequest<Params>, res: AppResponse) {
         const existingPage = await app.pageRepository.get(page.key)
         if (existingPage === undefined) {
           await app.pageRepository.post(page)
-          res
-            .writeHead(201, { "Content-Type": "application/json" })
-            .end(JSON.stringify(page))
+          created(res, page)
         } else {
-          res
-            .writeHead(409, { "Content-Type": "application/json" })
-            .end(JSON.stringify({ message: "The page already exist" }))
+          conflict(res, { message: "The page already exist" })
         }
       } else {
-        res
-          .writeHead(400, { "Content-Type": "application/json" })
-          .end(JSON.stringify({ message: "key in body and slug in path do not match", path: "key" }))
+        badRequest(res, { message: "key in body and slug in path do not match", path: "key" })
       }
     } else {
-      res
-        .writeHead(400, { "Content-Type": "application/json" })
-        .end(JSON.stringify(validation.errors))
+      badRequest(res, validation.errors)
     }
   })
 }
@@ -58,23 +47,15 @@ export async function put(req: PutRequest<Params>, res: AppResponse) {
 
         if (existingPage !== undefined) {
           await app.pageRepository.put(validation.value)
-          res
-            .writeHead(200, { "Content-Type": "application/json" })
-            .end(JSON.stringify(validation.value))
+          ok(res, validation.value)
         } else {
-          res
-            .writeHead(404, { "Content-Type": "application/json" })
-            .end(JSON.stringify({ message: `Not found` }))
+          notFound(res, { message: `Not found` })
         }
       } else {
-        res
-          .writeHead(400, { "Content-Type": "application/json" })
-          .end(JSON.stringify({ message: "key in body and slug in path do not match", path: "key" }))
+        badRequest(res, { message: "key in body and slug in path do not match", path: "key" })
       }
     } else {
-      res
-        .writeHead(400, { "Content-Type": "application/json" })
-        .end(JSON.stringify(validation.errors))
+      badRequest(res, validation.errors)
     }
   })
 }

@@ -1,32 +1,31 @@
 import bcrypt from "bcrypt"
+import { object } from "idonttrustlikethat"
 import { app } from "~/app"
-import type { AppResponse, GetRequest } from "~/routes/types"
+import type { AppResponse, GetRequest } from "~/utils/requests"
+import { badRequest, ok } from "~/utils/requests"
+import { nonEmptyString } from "~/utils/validators"
 
-export async function post(req: GetRequest, res: AppResponse, next: () => void) {
-  // @ts-ignore
-  const { email, password } = req.body
+const bodyValidation = object({
+  email: nonEmptyString,
+  password: nonEmptyString
+})
 
-  if (email !== undefined && password !== undefined) {
+export async function post(req: GetRequest, res: AppResponse) {
+  const body = bodyValidation.validate(req.body)
+
+  if (body.ok) {
+    const { email, password } = body.value
     const user = await app.userRepository.get(email)
     if (user !== undefined) {
       if (await bcrypt.compare(password, user.password)) {
-        res
-          .cookie("auth", user.email, { signed: true })
-          .writeHead(200)
-          .end(JSON.stringify({ email: user.email, role: user.role }))
+        ok(res, { email: user.email, role: user.role }, { cookies: { auth: user.email } })
       } else {
-        res
-          .writeHead(400, { "Content-Type": "application/json" })
-          .end(JSON.stringify("Unknown user or password"))
+        badRequest(res, "Unknown user or password")
       }
     } else {
-      res
-        .writeHead(400, { "Content-Type": "application/json" })
-        .end(JSON.stringify("Unknown user or password"))
+      badRequest(res, "Unknown user or password")
     }
   } else {
-    res
-      .writeHead(400, { "Content-Type": "application/json" })
-      .end(JSON.stringify("Expected email and password"))
+    badRequest(res, "Expected email and password")
   }
 }
