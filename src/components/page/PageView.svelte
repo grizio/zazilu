@@ -1,8 +1,20 @@
 <script lang="ts">
-  import type { Page } from "~/model/Page"
+  import { setContext } from "svelte"
   import BlocView from "~/components/bloc/BlocView.svelte"
+  import type { Page } from "~/model/Page"
+  import type { PageActions } from "./PageActions"
 
   export let page: Page
+
+  setContext<PageActions>("actions", {
+    getKey: () => page.key,
+    updatePage: (newPage: Page) => {
+      page = newPage
+    },
+    showError: (message, ...params) => {
+      console.error(message, ...params)
+    }
+  })
 </script>
 
 <h1>{page.title}</h1>

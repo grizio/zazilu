@@ -192,7 +192,8 @@ function meetTransformer({ dispatch, index, bloc }: RequiredDetail) {
     bloc: {
       type: "meet",
       id: bloc.id,
-      date: new Date(Date.now())
+      date: new Date(Date.now()),
+      members: []
     }
   })
 }

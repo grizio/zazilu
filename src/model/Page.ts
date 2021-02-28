@@ -72,4 +72,5 @@ export type Meet = {
   type: "meet"
   id: string
   date: Date
+  members: Array<string>
 }

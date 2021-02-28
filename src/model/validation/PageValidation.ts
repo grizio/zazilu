@@ -38,6 +38,7 @@ const meetValidator: Validator<Meet> = object({
   type: literal("meet"),
   id: nonEmptyString,
   date: dateTime,
+  members: array(nonEmptyString),
 })
 
 const blocValidator: Validator<Bloc> = union(textValidator, meetValidator)
