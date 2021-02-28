@@ -34,5 +34,5 @@
 <PageView page={page} />
 
 <AdminRestriction>
-  <a href={`/page/edit/${page.key}`}>Edit</a>
+  <a href={`/page/${page.key}/edit`}>Edit</a>
 </AdminRestriction>

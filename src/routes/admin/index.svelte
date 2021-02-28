@@ -26,7 +26,7 @@
 <h1>Administration panel</h1>
 
 {#each pages as page}
-  <li><a href={`page/edit/${page.key}`}>{page.title}</a></li>
+  <li><a href={`page/${page.key}/edit`}>{page.title}</a></li>
 {/each}
 
 <a href="page/new">Create a new page</a>
