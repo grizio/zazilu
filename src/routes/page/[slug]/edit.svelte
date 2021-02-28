@@ -42,7 +42,11 @@
       }
     })
     if (res.status === 200) {
-      await goto(`/page/${event.detail.key}`)
+      if (event.detail.key === "home") {
+        await goto("/")
+      } else {
+        await goto(`/page/${event.detail.key}`)
+      }
     }
   }
 

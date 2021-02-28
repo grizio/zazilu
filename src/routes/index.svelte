@@ -1,50 +1,38 @@
-<script>
-	import successkid from 'images/successkid.jpg'
-</script>
+<script context="module" lang="ts">
+	import type { Preload } from "@sapper/common"
+	import { pageValidation } from "~/model/validation/PageValidation"
 
-<style>
-	h1, figure, p {
-		text-align: center;
-		margin: 0 auto;
-	}
+	export const preload: Preload = async function() {
+		const res = await this.fetch(`page/home.json`)
+		const data = await res.json()
 
-	h1 {
-		font-size: 2.8em;
-		text-transform: uppercase;
-		font-weight: 700;
-		margin: 0 0 0.5em 0;
-	}
-
-	figure {
-		margin: 0 0 1em 0;
-	}
-
-	img {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 0 1em 0;
-	}
-
-	p {
-		margin: 1em auto;
-	}
-
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
+		if (res.status === 200) {
+			const formattedData = pageValidation.validate(data)
+			if (formattedData.ok) {
+				return { page: formattedData.value }
+			} else if (formattedData.ok === false) {
+				return this.error(res.status, formattedData.errors.toString())
+			}
+		} else {
+			return this.error(res.status, data.message)
 		}
 	}
-</style>
+</script>
+
+<script lang="ts">
+	import type { Page } from "~/model/Page"
+	import PageView from "~/components/page/PageView.svelte"
+	import AdminRestriction from "~/components/security/AdminRestriction.svelte"
+
+	export let page: Page
+</script>
 
 <svelte:head>
-	<title>Sapper project template</title>
+	<title>{page.title}</title>
 </svelte:head>
 
-<h1>Great success!</h1>
+<PageView page={page} />
 
-<figure>
-	<img alt="Success Kid" src="{successkid}">
-	<figcaption>Have fun with Sapper!</figcaption>
-</figure>
-
-<p><strong>Try editing this file (src/routes/index.svelte) to test live reloading.</strong></p>
+<AdminRestriction>
+	<a href={`/page/${page.key}/edit`}>Edit</a>
+</AdminRestriction>
