@@ -1,8 +1,11 @@
 import type { Bloc } from "../model/Page"
+import { generateId } from "../utils/strings"
 
 export type BlocEditComponent = {
   move(move: Move): void
 }
+
+type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never
 
 export type PageEditEventDispatcher = {
   new: OnNewDetail
@@ -13,7 +16,7 @@ export type PageEditEventDispatcher = {
 
 export type OnNewDetail = {
   index: number
-  bloc: Omit<Bloc, "id">
+  bloc: DistributiveOmit<Bloc, "id">
   moveTo?: Move
 }
 
@@ -40,4 +43,11 @@ export type OnMergeDetail = {
 export type OnUpdateDetail = {
   index: number
   bloc: Bloc
+}
+
+export function withGeneratedId(bloc: DistributiveOmit<Bloc, "id">): Bloc {
+  return {
+    ...bloc,
+    id: generateId()
+  }
 }

@@ -4,7 +4,7 @@ export type Page = {
   content: Array<Bloc>
 }
 
-export type Bloc = Text
+export type Bloc = Text | Meet
 
 export type Text = {
   type: "p" | `h${1 | 2 | 3 | 4 | 5 | 6}`
@@ -66,4 +66,10 @@ export function link(value: Omit<Link, "type">): Link {
     ...value,
     type: "link"
   }
+}
+
+export type Meet = {
+  type: "meet"
+  id: string
+  date: Date
 }

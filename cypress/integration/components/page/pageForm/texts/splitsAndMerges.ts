@@ -1,4 +1,4 @@
-import { fifthParagraph, firstParagraph, initialize, secondParagraph, title1, title12, title2 } from "./common"
+import { fifthParagraph, firstParagraph, initialize, secondParagraph, title1, title12, title2 } from "../common"
 
 describe("TextEdit splits and merges", () => {
   it("should correctly add a new paragraph", () => {

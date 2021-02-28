@@ -1,6 +1,6 @@
 import { array, literal, object, recursion, string, union, Validator } from "idonttrustlikethat"
-import type { Bloc, Emphasis, Link, Page, PlainText, Strong, Text, TextPart } from "../Page"
-import { nonEmptyString } from "../../utils/validators"
+import type { Bloc, Emphasis, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "../Page"
+import { dateTime, nonEmptyString } from "../../utils/validators"
 import { uniqueBy } from "../../utils/arrays"
 
 const textPartValidator: Validator<TextPart> = recursion(self => {
@@ -34,7 +34,13 @@ const textValidator: Validator<Text> = object({
   content: array(textPartValidator),
 })
 
-const blocValidator: Validator<Bloc> = textValidator
+const meetValidator: Validator<Meet> = object({
+  type: literal("meet"),
+  id: nonEmptyString,
+  date: dateTime,
+})
+
+const blocValidator: Validator<Bloc> = union(textValidator, meetValidator)
 
 export const pageValidation: Validator<Page> = object({
   key: nonEmptyString,

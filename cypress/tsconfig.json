@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["es5", "dom"],
+    "lib": ["ES2020", "dom"],
     "types": ["cypress"],
     "allowJs": false,
     "alwaysStrict": true,

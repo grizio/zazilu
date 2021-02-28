@@ -4,7 +4,6 @@ import { tick } from "svelte"
 import { domToContent } from "./TextEditAdapters"
 import type { Text } from "../../../model/Page"
 import type { PageEditEventDispatcher } from "../../types"
-import type { Bloc } from "../../../model/Page"
 import type { UniqueSelection } from "../../../utils/dom/Selection"
 import { Caret, XRange } from "../../../utils/dom/Selection"
 import { XNode } from "../../../utils/dom/XNode"
@@ -13,7 +12,7 @@ type RequiredDetail = {
   dispatch: <EventKey extends keyof PageEditEventDispatcher>(type: EventKey, detail?: PageEditEventDispatcher[EventKey]) => void
   element: HTMLElement
   index: number
-  bloc: Bloc
+  bloc: Text
 }
 
 export const toggleBold = createToggleElementSelection("STRONG", () => XNode.create("strong"))
@@ -119,6 +118,11 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
   .filter(prefixPredicate("!#"))
   .process(textTransformer("p"))
 
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("/meet"))
+  .process(meetTransformer)
+
   .on("ctrl+b")
   .withUniqueSelection()
   .process(toggleBold)
@@ -180,6 +184,17 @@ function textTransformer(textType: Text["type"]) {
     })
     tick().then(() => dispatch("move", { index, move: { type: "start" } }))
   }
+}
+
+function meetTransformer({ dispatch, index, bloc }: RequiredDetail) {
+  dispatch("update", {
+    index: index,
+    bloc: {
+      type: "meet",
+      id: bloc.id,
+      date: new Date(Date.now())
+    }
+  })
 }
 
 type ToggleElementSelectionParams = Pick<RequiredDetail, "element" | "dispatch" | "index"> & { selection: UniqueSelection }

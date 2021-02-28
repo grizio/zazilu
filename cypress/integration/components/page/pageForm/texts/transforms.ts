@@ -1,4 +1,4 @@
-import { firstParagraph, firstRichParagraph, initialize, title1, title2 } from "./common"
+import { firstParagraph, firstRichParagraph, initialize, title1, title2 } from "../common"
 
 describe("TextEdit transforms", () => {
   it("should transform a paragraph into a h1", () => {
@@ -71,5 +71,14 @@ describe("TextEdit transforms", () => {
     cy.get(firstRichParagraph).type("# ")
     cy.get(`h1${firstRichParagraph}`).should("have.html", "Interdum et malesuada fames ac <strong>ante ipsum</strong> primis in faucibus")
     cy.get(`p${firstRichParagraph}`).should("not.exist")
+  })
+
+  it("should transform a paragraph into meet", () => {
+    initialize()
+    cy.get(firstParagraph).click()
+    cy.get(firstParagraph).type("{movetostart}")
+    cy.get(firstParagraph).type("/meet ")
+    cy.get(`${firstParagraph} input[type=date]`).should("exist")
+    cy.get(`${firstParagraph} input[type=time]`).should("exist")
   })
 })

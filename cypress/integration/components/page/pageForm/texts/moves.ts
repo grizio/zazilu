@@ -6,7 +6,7 @@ import {
   initialize, secondParagraph,
   secondRichParagraph,
   thirdParagraph
-} from "./common"
+} from "../common"
 
 describe("TextEdit moves", () => {
   it("should correctly move cursor to the left", () => {

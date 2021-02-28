@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Bloc } from "../../model/Page"
   import TextEdit from "./TextEdit.svelte"
+  import MeetEdit from "./MeetEdit.svelte"
   import type { Move } from "../types"
 
   export let bloc: Bloc
@@ -14,6 +15,7 @@
     h4: TextEdit,
     h5: TextEdit,
     h6: TextEdit,
+    meet: MeetEdit,
   }
 
   let element

@@ -1,4 +1,4 @@
-import { firstParagraph, firstRichParagraph, initialize, secondRichParagraph, thirdRichParagraph } from "./common"
+import { firstParagraph, firstRichParagraph, initialize, secondRichParagraph, thirdRichParagraph } from "../common"
 
 describe("TextEdit styling", () => {
   it("should put selected text in strong when not already strong", () => {

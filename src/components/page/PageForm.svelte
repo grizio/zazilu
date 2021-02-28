@@ -1,11 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, tick } from "svelte"
   import type { Page, Text } from "../../model/Page"
+  import { isText } from "../../model/Page"
   import BlocEdit from "../bloc/BlocEdit.svelte"
   import { insert, remove, replace } from "../../utils/arrays"
-  import { generateId } from "../../utils/strings"
   import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "../types"
-  import { isText } from "../../model/Page"
+  import { withGeneratedId } from "../types"
 
   export let page: Page
   let blocs: Array<BlocEditComponent> = []
@@ -16,7 +16,7 @@
     const { index, bloc, moveTo } = event.detail
     page = {
       ...page,
-      content: insert(page.content, index, { ...bloc, id: generateId() })
+      content: insert(page.content, index, withGeneratedId(bloc))
     }
     if (moveTo !== undefined) {
       setTimeout(() => blocs[index].move(moveTo), 0)
@@ -91,4 +91,4 @@
   />
 {/each}
 
-<button on:click={submit}>Save</button>
+<button on:click={submit} data-test-id="pageForm-submit">Save</button>

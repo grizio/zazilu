@@ -1,4 +1,4 @@
-import { firstParagraph, firstRichParagraph } from "./common"
+import { firstParagraph, firstRichParagraph } from "../common"
 
 describe("TextEdit typing", () => {
   function initialize() {

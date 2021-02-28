@@ -70,6 +70,16 @@ export const initialPage: Page = {
       "id": "n9tAhhR0lup1StIFKCnE",
       "type": "p",
       "content": [{ type: "strong", content: [text("Nulla condimentum "), em("vitae lectus"), text(" feugiat sodales.")] }]
+    },
+    {
+      "id": "gMOtIVioNzk1khxGplXl",
+      "type": "h1",
+      "content": [text("Meets")]
+    },
+    {
+      "id": "hBZZT83U4fvFaZq2I1wo",
+      "type": "meet",
+      "date": new Date(Date.parse("2021-03-01T20:30:00Z")),
     }
   ]
 }
