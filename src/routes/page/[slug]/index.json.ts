@@ -1,7 +1,7 @@
 import { app } from "~/app"
 import { pageValidation } from "~/model/validation/PageValidation"
 import { onAuthenticatedAdmin } from "~/security/authentication"
-import { badRequest, conflict, created, notFound, ok } from "~/utils/requests"
+import { badRequest, conflict, created, DeleteRequest, noContent, notFound, ok } from "~/utils/requests"
 import type { AppResponse, GetRequest, PostRequest, PutRequest } from "~/utils/requests"
 
 type Params = { slug: string }
@@ -56,6 +56,17 @@ export async function put(req: PutRequest<Params>, res: AppResponse) {
       }
     } else {
       badRequest(res, validation.errors)
+    }
+  })
+}
+
+export async function del(req: DeleteRequest<Params>, res: AppResponse) {
+  await onAuthenticatedAdmin(req, res, async () => {
+    if (req.params.slug !== "home") {
+      await app.pageRepository.remove(req.params.slug)
+      noContent(res)
+    } else {
+      badRequest(res, { message: "You cannot remove the homepage" })
     }
   })
 }

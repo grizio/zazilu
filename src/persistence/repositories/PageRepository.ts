@@ -43,9 +43,9 @@ export class PageRepository {
     }
   }
 
-  remove = async (page: Page): Promise<void> => {
-    if (this.inMemory.has(page.key)) {
-      this.inMemory.delete(page.key)
+  remove = async (key: string): Promise<void> => {
+    if (this.inMemory.has(key)) {
+      this.inMemory.delete(key)
     } else {
       // TODO: error
     }

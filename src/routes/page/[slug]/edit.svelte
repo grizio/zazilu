@@ -2,7 +2,7 @@
   import type { Preload } from "@sapper/common"
   import { pageValidation } from "~/model/validation/PageValidation"
 
-  export const preload: Preload = async function({ params }) {
+  export const preload: Preload = async function ({ params }) {
     const res = await this.fetch(`page/${params.slug}.json`)
     const data = await res.json()
 
@@ -45,6 +45,22 @@
       await goto(`/page/${event.detail.key}`)
     }
   }
+
+  async function remove() {
+    const confirmed = confirm("Do you really want to delete this page?")
+    if (confirmed) {
+      const res = await fetch(`page/${initialPage.key}.json`, {
+        method: "DELETE",
+        headers: {
+          "Accept": "application/json"
+        }
+      })
+      if (res.status === 204) {
+        await goto("/")
+      }
+      // TODO: error management
+    }
+  }
 </script>
 
 <svelte:head>
@@ -55,4 +71,8 @@
 
 {#if page !== undefined}
   <PageForm page={page} on:submit={submit}/>
+{/if}
+
+{#if initialPage.key !== "home"}
+  <button on:click={remove}>Remove</button>
 {/if}
