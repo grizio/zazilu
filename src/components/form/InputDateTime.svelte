@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { datePart, timePart, toDate } from "../../utils/dates"
   import { createEventDispatcher } from "svelte"
+  import { datePart, timePart, toDate } from "~/utils/dates"
 
   export let dateLabel: string = "Date"
   export let timeLabel: string = "Time"

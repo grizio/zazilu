@@ -1,8 +1,8 @@
 <script lang="ts">
   import { stores } from "@sapper/app"
-  import AuthenticatedRestriction from "./security/AuthenticatedRestriction.svelte"
-  import UnauthenticatedRestriction from "./security/UnauthenticatedRestriction.svelte"
-  import AdminRestriction from "./security/AdminRestriction.svelte"
+  import AuthenticatedRestriction from "~/components/security/AuthenticatedRestriction.svelte"
+  import UnauthenticatedRestriction from "~/components/security/UnauthenticatedRestriction.svelte"
+  import AdminRestriction from "~/components/security/AdminRestriction.svelte"
 
   const { session } = stores()
 

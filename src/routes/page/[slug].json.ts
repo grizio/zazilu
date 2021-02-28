@@ -1,7 +1,7 @@
-import { app } from "../../app"
-import type { AppResponse, GetRequest, PostRequest, PutRequest } from "../types"
-import { pageValidation } from "../../model/validation/PageValidation"
-import { onAuthenticatedAdmin } from "../../security/authentication"
+import { app } from "~/app"
+import type { AppResponse, GetRequest, PostRequest, PutRequest } from "~/routes/types"
+import { pageValidation } from "~/model/validation/PageValidation"
+import { onAuthenticatedAdmin } from "~/security/authentication"
 
 type Params = { slug: string }
 

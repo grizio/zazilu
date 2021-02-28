@@ -1,5 +1,5 @@
-import { Caret, UniqueSelection, XRange } from "../../../utils/dom/Selection"
-import { getCurrentCaretPosition, getCurrentSelection } from "../../../utils/dom"
+import { Caret, UniqueSelection, XRange } from "~/utils/dom/Selection"
+import { getCurrentCaretPosition, getCurrentSelection } from "~/utils/dom"
 
 type Letter =
   | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"

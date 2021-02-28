@@ -1,12 +1,12 @@
-import { KeyboardListener } from "./KeyboardListener"
-import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "../../../utils/dom"
 import { tick } from "svelte"
+import { KeyboardListener } from "./KeyboardListener"
+import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "~/utils/dom"
 import { domToContent } from "./TextEditAdapters"
-import type { Text } from "../../../model/Page"
+import type { Text } from "~/model/Page"
 import type { PageEditEventDispatcher } from "../../types"
-import type { UniqueSelection } from "../../../utils/dom/Selection"
-import { Caret, XRange } from "../../../utils/dom/Selection"
-import { XNode } from "../../../utils/dom/XNode"
+import type { UniqueSelection } from "~/utils/dom/Selection"
+import { Caret, XRange } from "~/utils/dom/Selection"
+import { XNode } from "~/utils/dom/XNode"
 
 type RequiredDetail = {
   dispatch: <EventKey extends keyof PageEditEventDispatcher>(type: EventKey, detail?: PageEditEventDispatcher[EventKey]) => void

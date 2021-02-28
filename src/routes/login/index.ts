@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt"
-import { app } from "../../app"
-import type { AppResponse, GetRequest } from "../types"
+import { app } from "~/app"
+import type { AppResponse, GetRequest } from "~/routes/types"
 
 export async function post(req: GetRequest, res: AppResponse, next: () => void) {
   // @ts-ignore

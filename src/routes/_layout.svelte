@@ -1,5 +1,10 @@
+<script context="module" lang="ts">
+	// Needed to avoid unexpected warning
+	export const preload = () => ({})
+</script>
+
 <script lang="ts">
-	import Nav from '../components/Nav.svelte';
+	import Nav from "~/components/Nav.svelte"
 
 	export let segment: string;
 </script>

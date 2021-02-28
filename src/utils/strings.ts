@@ -1,4 +1,4 @@
-import { oneOf } from "./random"
+import { oneOf } from "~/utils/random"
 
 const acceptedCharacters = Array.from("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 export function generateId(): string {

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Page } from "../../model/Page"
-  import BlocView from "../../components/bloc/BlocView.svelte"
+  import type { Page } from "~/model/Page"
+  import BlocView from "~/components/bloc/BlocView.svelte"
 
   export let page: Page
 </script>

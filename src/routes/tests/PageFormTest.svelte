@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageForm from "../../components/page/PageForm.svelte"
+  import PageForm from "~/components/page/PageForm.svelte"
   import { initialPage } from "./PageFormTest"
 
   let page = initialPage

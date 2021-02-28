@@ -1,5 +1,5 @@
 import { XNode } from "./XNode"
-import { equalsWithMargin } from "../numbers"
+import { equalsWithMargin } from "~/utils/numbers"
 
 export class UniqueSelection {
   private readonly range: Range

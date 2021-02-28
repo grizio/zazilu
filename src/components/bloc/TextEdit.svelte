@@ -1,8 +1,8 @@
 <script lang="ts">
   import { afterUpdate, createEventDispatcher } from "svelte"
-  import type { Text } from "../../model/Page"
+  import type { Text } from "~/model/Page"
   import type { Move, PageEditEventDispatcher } from "../types"
-  import { createCursorRangeAtBottom, createCursorRangeAtTop, getCurrentSelection } from "../../utils/dom"
+  import { createCursorRangeAtBottom, createCursorRangeAtTop, getCurrentSelection } from "~/utils/dom"
   import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
   import {
     keyboardActions,
@@ -10,8 +10,8 @@
     toggleItalic,
     wrapWithCurrentAncestors
   } from "./helpers/TextEditKeyboardActions"
-  import { XNode } from "../../utils/dom/XNode"
-  import { Caret, UniqueSelection, XRange } from "../../utils/dom/Selection"
+  import { XNode } from "~/utils/dom/XNode"
+  import { Caret, UniqueSelection, XRange } from "~/utils/dom/Selection"
   import TextEditToolbox from "./TextEditToolbox.svelte"
 
   const dispatch = createEventDispatcher<PageEditEventDispatcher>()

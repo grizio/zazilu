@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import { getCurrentSelection } from "../../utils/dom"
+  import { getCurrentSelection } from "~/utils/dom"
 
   const dispatch = createEventDispatcher()
 

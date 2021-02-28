@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import type { Preload } from "@sapper/common"
-  import { pageValidation } from "../../model/validation/PageValidation"
+  import { pageValidation } from "~/model/validation/PageValidation"
 
   export const preload: Preload = async function({ params }) {
     const res = await this.fetch(`page/${params.slug}.json`)
@@ -20,9 +20,9 @@
 </script>
 
 <script lang="ts">
-  import type { Page } from "../../model/Page"
-  import PageView from "../../components/page/PageView.svelte"
-  import AdminRestriction from "../../components/security/AdminRestriction.svelte"
+  import type { Page } from "~/model/Page"
+  import PageView from "~/components/page/PageView.svelte"
+  import AdminRestriction from "~/components/security/AdminRestriction.svelte"
 
   export let page: Page
 </script>

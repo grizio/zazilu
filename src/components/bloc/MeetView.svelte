@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Meet } from "../../model/Page"
+  import type { Meet } from "~/model/Page"
 
   export let bloc: Meet
 </script>

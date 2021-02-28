@@ -1,7 +1,7 @@
 import { array, literal, object, recursion, string, union, Validator } from "idonttrustlikethat"
-import type { Bloc, Emphasis, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "../Page"
-import { dateTime, nonEmptyString } from "../../utils/validators"
-import { uniqueBy } from "../../utils/arrays"
+import type { Bloc, Emphasis, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "~/model/Page"
+import { dateTime, nonEmptyString } from "~/utils/validators"
+import { uniqueBy } from "~/utils/arrays"
 
 const textPartValidator: Validator<TextPart> = recursion(self => {
   const plainTextValidation: Validator<PlainText> = object({

@@ -1,5 +1,5 @@
-import type { Page } from "../../model/Page"
-import { generateId } from "../../utils/strings"
+import type { Page } from "~/model/Page"
+import { generateId } from "~/utils/strings"
 
 const defaultHomePage: Page = {
   key: "home",

@@ -1,5 +1,5 @@
-import type { Bloc } from "../model/Page"
-import { generateId } from "../utils/strings"
+import type { Bloc } from "~/model/Page"
+import { generateId } from "~/utils/strings"
 
 export type BlocEditComponent = {
   move(move: Move): void

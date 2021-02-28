@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import type { Preload } from "@sapper/common"
-  import { pageValidation } from "../../../model/validation/PageValidation"
+  import { pageValidation } from "~/model/validation/PageValidation"
 
   export const preload: Preload = async function({ params }) {
     const res = await this.fetch(`page/${params.slug}.json`)
@@ -21,8 +21,8 @@
 
 <script lang="ts">
   import { onMount } from "svelte"
-  import type { Page } from "../../../model/Page"
-  import PageForm from "../../../components/page/PageForm.svelte"
+  import type { Page } from "~/model/Page"
+  import PageForm from "~/components/page/PageForm.svelte"
   import { goto } from "@sapper/app"
 
   export let initialPage: Page

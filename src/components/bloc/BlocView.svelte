@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Bloc } from "../../model/Page"
+  import type { Bloc } from "~/model/Page"
   import TextView from "./TextView.svelte"
   import MeetView from "./MeetView.svelte"
 

@@ -1,6 +1,6 @@
-import { equalsWithMargin, median } from "./numbers"
-import { Caret, UniqueSelection } from "./dom/Selection"
-import { XNode } from "./dom/XNode"
+import { equalsWithMargin, median } from "~/utils/numbers"
+import { Caret, UniqueSelection } from "~/utils/dom/Selection"
+import { XNode } from "~/utils/dom/XNode"
 
 export function getFirstLineDOMRect(element: Node): DOMRect | undefined {
   const elementRange = document.createRange()

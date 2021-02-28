@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Page } from "../../model/Page"
-  import PageForm from "../../components/page/PageForm.svelte"
-  import { generateId } from "../../utils/strings"
+  import type { Page } from "~/model/Page"
+  import PageForm from "~/components/page/PageForm.svelte"
+  import { generateId } from "~/utils/strings"
   import { goto } from "@sapper/app"
 
   let page: Page = {

@@ -1,6 +1,6 @@
-import type { Role, User } from "../model/User"
-import type { AppRequest, AppResponse } from "../routes/types"
-import { app } from "../app"
+import type { Role, User } from "~/model/User"
+import type { AppRequest, AppResponse } from "~/routes/types"
+import { app } from "~/app"
 
 export async function onAuthenticated(req: AppRequest, res: AppResponse, process: (user: User) => Promise<void>): Promise<void> {
   const user = await extractUser(req)

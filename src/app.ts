@@ -1,5 +1,5 @@
-import { PageRepository } from "./persistence/repositories/PageRepository"
-import { UserRepository } from "./persistence/repositories/UserRepository"
+import { PageRepository } from "~/persistence/repositories/PageRepository"
+import { UserRepository } from "~/persistence/repositories/UserRepository"
 
 export interface App {
   pageRepository: PageRepository

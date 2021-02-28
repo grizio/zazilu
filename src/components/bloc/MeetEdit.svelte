@@ -1,8 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import type { Meet } from "../../model/Page"
-  import InputDateTime from "../form/InputDateTime.svelte"
-  import type { PageEditEventDispatcher } from "../types"
+  import type { Meet } from "~/model/Page"
+  import InputDateTime from "~/components/form/InputDateTime.svelte"
+  import type { PageEditEventDispatcher } from "~/components/types"
 
   export let bloc: Meet
   export let index: number

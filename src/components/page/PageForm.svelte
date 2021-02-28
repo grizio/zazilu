@@ -1,11 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, tick } from "svelte"
-  import type { Page, Text } from "../../model/Page"
-  import { isText } from "../../model/Page"
-  import BlocEdit from "../bloc/BlocEdit.svelte"
-  import { insert, remove, replace } from "../../utils/arrays"
-  import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "../types"
-  import { withGeneratedId } from "../types"
+  import type { Page, Text } from "~/model/Page"
+  import { isText } from "~/model/Page"
+  import BlocEdit from "~/components/bloc/BlocEdit.svelte"
+  import { insert, remove, replace } from "~/utils/arrays"
+  import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "~/components/types"
+  import { withGeneratedId } from "~/components/types"
 
   export let page: Page
   let blocs: Array<BlocEditComponent> = []
