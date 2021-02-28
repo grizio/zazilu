@@ -1,4 +1,6 @@
 <script context="module" lang="ts">
+  import { pageValidation } from "../../model/validation/PageValidation"
+
   type Params = { slug: string }
 
   export async function preload({ params }: { params: Params }) {
@@ -6,7 +8,12 @@
     const data = await res.json()
 
     if (res.status === 200) {
-      return { page: data }
+      const formattedData = pageValidation.validate(data)
+      if (formattedData.ok) {
+        return { page: formattedData.value }
+      } else if (formattedData.ok === false) {
+        return this.error(res.status, formattedData.errors)
+      }
     } else {
       this.error(res.status, data.message)
     }

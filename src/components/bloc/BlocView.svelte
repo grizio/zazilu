@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Bloc } from "../../model/Page"
   import TextView from "./TextView.svelte"
+  import MeetView from "./MeetView.svelte"
 
   export let bloc: Bloc
 
@@ -12,6 +13,7 @@
     h4: TextView,
     h5: TextView,
     h6: TextView,
+    meet: MeetView
   }
 </script>
 
