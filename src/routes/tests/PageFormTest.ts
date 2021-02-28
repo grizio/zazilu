@@ -80,6 +80,7 @@ export const initialPage: Page = {
       "id": "hBZZT83U4fvFaZq2I1wo",
       "type": "meet",
       "date": new Date(Date.parse("2021-03-01T20:30:00Z")),
+      "members": ["John"]
     }
   ]
 }
