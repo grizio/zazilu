@@ -6,7 +6,7 @@
 
   let page: Page = {
     key: "",
-    content: [{ type: "p", id: generateId(), content: "" }],
+    content: [{ type: "p", id: generateId(), content: [{ type: "text", content: "" }] }],
     title: ""
   }
 

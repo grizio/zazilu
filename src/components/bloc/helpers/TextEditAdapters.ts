@@ -43,6 +43,6 @@ export function domToContent(nodes: NodeList): Array<TextPart> {
     .filter(isDefined)
 }
 
-export function wasUpdated(current: Text, previous: Text): boolean {
-  return JSON.stringify(current) !== JSON.stringify(previous)
+export function wasUpdated(current: Text | undefined, previous: Text | undefined): boolean {
+  return !((current === undefined && previous === undefined ) || JSON.stringify(current) === JSON.stringify(previous))
 }

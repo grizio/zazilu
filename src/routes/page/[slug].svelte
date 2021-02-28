@@ -1,9 +1,8 @@
 <script context="module" lang="ts">
+  import type { Preload } from "@sapper/common"
   import { pageValidation } from "../../model/validation/PageValidation"
 
-  type Params = { slug: string }
-
-  export async function preload({ params }: { params: Params }) {
+  export const preload: Preload = async function({ params }) {
     const res = await this.fetch(`page/${params.slug}.json`)
     const data = await res.json()
 
@@ -12,10 +11,10 @@
       if (formattedData.ok) {
         return { page: formattedData.value }
       } else if (formattedData.ok === false) {
-        return this.error(res.status, formattedData.errors)
+        return this.error(res.status, formattedData.errors.toString())
       }
     } else {
-      this.error(res.status, data.message)
+      return this.error(res.status, data.message)
     }
   }
 </script>

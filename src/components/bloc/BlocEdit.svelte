@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { SvelteComponentTyped } from "svelte"
   import type { Bloc } from "../../model/Page"
   import TextEdit from "./TextEdit.svelte"
   import MeetEdit from "./MeetEdit.svelte"
@@ -18,7 +19,7 @@
     meet: MeetEdit,
   }
 
-  let element
+  let element: SvelteComponentTyped & { move: (move: Move) => void } | undefined
 
   export function move(move: Move) {
     element?.move(move)

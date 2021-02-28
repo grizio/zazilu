@@ -76,7 +76,7 @@
   }
 
   function paste(event: ClipboardEvent) {
-    const pastedContent = event.clipboardData.getData("text/plain")
+    const pastedContent = event.clipboardData?.getData("text/plain")
     if (pastedContent !== undefined) {
       document.execCommand("insertText", false, pastedContent)
     }

@@ -11,12 +11,12 @@
 
   const dispatch = createEventDispatcher()
 
-  function onDateChange(event) {
-    dispatch("change", toDate(event.target.value, timePart(value)))
+  function onDateChange(event: Event): void {
+    dispatch("change", toDate((event.target as HTMLInputElement).value, timePart(value)))
   }
 
-  function onTimeChange(event) {
-    dispatch("change", toDate(datePart(value), event.target.value))
+  function onTimeChange(event: Event): void {
+    dispatch("change", toDate(datePart(value), (event.target as HTMLInputElement).value))
   }
 </script>
 

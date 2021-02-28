@@ -1,12 +1,14 @@
 <script context="module" lang="ts">
-  export async function preload() {
+  import type { Preload } from "@sapper/common"
+
+  export const preload: Preload = async function() {
     const res = await this.fetch(`admin.json`)
     const data = await res.json()
 
     if (res.status === 200) {
       return { pages: data }
     } else {
-      this.error(res.status, data.message)
+      return this.error(res.status, data.message)
     }
   }
 </script>
