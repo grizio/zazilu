@@ -2,7 +2,7 @@
   import type { Preload } from "@sapper/common"
 
   export const preload: Preload = async function() {
-    const res = await this.fetch(`admin.json`)
+    const res = await this.fetch("/pages.json")
     const data = await res.json()
 
     if (res.status === 200) {
