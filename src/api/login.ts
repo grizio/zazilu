@@ -12,20 +12,18 @@ const bodyValidation = object({
 export async function postLogin(request: Request): Promise<Response> {
   const body = bodyValidation.validate(request.body)
 
-  if (body.ok) {
+  if (!body.ok) {
+    return badRequest("Expected email and password")
+  } else {
     const { email, password } = body.value
     const user = await app.userRepository.get(email)
-    if (user !== undefined) {
-      if (await bcrypt.compare(password, user.password)) {
-        return ok({ email: user.email, role: user.role }, { cookies: { auth: user.email } })
-      } else {
-        return badRequest("Unknown user or password")
-      }
+    if (user === undefined) {
+      return badRequest("Unknown user or password")
+    } else if (await bcrypt.compare(password, user.password)) {
+      return ok({ email: user.email, role: user.role }, { cookies: { auth: user.email } })
     } else {
       return badRequest("Unknown user or password")
     }
-  } else {
-    return badRequest("Expected email and password")
   }
 }
 

@@ -15,34 +15,31 @@ export async function getAllPages(request: Request): Promise<Response> {
 }
 
 export async function getPage(request: Request): Promise<Response> {
-  console.log(request.params)
   const pageContent = await app.pageRepository.get(request.params.slug)
 
-  if (pageContent !== undefined) {
-    return ok(pageContent)
-  } else {
+  if (pageContent === undefined) {
     return notFound({ message: "Not found" })
+  } else {
+    return ok(pageContent)
   }
 }
 
 export async function postPage(request: Request): Promise<Response> {
   return await onAuthenticatedAdmin(request, async () => {
     const validation = pageValidation.validate(request.body)
-    if (validation.ok) {
-      const page = validation.value
-      if (page.key === request.params.slug) {
-        const existingPage = await app.pageRepository.get(page.key)
-        if (existingPage === undefined) {
-          await app.pageRepository.post(page)
-          return created(page)
-        } else {
-          return conflict({ message: "The page already exist" })
-        }
-      } else {
-        return badRequest({ message: "key in body and slug in path do not match", path: "key" })
-      }
-    } else {
+    if (!validation.ok) {
       return badRequest(validation.errors)
+    } else if (validation.value.key !== request.params.slug) {
+      return badRequest({ message: "key in body and slug in path do not match", path: "key" })
+    } else {
+      const page = validation.value
+      const existingPage = await app.pageRepository.get(page.key)
+      if (existingPage !== undefined) {
+        return conflict({ message: "The page already exist" })
+      } else {
+        await app.pageRepository.post(page)
+        return created(page)
+      }
     }
   })
 }
@@ -50,32 +47,29 @@ export async function postPage(request: Request): Promise<Response> {
 export async function putPage(request: Request): Promise<Response> {
   return await onAuthenticatedAdmin(request, async () => {
     const validation = pageValidation.validate(request.body)
-    if (validation.ok) {
-      if (validation.value.key === request.params.slug) {
-        const existingPage = await app.pageRepository.get(request.params.slug)
-
-        if (existingPage !== undefined) {
-          await app.pageRepository.put(validation.value)
-          return ok(validation.value)
-        } else {
-          return notFound({ message: `Not found` })
-        }
-      } else {
-        return badRequest({ message: "key in body and slug in path do not match", path: "key" })
-      }
-    } else {
+    if (!validation.ok) {
       return badRequest(validation.errors)
+    } else if (validation.value.key !== request.params.slug) {
+      return badRequest({ message: "key in body and slug in path do not match", path: "key" })
+    } else {
+      const existingPage = await app.pageRepository.get(request.params.slug)
+      if (existingPage === undefined) {
+        return notFound({ message: `Not found` })
+      } else {
+        await app.pageRepository.put(validation.value)
+        return ok(validation.value)
+      }
     }
   })
 }
 
 export async function deletePage(request: Request): Promise<Response> {
   return await onAuthenticatedAdmin(request, async () => {
-    if (request.params.slug !== "home") {
+    if (request.params.slug === "home") {
+      return badRequest({ message: "You cannot remove the homepage" })
+    } else {
       await app.pageRepository.remove(request.params.slug)
       return noContent()
-    } else {
-      return badRequest({ message: "You cannot remove the homepage" })
     }
   })
 }
@@ -98,30 +92,30 @@ const actionValidator: Validator<PageAction> = meetActionValidator
 
 export async function postAction(request: Request): Promise<Response> {
   const validation = actionValidator.validate(request.body)
-  if (validation.ok) {
+  if (!validation.ok) {
+    return badRequest(validation.errors)
+  } else {
     const page = await app.pageRepository.get(request.params.slug)
-    if (page !== undefined) {
+    if (page === undefined) {
+      return notFound({ message: "Page not found" })
+    } else {
       const blocIndex = page.content.findIndex(_ => _.id === validation.value.bloc)
-      if (blocIndex !== -1) {
+      if (blocIndex === -1) {
+        return notFound({ message: "Bloc not found" })
+      } else {
         const result = process(validation.value, page.content[blocIndex])
-        if (result.ok) {
+        if (!result.ok) {
+          return badRequest(result.errors)
+        } else {
           const updatedPage = {
             ...page,
             content: replace(page.content, blocIndex, result.value)
           }
           await app.pageRepository.put(updatedPage)
           return ok(updatedPage)
-        } else {
-          return badRequest(result.errors)
         }
-      } else {
-        return notFound({ message: "Bloc not found" })
       }
-    } else {
-      return notFound({ message: "Page not found" })
     }
-  } else {
-    return badRequest(validation.errors)
   }
 }
 
