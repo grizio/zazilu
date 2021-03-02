@@ -22,14 +22,29 @@
 
 <style>
   nav {
-    border-bottom: 1px solid rgba(255, 62, 0, 0.1);
-    font-weight: 300;
-    padding: 0 1em;
+    box-shadow: 1px 0 2px #333333;
+    margin-bottom: 16px;
+  }
+
+  .container {
+    margin: auto;
+    display: flex;
+    max-width: 1200px;
+    justify-content: space-between;
+  }
+
+  .container > a {
+    font-size: 18px;
+    text-decoration: none;
+    padding: 16px 0;
+    font-weight: 400;
   }
 
   ul {
+    display: flex;
     margin: 0;
     padding: 0;
+    list-style-type: none;
   }
 
   /* clearfix */
@@ -40,44 +55,43 @@
   }
 
   li {
+    line-height: unset;
+  }
+
+  li a, li button {
     display: block;
-    float: left;
-  }
-
-  [aria-current] {
-    position: relative;
-    display: inline-block;
-  }
-
-  [aria-current]::after {
-    position: absolute;
-    content: '';
-    width: calc(100% - 1em);
-    height: 2px;
-    background-color: rgb(255, 62, 0);
-    display: block;
-    bottom: -1px;
-  }
-
-  a {
+    color: #333333;
     text-decoration: none;
-    padding: 1em 0.5em;
-    display: block;
+    font-size: 18px;
+    padding: 16px 12px;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-weight: 400;
+  }
+
+  li a[aria-current] {
+    padding-bottom: 14px;
+    border-bottom: 2px solid #333333;
   }
 </style>
 
 <nav>
-  <ul>
-    <li><a aria-current={segment === undefined ? 'page' : undefined} href=".">home</a></li>
+  <div class="container">
+    <a href="/">Zazilu</a>
 
-    <UnauthenticatedRestriction>
-      <li><a aria-current="{segment === 'login' ? 'page' : undefined}" href="login">login</a></li>
-    </UnauthenticatedRestriction>
-    <AdminRestriction>
-      <li><a aria-current={segment === 'admin' ? 'page' : undefined} href="admin">administration panel</a></li>
-    </AdminRestriction>
-    <AuthenticatedRestriction>
-      <li><button on:click={logout}>logout</button></li>
-    </AuthenticatedRestriction>
-  </ul>
+    <ul>
+      <UnauthenticatedRestriction>
+        <li><a aria-current="{segment === 'login' ? 'page' : undefined}" href="login">login</a></li>
+      </UnauthenticatedRestriction>
+      <AdminRestriction>
+        <li><a aria-current={segment === 'admin' ? 'page' : undefined} href="admin">administration panel</a></li>
+      </AdminRestriction>
+      <AuthenticatedRestriction>
+        <li><button on:click={logout}>logout</button></li>
+      </AuthenticatedRestriction>
+    </ul>
+  </div>
 </nav>
