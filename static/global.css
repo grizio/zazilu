@@ -59,3 +59,40 @@ p, li {
 	font-size: 16px;
 	line-height: 24px;
 }
+
+label {
+	display: block;
+}
+input {
+	width: 100%;
+	margin-bottom: 8px;
+}
+
+button.primary, a.primary {
+  background-color: #6B9AC4;
+	text-decoration: none;
+	border-radius: 4px;
+	border: none;
+	color: #ffffff;
+	padding: 8px 12px;
+	font-size: 14px;
+	line-height: 16px;
+	cursor: pointer;
+	transition: all ease-in-out 250ms;
+}
+
+button.primary:hover, a.primary:hover {
+	box-shadow: 0px 2px 4px rgba(35, 63, 88, 0.5);
+}
+
+button.primary:active, a.primary:active {
+	box-shadow: inset 0px 2px 4px rgba(35, 63, 88, 0.5);
+}
+
+.panel.error {
+	border: 1px solid #DB162F;
+	border-left-width: 5px;
+	border-radius: 4px;
+  background: #F8B5BE;
+	padding: 16px 8px;
+}

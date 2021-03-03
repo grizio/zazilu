@@ -14,6 +14,7 @@
 </script>
 
 <script lang="ts">
+  import PrimaryButtonLink from "~/components/button/PrimaryButtonLink.svelte"
   import type { Page } from "../../model/Page"
 
   export let pages: Array<Page>
@@ -25,8 +26,10 @@
 
 <h1>Administration panel</h1>
 
-{#each pages as page}
-  <li><a href={`page/${page.key}/edit`}>{page.title}</a></li>
-{/each}
+<ul>
+  {#each pages as page}
+    <li><a href={`page/${page.key}/edit`}>{page.title}</a></li>
+  {/each}
+</ul>
 
-<a href="page/new">Create a new page</a>
+<PrimaryButtonLink href="page/new" label="Create a new page" />

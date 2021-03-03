@@ -1,8 +1,9 @@
 <script lang="ts">
   import { getContext } from "svelte"
   import type { Meet } from "~/model/Page"
-  import { pageValidation } from "../../model/validation/PageValidation"
+  import { pageValidation } from "~/model/validation/PageValidation"
   import type { PageActions } from "../page/PageActions"
+  import PrimaryButton from "~/components/button/PrimaryButton.svelte"
 
   export let bloc: Meet
 
@@ -43,6 +44,7 @@
       {/each}
     </ul>
   {/if}
-  <button data-test-id="meet-member-add" on:click={register}>Register</button>
+
+  <PrimaryButton label="Register" data-test-id="meet-member-add" on:click={register} />
 </div>
 

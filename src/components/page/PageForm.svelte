@@ -6,6 +6,7 @@
   import { insert, remove, replace } from "~/utils/arrays"
   import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "~/components/types"
   import { withGeneratedId } from "~/components/types"
+import PrimaryButton from "../button/PrimaryButton.svelte"
 
   export let page: Page
   let blocs: Array<BlocEditComponent> = []
@@ -69,26 +70,24 @@
   }
 </script>
 
-<div>
+<form on:submit|preventDefault={submit}>
   <label for="title">Title</label>
   <input type="text" name="title" id="title" bind:value={page.title}/>
-</div>
 
-<div>
   <label for="key">Key (authorized characters: alphanumeric, "_" and "-")</label>
   <input type="text" name="key" id="key" bind:value={page.key} pattern="^[0-9A-Za-z_-]+$"/>
-</div>
 
-{#each page.content as bloc, index (bloc.id)}
-  <BlocEdit
-    bind:bloc={bloc}
-    bind:this={blocs[index]}
-    index={index}
-    on:new={onNewBloc}
-    on:move={onMove}
-    on:merge={onMerge}
-    on:update={onUpdate}
-  />
-{/each}
+  {#each page.content as bloc, index (bloc.id)}
+    <BlocEdit
+      bind:bloc={bloc}
+      bind:this={blocs[index]}
+      index={index}
+      on:new={onNewBloc}
+      on:move={onMove}
+      on:merge={onMerge}
+      on:update={onUpdate}
+    />
+  {/each}
 
-<button on:click={submit} data-test-id="pageForm-submit">Save</button>
+  <PrimaryButton label="Save" data-test-id="pageForm-submit" />
+</form>

@@ -1,5 +1,9 @@
 <script lang="ts">
   import { goto, stores } from "@sapper/app"
+  import PrimaryButton from "~/components/button/PrimaryButton.svelte"
+  import InputPassword from "~/components/form/InputPassword.svelte"
+  import InputText from "~/components/form/InputText.svelte"
+import Panel from "~/components/Panel.svelte";
 
   const { session } = stores()
 
@@ -36,15 +40,27 @@
 <h1>Login</h1>
 
 {#if error !== undefined}
-  <p>{error}</p>
+  <Panel type="error">
+    {error}
+  </Panel>
 {/if}
 
 <form on:submit|preventDefault={onSubmit}>
-  <label for="email">Email</label>
-  <input type="text" name="email" bind:value={email} id="email" data-test-id="login-email"/>
+  <InputText
+    label="Email"
+    id="email"
+    name="email"
+    bind:value={email}
+    dataTestId="login-email"
+  />
 
-  <label for="password">Password</label>
-  <input type="password" name="password" bind:value={password} id="password" data-test-id="login-password"/>
+  <InputPassword
+    label="Password"
+    id="password"
+    name="password"
+    bind:value={password}
+    dataTestId="login-password"
+  />
 
-  <button data-test-id="login-submit">Submit</button>
+  <PrimaryButton label="Submit" dataTestId="login-submit" />
 </form>

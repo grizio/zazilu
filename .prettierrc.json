@@ -1,5 +1,8 @@
 {
   "semi": false,
   "singleQuote": false,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "svelteAllowShorthand": false,
+  "svelteSortOrder": "scripts-styles-options-markup",
+  "svelteIndentScriptAndStyle": true
 }
