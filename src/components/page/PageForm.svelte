@@ -3,10 +3,10 @@
   import type { Page, Text } from "~/model/Page"
   import { isText } from "~/model/Page"
   import BlocEdit from "~/components/bloc/BlocEdit.svelte"
+  import PrimaryButton from "~/components/button/PrimaryButton.svelte"
   import { insert, remove, replace } from "~/utils/arrays"
   import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "~/components/types"
   import { withGeneratedId } from "~/components/types"
-import PrimaryButton from "../button/PrimaryButton.svelte"
 
   export let page: Page
   let blocs: Array<BlocEditComponent> = []
@@ -89,5 +89,5 @@ import PrimaryButton from "../button/PrimaryButton.svelte"
     />
   {/each}
 
-  <PrimaryButton label="Save" data-test-id="pageForm-submit" />
+  <PrimaryButton label="Save" dataTestId="pageForm-submit" />
 </form>

@@ -87,12 +87,12 @@
         value={bloc.date}
         on:change={onChange}
       />
-      <PrimaryButton label="✔️" on:click={() => (editingDate = false)} />
+      <PrimaryButton label="✔️" on:click={() => (editingDate = false)} dataTestId={`${bloc.id}-validButton`} />
     {:else}
       <time datetime={bloc.date.toISOString()}>
         {new Intl.DateTimeFormat([], { dateStyle: "full", timeStyle: "short" }).format(bloc.date)}
       </time>
-      <PrimaryButton label="🖊" on:click={() => (editingDate = true)} />
+      <PrimaryButton label="🖊" on:click={() => (editingDate = true)} dataTestId={`${bloc.id}-editButton`} />
     {/if}
   </div>
 

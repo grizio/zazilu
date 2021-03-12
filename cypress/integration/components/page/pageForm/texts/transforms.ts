@@ -78,7 +78,6 @@ describe("TextEdit transforms", () => {
     cy.get(firstParagraph).click()
     cy.get(firstParagraph).type("{movetostart}")
     cy.get(firstParagraph).type("/meet ")
-    cy.get(`${firstParagraph} input[type=date]`).should("exist")
-    cy.get(`${firstParagraph} input[type=time]`).should("exist")
+    cy.get(`${firstParagraph} time`).should("exist")
   })
 })

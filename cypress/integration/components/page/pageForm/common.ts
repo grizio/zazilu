@@ -17,6 +17,8 @@ export const secondRichParagraph = "[data-test-id=7iGFyeZlNddiRpqX3FbN]"
 export const thirdRichParagraph = "[data-test-id=n9tAhhR0lup1StIFKCnE]"
 
 export const firstMeet = "[data-test-id=hBZZT83U4fvFaZq2I1wo]"
+export const firstMeetEditButton = "[data-test-id=hBZZT83U4fvFaZq2I1wo-editButton]"
+export const firstMeetValidButton = "[data-test-id=hBZZT83U4fvFaZq2I1wo-validButton]"
 export const firstMeetInputDate = "#hBZZT83U4fvFaZq2I1wo-date-date"
 export const firstMeetInputTime = "#hBZZT83U4fvFaZq2I1wo-date-time"
 
