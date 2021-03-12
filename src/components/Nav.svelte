@@ -26,6 +26,10 @@
     margin-bottom: 16px;
   }
 
+  a {
+    color: #333333;
+  }
+
   .container {
     margin: auto;
     display: flex;
