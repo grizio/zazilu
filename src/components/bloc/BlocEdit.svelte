@@ -4,9 +4,14 @@
   import TextEdit from "./TextEdit.svelte"
   import MeetEdit from "./MeetEdit.svelte"
   import type { Move } from "~/components/types"
+  import BlocMenu from "./BlocMenu.svelte";
 
   export let bloc: Bloc
   export let index: number
+
+  let element:
+    | (SvelteComponentTyped & { move: (move: Move) => void })
+    | undefined
 
   const componentMapping = {
     p: TextEdit,
@@ -19,13 +24,12 @@
     meet: MeetEdit,
   }
 
-  let element: SvelteComponentTyped & { move: (move: Move) => void } | undefined
-
   export function move(move: Move) {
     element?.move(move)
   }
 </script>
 
+<BlocMenu {bloc} {index} on:update />
 <svelte:component
   this={componentMapping[bloc.type]}
   bloc={bloc}
