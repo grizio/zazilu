@@ -12,7 +12,7 @@ function em(content: string): Emphasis {
   return { type: "em", content: [text(content)] }
 }
 
-export const initialPage: Page = {
+const initialPage: Page = {
   "key": "home",
   "title": "Home",
   "content": [
@@ -83,4 +83,76 @@ export const initialPage: Page = {
       "members": ["John"]
     }
   ]
+}
+
+const pageEndingWithMeet: Page = {
+  key: "home",
+  title: "Home",
+  content: [
+    {
+      "id": "s6eTVUS5LZ6O3K3FQlPB",
+      "type": "h1",
+      "content": [text("Title 1")]
+    },
+    {
+      "id": "hBZZT83U4fvFaZq2I1wo",
+      "type": "meet",
+      "date": new Date(Date.parse("2021-03-01T20:30:00Z")),
+      "members": ["John"]
+    }
+  ]
+}
+
+const pageEndingWithParagraph: Page = {
+  key: "home",
+  title: "Home",
+  content: [
+    {
+      "id": "s6eTVUS5LZ6O3K3FQlPB",
+      "type": "h1",
+      "content": [text("Title 1")]
+    },
+    {
+      "id": "wCE6PHWsQAcsyM8On2wz",
+      "type": "p",
+      "content": [text("This is some text.")]
+    },
+  ]
+}
+
+const pageEndingWithTitle: Page = {
+  key: "home",
+  title: "Home",
+  content: [
+    {
+      "id": "s6eTVUS5LZ6O3K3FQlPB",
+      "type": "h1",
+      "content": [text("Title 1")]
+    },
+  ]
+}
+
+const pageEndingWithEmptyParagraph: Page = {
+  key: "home",
+  title: "Home",
+  content: [
+    {
+      "id": "s6eTVUS5LZ6O3K3FQlPB",
+      "type": "h1",
+      "content": [text("Title 1")]
+    },
+    {
+      "id": "wCE6PHWsQAcsyM8On2wz",
+      "type": "p",
+      "content": []
+    },
+  ]
+}
+
+export const allPages = {
+  initialPage,
+  pageEndingWithMeet,
+  pageEndingWithParagraph,
+  pageEndingWithTitle,
+  pageEndingWithEmptyParagraph,
 }

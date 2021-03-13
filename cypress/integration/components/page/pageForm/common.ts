@@ -1,5 +1,7 @@
-export function initialize() {
-  cy.visit("http://localhost:3000/tests/PageFormTest")
+import { allPages } from "../../../../../src/routes/tests/PageFormTest"
+
+export function initialize(q: keyof typeof allPages = "initialPage") {
+  cy.visit(`http://localhost:3000/tests/PageFormTest?q=${q}`)
 }
 
 export const title1 = "[data-test-id=s6eTVUS5LZ6O3K3FQlPB]"

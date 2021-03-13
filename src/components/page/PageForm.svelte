@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, tick } from "svelte"
+  import { createEventDispatcher, onMount, tick } from "svelte"
   import type { Page, Text } from "~/model/Page"
   import { isText } from "~/model/Page"
   import BlocEdit from "~/components/bloc/BlocEdit.svelte"
@@ -13,12 +13,16 @@
 
   const dispatchEvent = createEventDispatcher()
 
+  onMount(() => {
+    page = normalize(page)
+  })
+
   function onNewBloc(event: CustomEvent<OnNewDetail>) {
     const { index, bloc, moveTo } = event.detail
-    page = {
+    page = normalize({
       ...page,
       content: insert(page.content, index, withGeneratedId(bloc))
-    }
+    })
     if (moveTo !== undefined) {
       setTimeout(() => blocs[index].move(moveTo), 0)
     }
@@ -42,10 +46,10 @@
           id: firstBloc.id,
           content: [...firstBloc.content, ...secondBloc.content]
         }
-        page = {
+        page = normalize({
           ...page,
           content: remove(replace(page.content, firstIndex, newBloc), secondIndex)
-        }
+        })
         if (move) {
           await tick()
           blocs[firstIndex].move(move)
@@ -58,10 +62,21 @@
   function onUpdate(event: CustomEvent<OnUpdateDetail>) {
     const { index, bloc } = event.detail
     if (0 <= index && index < page.content.length) {
-      page = {
+      page = normalize({
         ...page,
         content: replace(page.content, index, bloc)
+      })
+    }
+  }
+
+  function normalize(page: Page): Page {
+    if (page.content.length === 0 || !isText(page.content[page.content.length - 1])) {
+      return {
+        ...page,
+        content: [...page.content, withGeneratedId({ type: "p", content: [] })]
       }
+    } else {
+      return page
     }
   }
 
