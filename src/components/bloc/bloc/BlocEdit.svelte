@@ -2,7 +2,6 @@
   import type { SvelteComponentTyped } from "svelte"
   import type { Bloc } from "~/model/Page"
   import type { Move } from "~/components/types"
-  import BlocMenu from "./BlocMenu.svelte"
   import TextEdit from "~/components/bloc/text/TextEdit.svelte"
   import MeetEdit from "~/components/bloc/meet/MeetEdit.svelte"
   import ImageEdit from "~/components/bloc/image/ImageEdit.svelte"
@@ -31,7 +30,6 @@
   }
 </script>
 
-<BlocMenu {bloc} {index} on:update />
 <svelte:component
   this={componentMapping[bloc.type]}
   bloc={bloc}

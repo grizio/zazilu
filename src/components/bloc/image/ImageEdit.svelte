@@ -3,6 +3,7 @@
 
   import type { Image } from "~/model/Page"
   import type { PageEditEventDispatcher } from "~/components/types"
+  import { menuAction } from "~/components/page/MenuAction"
 
   export let bloc: Image
   export let index: number
@@ -46,7 +47,7 @@
   }
 </style>
 
-<figure data-test-id={bloc.id}>
+<figure data-test-id={bloc.id} use:menuAction={index}>
   <img src={bloc.src} alt={bloc.alt} on:click={changeSrc} />
   <figcaption
     contenteditable="true"

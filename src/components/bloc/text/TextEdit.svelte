@@ -1,5 +1,6 @@
 <script lang="ts">
   import { afterUpdate, createEventDispatcher } from "svelte"
+  import { menuAction } from "~/components/page/MenuAction"
   import type { Text } from "~/model/Page"
   import type { Move, PageEditEventDispatcher } from "~/components/types"
   import { createCursorRangeAtBottom, createCursorRangeAtTop, getCurrentSelection } from "~/utils/dom"
@@ -141,6 +142,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></p>
 {:else if bloc.type === "h1"}
@@ -152,6 +154,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></h1>
 {:else if bloc.type === "h2"}
@@ -163,6 +166,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></h2>
 {:else if bloc.type === "h3"}
@@ -174,6 +178,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></h3>
 {:else if bloc.type === "h4"}
@@ -185,6 +190,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></h4>
 {:else if bloc.type === "h5"}
@@ -196,6 +202,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></h5>
 {:else if bloc.type === "h6"}
@@ -207,6 +214,7 @@
     on:blur={blur}
     on:keydown={keydown}
     on:paste|preventDefault={paste}
+    use:menuAction={index}
     data-test-id={bloc.id}
   ></h6>
 {/if}

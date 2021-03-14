@@ -1,16 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from "svelte"
   import type { Bloc } from "~/model/Page"
-  import { XNode } from "~/utils/dom/XNode"
   import type { PageEditEventDispatcher } from "~/components/types"
-  import { transformBloc } from "./BlocTransformer"
-
-  export let bloc: Bloc
-  export let index: number
 
   const dispatch = createEventDispatcher<PageEditEventDispatcher>()
 
-  let actionNode: HTMLElement | undefined
+  let menu: HTMLElement
   let showMenu: boolean = false
 
   const items: Array<{ key: Bloc["type"]; label: string }> = [
@@ -25,39 +20,16 @@
     { key: "meet", label: "Meet" },
   ]
 
-  onMount(() => {
-    if (typeof window !== "undefined") {
-      document.addEventListener("click", closeMenu)
-    }
-  })
-
-  onDestroy(() => {
-    if (typeof window !== "undefined") {
-      document.removeEventListener("click", closeMenu)
-    }
-  })
-
   function toggleMenu() {
     showMenu = !showMenu
-  }
-
-  function closeMenu(event: MouseEvent) {
-    if (
-      actionNode !== undefined &&
-      event.target !== null &&
-      event.target instanceof Node &&
-      !new XNode(event.target).hasParent(actionNode)
-    ) {
-      showMenu = false
-    }
   }
 
   function transform(target: Bloc["type"]): () => void {
     return () => {
       showMenu = false
-      dispatch("update", {
-        index: index,
-        bloc: transformBloc(bloc, target),
+      dispatch("transform", {
+        index: parseInt(menu.dataset.index ?? "0", 10),
+        type: target,
       })
     }
   }
@@ -65,11 +37,11 @@
 
 <style>
   .bloc-action {
-    position: relative;
+    position: absolute;
+    top: -100%;
   }
 
   .bloc-action > button {
-    position: absolute;
     width: 25px;
     height: 25px;
     font-size: 16px;
@@ -117,10 +89,9 @@
   }
 </style>
 
-<div class="bloc-action" bind:this={actionNode}>
-  <button
-    on:click|preventDefault={toggleMenu}
-    data-test-id={`${bloc.id}-menuButton`}>⚙</button
+<div class="bloc-action" id="pageForm-menu" bind:this={menu}>
+  <button on:click|preventDefault={toggleMenu} data-test-id="menuButton"
+    >⚙</button
   >
   {#if showMenu}
     <ul class="menu">
@@ -128,7 +99,7 @@
         <li>
           <button
             on:click|preventDefault={transform(item.key)}
-            data-test-id={`${bloc.id}-menuItem-${item.key}`}
+            data-test-id={`menuItem-${item.key}`}
           >
             {item.label}
           </button>

@@ -10,8 +10,9 @@ export class BlocObject {
   }
 
   transformIntoTypeThroughMenu = (targetType: Bloc["type"]): this => {
-    cy.get(`[data-test-id=${this.dataTestId}-menuButton]`).click()
-    cy.get(`[data-test-id=${this.dataTestId}-menuItem-${targetType}]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}]`).trigger("mouseenter")
+    cy.get("[data-test-id=menuButton]").click()
+    cy.get(`[data-test-id=menuItem-${targetType}]`).click()
     return this
   }
 

@@ -4,6 +4,7 @@
   import InputDateTime from "~/components/form/InputDateTime.svelte"
   import type { PageEditEventDispatcher } from "~/components/types"
   import PrimaryButton from "~/components/button/PrimaryButton.svelte"
+  import { menuAction } from "~/components/page/MenuAction"
 
   export let bloc: Meet
   export let index: number
@@ -77,7 +78,7 @@
   }
 </style>
 
-<div class="meet" data-test-id={bloc.id}>
+<div class="meet" data-test-id={bloc.id} use:menuAction={index}>
   <div class="header" class:edit={editingDate}>
     {#if editingDate}
       <InputDateTime

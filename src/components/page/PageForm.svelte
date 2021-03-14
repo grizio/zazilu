@@ -5,8 +5,17 @@
   import BlocEdit from "~/components/bloc/bloc/BlocEdit.svelte"
   import PrimaryButton from "~/components/button/PrimaryButton.svelte"
   import { insert, remove, replace } from "~/utils/arrays"
-  import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "~/components/types"
+  import type {
+    BlocEditComponent,
+    OnMergeDetail,
+    OnMoveDetail,
+    OnNewDetail,
+OnTransformDetail,
+        OnUpdateDetail,
+  } from "~/components/types"
   import { withGeneratedId } from "~/components/types"
+  import Menu from "./Menu.svelte"
+  import { transformBloc } from "~/components/bloc/bloc/BlocTransformer";
 
   export let page: Page
   let blocs: Array<BlocEditComponent> = []
@@ -21,7 +30,7 @@
     const { index, bloc, moveTo } = event.detail
     page = normalize({
       ...page,
-      content: insert(page.content, index, withGeneratedId(bloc))
+      content: insert(page.content, index, withGeneratedId(bloc)),
     })
     if (moveTo !== undefined) {
       setTimeout(() => blocs[index].move(moveTo), 0)
@@ -30,25 +39,38 @@
 
   function onMove(event: CustomEvent<OnMoveDetail>) {
     const { index, move } = event.detail
-    if (0 <= index && index < blocs.length && blocs[index] !== undefined && blocs[index] !== null) {
+    if (
+      0 <= index &&
+      index < blocs.length &&
+      blocs[index] !== undefined &&
+      blocs[index] !== null
+    ) {
       setTimeout(() => blocs[index].move(move))
     }
   }
 
   async function onMerge(event: CustomEvent<OnMergeDetail>) {
     const { firstIndex, secondIndex, move } = event.detail
-    if (0 <= firstIndex && firstIndex < blocs.length && 0 <= secondIndex && secondIndex < blocs.length) {
+    if (
+      0 <= firstIndex &&
+      firstIndex < blocs.length &&
+      0 <= secondIndex &&
+      secondIndex < blocs.length
+    ) {
       const firstBloc = page.content[firstIndex]
       const secondBloc = page.content[secondIndex]
       if (isText(firstBloc) && isText(secondBloc)) {
         const newBloc: Text = {
           type: firstBloc.type,
           id: firstBloc.id,
-          content: [...firstBloc.content, ...secondBloc.content]
+          content: [...firstBloc.content, ...secondBloc.content],
         }
         page = normalize({
           ...page,
-          content: remove(replace(page.content, firstIndex, newBloc), secondIndex)
+          content: remove(
+            replace(page.content, firstIndex, newBloc),
+            secondIndex,
+          ),
         })
         if (move) {
           await tick()
@@ -64,19 +86,33 @@
     if (0 <= index && index < page.content.length) {
       page = normalize({
         ...page,
-        content: replace(page.content, index, bloc)
+        content: replace(page.content, index, bloc),
       })
     }
   }
 
   function normalize(page: Page): Page {
-    if (page.content.length === 0 || !isText(page.content[page.content.length - 1])) {
+    if (
+      page.content.length === 0 ||
+      !isText(page.content[page.content.length - 1])
+    ) {
       return {
         ...page,
-        content: [...page.content, withGeneratedId({ type: "p", content: [] })]
+        content: [...page.content, withGeneratedId({ type: "p", content: [] })],
       }
     } else {
       return page
+    }
+  }
+
+  function transform(event: CustomEvent<OnTransformDetail>) {
+    console.log(event)
+    const { index, type } = event.detail
+    if (0 <= index && index < page.content.length) {
+      page = normalize({
+        ...page,
+        content: replace(page.content, index, transformBloc(page.content[index], type)),
+      })
     }
   }
 
@@ -87,14 +123,21 @@
 
 <form on:submit|preventDefault={submit}>
   <label for="title">Title</label>
-  <input type="text" name="title" id="title" bind:value={page.title}/>
+  <input type="text" name="title" id="title" bind:value={page.title} />
 
-  <label for="key">Key (authorized characters: alphanumeric, "_" and "-")</label>
-  <input type="text" name="key" id="key" bind:value={page.key} pattern="^[0-9A-Za-z_-]+$"/>
+  <label for="key">Key (authorized characters: alphanumeric, "_" and "-")</label
+  >
+  <input
+    type="text"
+    name="key"
+    id="key"
+    bind:value={page.key}
+    pattern="^[0-9A-Za-z_-]+$"
+  />
 
   {#each page.content as bloc, index (bloc.id)}
     <BlocEdit
-      bind:bloc={bloc}
+      bind:bloc
       bind:this={blocs[index]}
       index={index}
       on:new={onNewBloc}
@@ -106,3 +149,5 @@
 
   <PrimaryButton label="Save" dataTestId="pageForm-submit" />
 </form>
+
+<Menu on:transform={transform} />

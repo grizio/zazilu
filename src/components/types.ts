@@ -12,6 +12,7 @@ export type PageEditEventDispatcher = {
   move: OnMoveDetail
   merge: OnMergeDetail
   update: OnUpdateDetail
+  transform: OnTransformDetail
 }
 
 export type OnNewDetail = {
@@ -43,6 +44,11 @@ export type OnMergeDetail = {
 export type OnUpdateDetail = {
   index: number
   bloc: Bloc
+}
+
+export type OnTransformDetail = {
+  index: number
+  type: Bloc["type"]
 }
 
 export function withGeneratedId(bloc: DistributiveOmit<Bloc, "id">): Bloc {
