@@ -1,5 +1,5 @@
 import { array, literal, object, recursion, string, union, Validator } from "idonttrustlikethat"
-import type { Bloc, Emphasis, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "~/model/Page"
+import type { Bloc, Emphasis, Image, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "~/model/Page"
 import { dateTime, nonEmptyString } from "~/utils/validators"
 import { uniqueBy } from "~/utils/arrays"
 
@@ -41,7 +41,15 @@ const meetValidator: Validator<Meet> = object({
   members: array(nonEmptyString),
 })
 
-const blocValidator: Validator<Bloc> = union(textValidator, meetValidator)
+const imageValidator: Validator<Image> = object({
+  type: literal("img"),
+  id: nonEmptyString,
+  src: nonEmptyString,
+  alt: string.optional(),
+  caption: string.optional()
+})
+
+const blocValidator: Validator<Bloc> = union(textValidator, meetValidator, imageValidator)
 
 export const pageValidation: Validator<Page> = object({
   key: nonEmptyString,

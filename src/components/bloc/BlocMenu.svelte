@@ -21,6 +21,7 @@
     { key: "h4", label: "Title 4" },
     { key: "h5", label: "Title 5" },
     { key: "h6", label: "Title 6" },
+    { key: "img", label: "Image" },
     { key: "meet", label: "Meet" },
   ]
 

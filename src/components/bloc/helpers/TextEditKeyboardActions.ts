@@ -2,11 +2,12 @@ import { tick } from "svelte"
 import { KeyboardListener } from "./KeyboardListener"
 import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "~/utils/dom"
 import { domToContent } from "./TextEditAdapters"
-import type { Text } from "~/model/Page"
+import type { Bloc, Text } from "~/model/Page"
 import type { PageEditEventDispatcher } from "../../types"
 import type { UniqueSelection } from "~/utils/dom/Selection"
 import { Caret, XRange } from "~/utils/dom/Selection"
 import { XNode } from "~/utils/dom/XNode"
+import { transformBloc } from "./BlocTransformer"
 
 type RequiredDetail = {
   dispatch: <EventKey extends keyof PageEditEventDispatcher>(type: EventKey, detail?: PageEditEventDispatcher[EventKey]) => void
@@ -121,7 +122,12 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
   .on(" ")
   .withCaret()
   .filter(prefixPredicate("/meet"))
-  .process(meetTransformer)
+  .process(blocTransformer("meet"))
+
+  .on(" ")
+  .withCaret()
+  .filter(prefixPredicate("/img"))
+  .process(blocTransformer("img"))
 
   .on("ctrl+b")
   .withUniqueSelection()
@@ -186,16 +192,13 @@ function textTransformer(textType: Text["type"]) {
   }
 }
 
-function meetTransformer({ dispatch, index, bloc }: RequiredDetail) {
-  dispatch("update", {
-    index: index,
-    bloc: {
-      type: "meet",
-      id: bloc.id,
-      date: new Date(Date.now()),
-      members: []
-    }
-  })
+function blocTransformer(target: Bloc["type"]): (detail: RequiredDetail) => void {
+  return ({ dispatch, index, bloc }) => {
+    dispatch("update", {
+      index: index,
+      bloc: transformBloc(bloc, target)
+    })
+  }
 }
 
 type ToggleElementSelectionParams = Pick<RequiredDetail, "element" | "dispatch" | "index"> & { selection: UniqueSelection }

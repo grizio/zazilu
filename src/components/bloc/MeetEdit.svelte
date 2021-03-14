@@ -26,7 +26,7 @@
 <style>
   .meet {
     border: 1px solid #666666;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
   }
 
   .meet .header {

@@ -4,7 +4,7 @@ export type Page = {
   content: Array<Bloc>
 }
 
-export type Bloc = Text | Meet
+export type Bloc = Text | Meet | Image
 
 export type Text = {
   type: "p" | `h${1 | 2 | 3 | 4 | 5 | 6}`
@@ -73,4 +73,12 @@ export type Meet = {
   id: string
   date: Date
   members: Array<string>
+}
+
+export type Image = {
+  type: "img"
+  id: string
+  src: string
+  alt?: string
+  caption?: string
 }

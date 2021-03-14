@@ -81,6 +81,18 @@ const initialPage: Page = {
       "type": "meet",
       "date": new Date(Date.parse("2021-03-01T20:30:00Z")),
       "members": ["John"]
+    },
+    {
+      "id": "BzJo1laUPQWrpbb3x574",
+      "type": "h1",
+      "content": [text("Images")]
+    },
+    {
+      "id": "VGa2gwdqZZ4GjIQv9gLx",
+      "type": "img",
+      "src": "https://place-hold.it/500x300",
+      "alt": "sample image",
+      "caption": "Sample image from place-hold.it"
     }
   ]
 }

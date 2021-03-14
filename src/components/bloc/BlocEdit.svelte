@@ -4,7 +4,8 @@
   import TextEdit from "./TextEdit.svelte"
   import MeetEdit from "./MeetEdit.svelte"
   import type { Move } from "~/components/types"
-  import BlocMenu from "./BlocMenu.svelte";
+  import BlocMenu from "./BlocMenu.svelte"
+  import ImageEdit from "./ImageEdit.svelte"
 
   export let bloc: Bloc
   export let index: number
@@ -22,6 +23,7 @@
     h5: TextEdit,
     h6: TextEdit,
     meet: MeetEdit,
+    img: ImageEdit,
   }
 
   export function move(move: Move) {

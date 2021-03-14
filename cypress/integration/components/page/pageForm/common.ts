@@ -37,4 +37,10 @@ export function firstMeetMenuItem(type: Bloc["type"]) {
   return `[data-test-id=hBZZT83U4fvFaZq2I1wo-menuItem-${type}]`
 }
 
+export const firstImage = "[data-test-id=VGa2gwdqZZ4GjIQv9gLx]"
+export const firstImageMenuButton = "[data-test-id=VGa2gwdqZZ4GjIQv9gLx-menuButton]"
+export function firstImageMenuItem(type: Bloc["type"]) {
+  return `[data-test-id=VGa2gwdqZZ4GjIQv9gLx-menuItem-${type}]`
+}
+
 export const submitButton = "[data-test-id=pageForm-submit]"

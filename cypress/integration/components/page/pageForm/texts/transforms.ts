@@ -80,4 +80,12 @@ describe("TextEdit transforms", () => {
     cy.get(firstParagraph).type("/meet ")
     cy.get(`${firstParagraph} time`).should("exist")
   })
+
+  it("should transform a paragraph into image", () => {
+    initialize()
+    cy.get(firstParagraph).click()
+    cy.get(firstParagraph).type("{movetostart}")
+    cy.get(firstParagraph).type("/img ")
+    cy.get(`${firstParagraph} img`).should("exist")
+  })
 })
