@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { Bloc } from "~/model/Page"
-  import TextView from "./TextView.svelte"
-  import MeetView from "./MeetView.svelte"
-  import ImageView from "./ImageView.svelte"
+  import TextView from "../text/TextView.svelte"
+  import MeetView from "../meet/MeetView.svelte"
+  import ImageView from "../image/ImageView.svelte"
 
   export let bloc: Bloc
 

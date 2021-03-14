@@ -2,8 +2,8 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte"
   import type { Bloc } from "~/model/Page"
   import { XNode } from "~/utils/dom/XNode"
-  import type { PageEditEventDispatcher } from "../types"
-  import { transformBloc } from "./helpers/BlocTransformer"
+  import type { PageEditEventDispatcher } from "~/components/types"
+  import { transformBloc } from "./BlocTransformer"
 
   export let bloc: Bloc
   export let index: number
@@ -126,7 +126,10 @@
     <ul class="menu">
       {#each items as item}
         <li>
-          <button on:click|preventDefault={transform(item.key)} data-test-id={`${bloc.id}-menuItem-${item.key}`}>
+          <button
+            on:click|preventDefault={transform(item.key)}
+            data-test-id={`${bloc.id}-menuItem-${item.key}`}
+          >
             {item.label}
           </button>
         </li>

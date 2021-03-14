@@ -1,17 +1,17 @@
 <script lang="ts">
   import { afterUpdate, createEventDispatcher } from "svelte"
   import type { Text } from "~/model/Page"
-  import type { Move, PageEditEventDispatcher } from "../types"
+  import type { Move, PageEditEventDispatcher } from "~/components/types"
   import { createCursorRangeAtBottom, createCursorRangeAtTop, getCurrentSelection } from "~/utils/dom"
-  import { contentToDom, domToContent, wasUpdated } from "./helpers/TextEditAdapters"
+  import { XNode } from "~/utils/dom/XNode"
+  import { Caret, UniqueSelection, XRange } from "~/utils/dom/Selection"
   import {
     keyboardActions,
     toggleBold,
     toggleItalic,
     wrapWithCurrentAncestors
-  } from "./helpers/TextEditKeyboardActions"
-  import { XNode } from "~/utils/dom/XNode"
-  import { Caret, UniqueSelection, XRange } from "~/utils/dom/Selection"
+  } from "~/components/bloc/text/TextEditKeyboardActions"
+  import { contentToDom, domToContent, wasUpdated } from "~/components/bloc/text/TextEditAdapters"
   import TextEditToolbox from "./TextEditToolbox.svelte"
 
   const dispatch = createEventDispatcher<PageEditEventDispatcher>()

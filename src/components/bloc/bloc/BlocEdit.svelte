@@ -1,11 +1,11 @@
 <script lang="ts">
   import type { SvelteComponentTyped } from "svelte"
   import type { Bloc } from "~/model/Page"
-  import TextEdit from "./TextEdit.svelte"
-  import MeetEdit from "./MeetEdit.svelte"
   import type { Move } from "~/components/types"
   import BlocMenu from "./BlocMenu.svelte"
-  import ImageEdit from "./ImageEdit.svelte"
+  import TextEdit from "~/components/bloc/text/TextEdit.svelte"
+  import MeetEdit from "~/components/bloc/meet/MeetEdit.svelte"
+  import ImageEdit from "~/components/bloc/image/ImageEdit.svelte"
 
   export let bloc: Bloc
   export let index: number

@@ -1,9 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import { update_keyed_each } from "svelte/internal"
 
   import type { Image } from "~/model/Page"
-  import type { PageEditEventDispatcher } from "../types"
+  import type { PageEditEventDispatcher } from "~/components/types"
 
   export let bloc: Image
   export let index: number

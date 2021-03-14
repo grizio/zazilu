@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount, setContext } from "svelte"
-  import BlocView from "~/components/bloc/BlocView.svelte"
+  import { setContext } from "svelte"
+  import BlocView from "~/components/bloc/bloc/BlocView.svelte"
   import type { Page } from "~/model/Page"
   import type { PageActions } from "./PageActions"
 
@@ -13,12 +13,12 @@
     },
     showError: (message, ...params) => {
       console.error(message, ...params)
-    }
+    },
   })
 </script>
 
 <h1>{page.title}</h1>
 
 {#each page.content as bloc}
-  <BlocView bloc={bloc}/>
+  <BlocView bloc={bloc} />
 {/each}

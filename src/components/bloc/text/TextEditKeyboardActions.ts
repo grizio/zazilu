@@ -1,13 +1,13 @@
 import { tick } from "svelte"
-import { KeyboardListener } from "./KeyboardListener"
-import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "~/utils/dom"
-import { domToContent } from "./TextEditAdapters"
 import type { Bloc, Text } from "~/model/Page"
-import type { PageEditEventDispatcher } from "../../types"
+import type { PageEditEventDispatcher } from "~/components/types"
 import type { UniqueSelection } from "~/utils/dom/Selection"
+import { KeyboardListener } from "~/components/bloc/helpers/KeyboardListener"
+import { isOnFirstCharacterOf, isOnFirstLineOf, isOnLastCharacterOf, isOnLastLineOf, } from "~/utils/dom"
+import { domToContent } from "~/components/bloc/text/TextEditAdapters"
 import { Caret, XRange } from "~/utils/dom/Selection"
 import { XNode } from "~/utils/dom/XNode"
-import { transformBloc } from "./BlocTransformer"
+import { transformBloc } from "~/components/bloc/bloc/BlocTransformer"
 
 type RequiredDetail = {
   dispatch: <EventKey extends keyof PageEditEventDispatcher>(type: EventKey, detail?: PageEditEventDispatcher[EventKey]) => void

@@ -2,7 +2,7 @@
   import { getContext } from "svelte"
   import type { Meet } from "~/model/Page"
   import { pageValidation } from "~/model/validation/PageValidation"
-  import type { PageActions } from "../page/PageActions"
+  import type { PageActions } from "~/components/page/PageActions"
   import PrimaryButton from "~/components/button/PrimaryButton.svelte"
 
   export let bloc: Meet

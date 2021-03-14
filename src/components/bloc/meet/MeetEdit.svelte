@@ -3,7 +3,7 @@
   import type { Meet } from "~/model/Page"
   import InputDateTime from "~/components/form/InputDateTime.svelte"
   import type { PageEditEventDispatcher } from "~/components/types"
-  import PrimaryButton from "../button/PrimaryButton.svelte"
+  import PrimaryButton from "~/components/button/PrimaryButton.svelte"
 
   export let bloc: Meet
   export let index: number

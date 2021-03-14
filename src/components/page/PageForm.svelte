@@ -2,7 +2,7 @@
   import { createEventDispatcher, onMount, tick } from "svelte"
   import type { Page, Text } from "~/model/Page"
   import { isText } from "~/model/Page"
-  import BlocEdit from "~/components/bloc/BlocEdit.svelte"
+  import BlocEdit from "~/components/bloc/bloc/BlocEdit.svelte"
   import PrimaryButton from "~/components/button/PrimaryButton.svelte"
   import { insert, remove, replace } from "~/utils/arrays"
   import type { BlocEditComponent, OnMergeDetail, OnMoveDetail, OnNewDetail, OnUpdateDetail } from "~/components/types"
