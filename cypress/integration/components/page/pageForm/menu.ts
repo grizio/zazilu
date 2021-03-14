@@ -1,59 +1,35 @@
-import { firstParagraph, firstParagraphMenuButton, firstParagraphMenuItem, initialize, title12, title12MenuButton, title12MenuItem, firstMeetMenuButton, firstMeetMenuItem, firstMeet, firstImageMenuButton, firstImageMenuItem, firstImage } from "./common"
+import type { Bloc } from "~/model/Page"
+import { fullPageFormObject } from "./common"
+
+import { BlocObject } from "./PageFormObject"
+
+type TestCase = {
+  sourceType: Bloc["type"],
+  targetType: Bloc["type"],
+  sourceObject: BlocObject,
+  otherAssertions?: () => any
+}
 
 describe("Menu", () => {
-  it("should transform a paragraph into a h1", () => {
-    initialize()
-    cy.get(firstParagraphMenuButton).click()
-    cy.get(firstParagraphMenuItem("h1")).click()
-    cy.get(firstParagraph).should("satisfy", (element) => element.is("h1"))
-  })
+  const cases: Array<TestCase> = [
+    { sourceType: "p", targetType: "h1", sourceObject: fullPageFormObject.getBloc("firstParagraph") },
+    { sourceType: "h1", targetType: "h5", sourceObject: fullPageFormObject.getBloc("title12") },
+    { sourceType: "h1", targetType: "meet", sourceObject: fullPageFormObject.getBloc("title12") },
+    { sourceType: "p", targetType: "img", sourceObject: fullPageFormObject.getBloc("firstParagraph") },
+    { sourceType: "meet", targetType: "h2", sourceObject: fullPageFormObject.getBloc("firstMeet") },
+    { sourceType: "meet", targetType: "img", sourceObject: fullPageFormObject.getBloc("firstMeet") },
+    { sourceType: "img", targetType: "p", sourceObject: fullPageFormObject.getBloc("firstImage") },
+    { sourceType: "img", targetType: "meet", sourceObject: fullPageFormObject.getBloc("firstMeet") },
+  ]
 
-  it("should transform a h1 into a h5", () => {
-    initialize()
-    cy.get(title12MenuButton).click()
-    cy.get(title12MenuItem("h5")).click()
-    cy.get(title12).should("satisfy", (element) => element.is("h5"))
-  })
-
-  it("should transform a h1 into a meet", () => {
-    initialize()
-    cy.get(title12MenuButton).click()
-    cy.get(title12MenuItem("meet")).click()
-    cy.get(title12).should("satisfy", (element) => element.is(".meet"))
-  })
-
-  it("should transform a paragraph into an image", () => {
-    initialize()
-    cy.get(firstParagraphMenuButton).click()
-    cy.get(firstParagraphMenuItem("img")).click()
-    cy.get(firstParagraph).should("satisfy", (element) => element.is("figure"))
-  })
-
-  it("should transform a meet into a h3", () => {
-    initialize()
-    cy.get(firstMeetMenuButton).click()
-    cy.get(firstMeetMenuItem("h3")).click()
-    cy.get(firstMeet).should("satisfy", (element) => element.is("h3"))
-  })
-
-  it("should transform a meet into a image", () => {
-    initialize()
-    cy.get(firstMeetMenuButton).click()
-    cy.get(firstMeetMenuItem("h3")).click()
-    cy.get(firstMeet).should("satisfy", (element) => element.is("h3"))
-  })
-
-  it("should transform an image into a paragraph", () => {
-    initialize()
-    cy.get(firstImageMenuButton).click()
-    cy.get(firstImageMenuItem("p")).click()
-    cy.get(firstImage).should("satisfy", (element) => element.is("p"))
-  })
-
-  it("should transform an image into a meet", () => {
-    initialize()
-    cy.get(firstImageMenuButton).click()
-    cy.get(firstImageMenuItem("meet")).click()
-    cy.get(firstImage).should("satisfy", (element) => element.is(".meet"))
+  cases.forEach(testCase => {
+    it(`should transform a ${testCase.sourceType} into a ${testCase.targetType}`, () => {
+      fullPageFormObject.initialize()
+      testCase.sourceObject.transformIntoTypeThroughMenu(testCase.targetType)
+      testCase.sourceObject.shouldBeA(testCase.targetType)
+      if (testCase.otherAssertions !== undefined) {
+        testCase.otherAssertions()
+      }
+    })
   })
 })
