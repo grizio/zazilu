@@ -3,9 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "src/*"
-      ]
+      "$app/*": [".svelte/dev/runtime/app/*", ".svelte/build/runtime/app/*"],
+			"$service-worker": [".svelte/build/runtime/service-worker"],
+			"$lib/*": ["src/lib/*"]
     },
     "lib": [
       "DOM",
@@ -25,7 +25,6 @@
   ],
   "exclude": [
     "node_modules/*",
-    "__sapper__/*",
     "static/*"
   ]
 }

@@ -1,4 +1,4 @@
-import type { Bloc } from "~/model/Page"
+import type { Bloc } from "$lib/model/Page"
 import { fullPageFormObject } from "./common"
 
 import { BlocObject } from "./PageFormObject"

@@ -1,4 +1,4 @@
-import { Bloc } from "~/model/Page"
+import { Bloc } from "~/lib/model/Page"
 import { allPages } from "~/routes/tests/PageFormTest"
 import { repeat } from "~/utils/strings"
 

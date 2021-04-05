@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Page } from "~/model/Page"
-  import PageForm from "~/components/page/PageForm.svelte"
-  import { generateId } from "~/utils/strings"
-  import { goto } from "@sapper/app"
+  import type { Page } from "$lib/model/Page"
+  import PageForm from "$lib/components/page/PageForm.svelte"
+  import { generateId } from "$lib/utils/strings"
+  import { goto } from "$app/navigation"
 
   let page: Page = {
     key: "",
@@ -11,7 +11,7 @@
   }
 
   async function submit(event: CustomEvent<Page>) {
-    const res = await fetch(`page/${event.detail.key}.json`, {
+    const res = await fetch(`/page/${event.detail.key}.json`, {
       method: "POST",
       body: JSON.stringify(event.detail),
       headers: {

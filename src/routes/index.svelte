@@ -1,37 +1,40 @@
 <script context="module" lang="ts">
-  import type { Preload } from "@sapper/common"
-  import { pageValidation } from "~/model/validation/PageValidation"
-  import PrimaryButtonLink from "~/components/button/PrimaryButtonLink.svelte"
+  import type { Load } from "@sveltejs/kit"
+  import { pageValidation } from "$lib/model/validation/PageValidation"
+  import PrimaryButtonLink from "$lib/components/button/PrimaryButtonLink.svelte"
 
-  export const preload: Preload = async function () {
-    const res = await this.fetch(`page/home.json`)
+  export const load: Load = async ({ fetch }) => {
+    const res = await fetch(`page/home.json`)
     const data = await res.json()
 
     if (res.status === 200) {
       const formattedData = pageValidation.validate(data)
       if (formattedData.ok) {
-        return { page: formattedData.value }
-      } else if (formattedData.ok === false) {
-        return this.error(res.status, formattedData.errors.toString())
+        return { status: 200, props: { page: formattedData.value } }
+      } else {
+        return {
+          status: res.status,
+          error: new Error(formattedData.errors.toString()),
+        }
       }
     } else {
-      return this.error(res.status, data.message)
+      return { status: res.status, error: new Error(data.message) }
     }
   }
 </script>
 
 <script lang="ts">
-  import type { Page } from "~/model/Page"
-  import PageView from "~/components/page/PageView.svelte"
-  import AdminRestriction from "~/components/security/AdminRestriction.svelte"
+  import type { Page } from "$lib/model/Page"
+  import PageView from "$lib/components/page/PageView.svelte"
+  import AdminRestriction from "$lib/security/AdminRestriction.svelte"
 
   export let page: Page
 </script>
 
 <style>
-	.actions {
-		margin-top: 16px;
-	}
+  .actions {
+    margin-top: 16px;
+  }
 </style>
 
 <svelte:head>

@@ -1,21 +1,21 @@
 <script context="module" lang="ts">
-  import type { Preload } from "@sapper/common"
+  import type { Load } from "@sveltejs/kit"
 
-  export const preload: Preload = async function() {
-    const res = await this.fetch("/pages.json")
+  export const load: Load = async ({ fetch }) => {
+    const res = await fetch("/pages.json")
     const data = await res.json()
 
     if (res.status === 200) {
-      return { pages: data }
+      return { status: 200, props: { pages: data } }
     } else {
-      return this.error(res.status, data.message)
+      return { status: res.status, error: new Error(data.message) }
     }
   }
 </script>
 
 <script lang="ts">
-  import PrimaryButtonLink from "~/components/button/PrimaryButtonLink.svelte"
-  import type { Page } from "../../model/Page"
+  import PrimaryButtonLink from "$lib/components/button/PrimaryButtonLink.svelte"
+  import type { Page } from "$lib/model/Page"
 
   export let pages: Array<Page>
 </script>

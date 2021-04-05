@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { goto, stores } from "@sapper/app"
-  import PrimaryButton from "~/components/button/PrimaryButton.svelte"
-  import InputPassword from "~/components/form/InputPassword.svelte"
-  import InputText from "~/components/form/InputText.svelte"
-import Panel from "~/components/Panel.svelte";
-
-  const { session } = stores()
+  import { session } from "$app/stores"
+  import { goto } from "$app/navigation"
+  import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
+  import InputPassword from "$lib/components/form/InputPassword.svelte"
+  import InputText from "$lib/components/form/InputText.svelte"
+  import Panel from "$lib/components/Panel.svelte";
 
   let email: string = ""
   let password: string = ""

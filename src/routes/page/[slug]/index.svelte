@@ -1,28 +1,31 @@
 <script context="module" lang="ts">
-  import type { Preload } from "@sapper/common"
-  import { pageValidation } from "~/model/validation/PageValidation"
+  import type { Load } from "@sveltejs/kit"
+  import { pageValidation } from "$lib/model/validation/PageValidation"
 
-  export const preload: Preload = async function({ params }) {
-    const res = await this.fetch(`page/${params.slug}.json`)
+  export const load: Load = async function ({ fetch, page }) {
+    const res = await fetch(`/page/${page.params.slug}.json`)
     const data = await res.json()
 
     if (res.status === 200) {
       const formattedData = pageValidation.validate(data)
       if (formattedData.ok) {
-        return { page: formattedData.value }
-      } else if (formattedData.ok === false) {
-        return this.error(res.status, formattedData.errors.toString())
+        return { status: 200, props: { page: formattedData.value } }
+      } else {
+        return {
+          status: res.status,
+          error: new Error(formattedData.errors.toString()),
+        }
       }
     } else {
-      return this.error(res.status, data.message)
+      return { status: res.status, error: new Error(data.message) }
     }
   }
 </script>
 
 <script lang="ts">
-  import type { Page } from "~/model/Page"
-  import PageView from "~/components/page/PageView.svelte"
-  import AdminRestriction from "~/components/security/AdminRestriction.svelte"
+  import type { Page } from "$lib/model/Page"
+  import PageView from "$lib/components/page/PageView.svelte"
+  import AdminRestriction from "$lib/security/AdminRestriction.svelte"
 
   export let page: Page
 </script>

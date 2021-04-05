@@ -1,29 +1,32 @@
 <script context="module" lang="ts">
-  import type { Preload } from "@sapper/common"
-  import { pageValidation } from "~/model/validation/PageValidation"
+  import type { Load } from "@sveltejs/kit"
+  import { pageValidation } from "$lib/model/validation/PageValidation"
 
-  export const preload: Preload = async function ({ params }) {
-    const res = await this.fetch(`page/${params.slug}.json`)
+  export const load: Load = async function ({ page, fetch }) {
+    const res = await fetch(`/page/${page.params.slug}.json`)
     const data = await res.json()
 
     if (res.status === 200) {
       const formattedData = pageValidation.validate(data)
       if (formattedData.ok) {
-        return { initialPage: formattedData.value }
-      } else if (formattedData.ok === false) {
-        return this.error(res.status, formattedData.errors.toString())
+        return { status: 200, props: { initialPage: formattedData.value } }
+      } else {
+        return {
+          status: res.status,
+          error: new Error(formattedData.errors.toString()),
+        }
       }
     } else {
-      return this.error(res.status, data.message)
+      return { status: res.status, error: new Error(data.message) }
     }
   }
 </script>
 
 <script lang="ts">
   import { onMount } from "svelte"
-  import type { Page } from "~/model/Page"
-  import PageForm from "~/components/page/PageForm.svelte"
-  import { goto } from "@sapper/app"
+  import type { Page } from "$lib/model/Page"
+  import PageForm from "$lib/components/page/PageForm.svelte"
+  import { goto } from "$app/navigation"
 
   export let initialPage: Page
   let page: Page | undefined = undefined
@@ -33,13 +36,13 @@
   })
 
   async function submit(event: CustomEvent<Page>) {
-    const res = await fetch(`page/${event.detail.key}.json`, {
+    const res = await fetch(`/page/${event.detail.key}.json`, {
       method: "PUT",
       body: JSON.stringify(event.detail),
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json"
-      }
+        Accept: "application/json",
+      },
     })
     if (res.status === 200) {
       if (event.detail.key === "home") {
@@ -53,11 +56,11 @@
   async function remove() {
     const confirmed = confirm("Do you really want to delete this page?")
     if (confirmed) {
-      const res = await fetch(`page/${initialPage.key}.json`, {
+      const res = await fetch(`/page/${initialPage.key}.json`, {
         method: "DELETE",
         headers: {
-          "Accept": "application/json"
-        }
+          Accept: "application/json",
+        },
       })
       if (res.status === 204) {
         await goto("/")
@@ -74,7 +77,7 @@
 <h1>Edit page</h1>
 
 {#if page !== undefined}
-  <PageForm page={page} on:submit={submit}/>
+  <PageForm page={page} on:submit={submit} />
 {/if}
 
 {#if initialPage.key !== "home"}

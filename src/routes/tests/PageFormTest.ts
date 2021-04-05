@@ -1,4 +1,4 @@
-import type { Emphasis, Page, PlainText, Strong } from "~/model/Page"
+import type { Emphasis, Page, PlainText, Strong } from "$lib/model/Page"
 
 function text(content: string): PlainText {
   return { type: "text", content }
