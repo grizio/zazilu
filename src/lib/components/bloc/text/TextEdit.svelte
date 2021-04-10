@@ -1,7 +1,7 @@
 <script lang="ts">
   import { afterUpdate, createEventDispatcher } from "svelte"
   import { menuAction } from "$lib/components/page/MenuAction"
-  import type { Text } from "$lib/model/Page"
+  import type { Text } from "$model/Page"
   import type { Move, PageEditEventDispatcher } from "$lib/components/types"
   import { createCursorRangeAtBottom, createCursorRangeAtTop, getCurrentSelection } from "$lib/utils/dom"
   import { XNode } from "$lib/utils/dom/XNode"

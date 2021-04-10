@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import type { Load } from "@sveltejs/kit"
-  import { pageValidation } from "$lib/model/validation/PageValidation"
+  import { pageValidation } from "$model/validation/PageValidation"
 
   export const load: Load = async function ({ page, fetch }) {
     const res = await fetch(`/page/${page.params.slug}.json`)
@@ -24,7 +24,7 @@
 
 <script lang="ts">
   import { onMount } from "svelte"
-  import type { Page } from "$lib/model/Page"
+  import type { Page } from "$model/Page"
   import PageForm from "$lib/components/page/PageForm.svelte"
   import { goto } from "$app/navigation"
 

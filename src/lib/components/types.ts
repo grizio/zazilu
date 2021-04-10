@@ -1,4 +1,4 @@
-import type { Bloc } from "$lib/model/Page"
+import type { Bloc } from "$model/Page"
 import { generateId } from "$lib/utils/strings"
 
 export type BlocEditComponent = {

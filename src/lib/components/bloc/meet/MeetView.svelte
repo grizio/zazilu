@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext } from "svelte"
-  import type { Meet } from "$lib/model/Page"
-  import { pageValidation } from "$lib/model/validation/PageValidation"
+  import type { Meet } from "$model/Page"
+  import { pageValidation } from "$model/validation/PageValidation"
   import type { PageActions } from "$lib/components/page/PageActions"
   import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
 

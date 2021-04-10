@@ -1,6 +1,6 @@
 import type { Validator } from "idonttrustlikethat"
 import { array, literal, object, recursion, string, union } from "idonttrustlikethat"
-import type { Bloc, Emphasis, Image, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "$lib/model/Page"
+import type { Bloc, Emphasis, Image, Link, Meet, Page, PlainText, Strong, Text, TextPart } from "$model/Page"
 import { dateTime, nonEmptyString } from "$lib/utils/validators"
 import { uniqueBy } from "$lib/utils/arrays"
 

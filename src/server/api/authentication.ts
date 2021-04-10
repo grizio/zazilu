@@ -1,7 +1,7 @@
-import type { Incoming, Request, Response } from "@sveltejs/kit"
-import { app } from "$lib/app"
+import type { Incoming, Response } from "@sveltejs/kit"
+import { app } from "$server/app"
 import { unsignCookie } from "$lib/utils/crypto"
-import type { Role, User } from "$lib/model/User"
+import type { Role, User } from "$model/User"
 import { forbidden, unauthenticated } from "./responses"
 import type { ActionRequest } from "./RouterBuilder"
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Page } from "$lib/model/Page"
+  import type { Page } from "$model/Page"
   import PageForm from "$lib/components/page/PageForm.svelte"
   import { generateId } from "$lib/utils/strings"
   import { goto } from "$app/navigation"

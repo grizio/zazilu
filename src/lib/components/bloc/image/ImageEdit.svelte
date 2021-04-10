@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
 
-  import type { Image } from "$lib/model/Page"
+  import type { Image } from "$model/Page"
   import type { PageEditEventDispatcher } from "$lib/components/types"
   import { menuAction } from "$lib/components/page/MenuAction"
 

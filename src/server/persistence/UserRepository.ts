@@ -1,4 +1,4 @@
-import type { User } from "$lib/model/User"
+import type { User } from "$model/User"
 
 const defaultAdmin: User = {
   email: "admin@admin.test",

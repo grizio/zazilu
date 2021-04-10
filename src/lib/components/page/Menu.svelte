@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import type { Bloc } from "$lib/model/Page"
+  import type { Bloc } from "$model/Page"
   import type { PageEditEventDispatcher } from "$lib/components/types"
 
   const dispatch = createEventDispatcher<PageEditEventDispatcher>()

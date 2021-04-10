@@ -15,7 +15,7 @@
 
 <script lang="ts">
   import PrimaryButtonLink from "$lib/components/button/PrimaryButtonLink.svelte"
-  import type { Page } from "$lib/model/Page"
+  import type { Page } from "$model/Page"
 
   export let pages: Array<Page>
 </script>

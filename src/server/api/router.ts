@@ -1,5 +1,5 @@
-import { RouterBuilder, Router } from "$lib/api/RouterBuilder"
-import { pageValidation } from "$lib/model/validation/PageValidation"
+import { RouterBuilder, Router } from "$server/api/RouterBuilder"
+import { pageValidation } from "$model/validation/PageValidation"
 import { object, string } from "idonttrustlikethat"
 import { postLogin, postLoginBody, postLogout } from "./login"
 import { deletePage, getAllPages, getPage, postPage, putPage, postAction, actionValidator } from "./page"

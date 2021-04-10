@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
-  import type { Meet } from "$lib/model/Page"
+  import type { Meet } from "$model/Page"
   import InputDateTime from "$lib/components/form/InputDateTime.svelte"
   import type { PageEditEventDispatcher } from "$lib/components/types"
   import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"

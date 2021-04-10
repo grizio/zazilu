@@ -1,15 +1,7 @@
 import type { Incoming, Request, Response } from "@sveltejs/kit"
-import type { User } from "$lib/model/User"
-import { extractUser } from "./lib/api/authentication"
-import buildRouter from "$lib/api/router"
-
-export type Context = {
-  authenticatedUser?: User
-}
-
-export type Session = {
-  authenticatedUser?: Pick<User, "email" | "role">
-}
+import { extractUser } from "$server/api/authentication"
+import buildRouter from "$server/api/router"
+import type { Context, Session } from "$model/context"
 
 export async function getContext(incoming: Incoming): Promise<Context> {
   const user = await extractUser(incoming)
@@ -35,7 +27,6 @@ export function getSession({ context }: { context: Context }): Session {
 
 const router = buildRouter()
 export async function handle(request: Request<Context, Session>, render: (request: Request<Context, Session>) => Promise<Response>): Promise<Response> {
-  console.log("handle", request.method, request.path)
   const response = router.process(request)
   if (response !== undefined) {
     return response

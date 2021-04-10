@@ -1,5 +1,5 @@
 import { tick } from "svelte"
-import type { Bloc, Text } from "$lib/model/Page"
+import type { Bloc, Text } from "$model/Page"
 import type { PageEditEventDispatcher } from "$lib/components/types"
 import type { UniqueSelection } from "$lib/utils/dom/Selection"
 import { KeyboardListener } from "$lib/components/bloc/helpers/KeyboardListener"

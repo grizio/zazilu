@@ -1,8 +1,8 @@
 import type { Response } from "@sveltejs/kit"
 import bcrypt from "bcrypt"
 import { object } from "idonttrustlikethat"
-import { app } from "$lib/app"
-import type { ActionRequest } from "$lib/api/RouterBuilder"
+import { app } from "$server/app"
+import type { ActionRequest } from "$server/api/RouterBuilder"
 import { nonEmptyString } from "$lib/utils/validators"
 import { badRequest, noContent, ok } from "./responses"
 
@@ -24,6 +24,5 @@ export async function postLogin(request: ActionRequest<{}, typeof postLoginBody[
 }
 
 export async function postLogout(request: ActionRequest): Promise<Response> {
-  console.log("logout")
   return noContent({ cookies: { auth: null } })
 }

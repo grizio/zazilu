@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
   import type { Load } from "@sveltejs/kit"
   import { allPages } from "./PageFormTest"
-  import type { Page } from "$lib/model/Page"
+  import type { Page } from "$model/Page"
 
   export const load: Load = ({ page }) => {
     const q = page.query.get("q") ?? "initialPage"

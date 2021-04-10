@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Text } from "$lib/model/Page"
+  import type { Text } from "$model/Page"
   import TextViewPart from "./TextViewPart.svelte"
 
   export let bloc: Text

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { SvelteComponentTyped } from "svelte"
-  import type { Bloc } from "$lib/model/Page"
+  import type { Bloc } from "$model/Page"
   import type { Move } from "$lib/components/types"
   import TextEdit from "$lib/components/bloc/text/TextEdit.svelte"
   import MeetEdit from "$lib/components/bloc/meet/MeetEdit.svelte"

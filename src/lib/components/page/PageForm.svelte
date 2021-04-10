@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, tick } from "svelte"
-  import type { Page, Text } from "$lib/model/Page"
-  import { isText } from "$lib/model/Page"
+  import type { Page, Text } from "$model/Page"
+  import { isText } from "$model/Page"
   import BlocEdit from "$lib/components/bloc/bloc/BlocEdit.svelte"
   import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
   import { insert, remove, replace } from "$lib/utils/arrays"

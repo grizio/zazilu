@@ -1,4 +1,4 @@
-import type { Page } from "$lib/model/Page"
+import type { Page } from "$model/Page"
 
 export interface PageActions {
   getKey(): string

@@ -1,4 +1,4 @@
-import type { Page } from "$lib/model/Page"
+import type { Page } from "$model/Page"
 import { generateId } from "$lib/utils/strings"
 
 const defaultHomePage: Page = {

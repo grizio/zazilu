@@ -1,4 +1,4 @@
-import type { Bloc, Image, Meet, Text, TextPart } from "$lib/model/Page"
+import type { Bloc, Image, Meet, Text, TextPart } from "$model/Page"
 
 export function transformBloc(bloc: Bloc, target: Bloc["type"]): Bloc {
   switch (bloc.type) {

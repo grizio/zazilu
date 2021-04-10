@@ -1,8 +1,8 @@
 <script lang="ts">
   import { session } from "$app/stores"
-  import AuthenticatedRestriction from "$lib/security/AuthenticatedRestriction.svelte"
-  import UnauthenticatedRestriction from "$lib/security/UnauthenticatedRestriction.svelte"
-  import AdminRestriction from "$lib/security/AdminRestriction.svelte"
+  import AuthenticatedRestriction from "$lib/components/security/AuthenticatedRestriction.svelte"
+  import UnauthenticatedRestriction from "$lib/components/security/UnauthenticatedRestriction.svelte"
+  import AdminRestriction from "$lib/components/security/AdminRestriction.svelte"
 
   export let segment: string
 

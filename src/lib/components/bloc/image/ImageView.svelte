@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Image } from "$lib/model/Page"
+  import type { Image } from "$model/Page"
 
   export let bloc: Image
 </script>

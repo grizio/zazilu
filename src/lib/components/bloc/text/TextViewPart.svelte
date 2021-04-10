@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TextPart } from "$lib/model/Page"
+  import type { TextPart } from "$model/Page"
 
   export let part: TextPart
 </script>

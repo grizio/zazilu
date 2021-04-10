@@ -1,6 +1,6 @@
-import type { TextPart } from "$lib/model/Page"
-import type { Text } from "$lib/model/Page"
-import { em, link, plainText, strong } from "$lib/model/Page"
+import type { TextPart } from "$model/Page"
+import type { Text } from "$model/Page"
+import { em, link, plainText, strong } from "$model/Page"
 import { isDefined } from "$lib/utils/arrays"
 
 export function contentToDom(content: Array<TextPart>): Array<Node> {

@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import type { Load } from "@sveltejs/kit"
-  import { pageValidation } from "$lib/model/validation/PageValidation"
+  import { pageValidation } from "$model/validation/PageValidation"
   import PrimaryButtonLink from "$lib/components/button/PrimaryButtonLink.svelte"
 
   export const load: Load = async ({ fetch }) => {
@@ -24,9 +24,9 @@
 </script>
 
 <script lang="ts">
-  import type { Page } from "$lib/model/Page"
+  import type { Page } from "$model/Page"
   import PageView from "$lib/components/page/PageView.svelte"
-  import AdminRestriction from "$lib/security/AdminRestriction.svelte"
+  import AdminRestriction from "$lib/components/security/AdminRestriction.svelte"
 
   export let page: Page
 </script>

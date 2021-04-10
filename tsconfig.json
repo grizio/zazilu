@@ -5,7 +5,9 @@
     "paths": {
       "$app/*": [".svelte/dev/runtime/app/*", ".svelte/build/runtime/app/*"],
 			"$service-worker": [".svelte/build/runtime/service-worker"],
-			"$lib/*": ["src/lib/*"]
+			"$lib/*": ["src/lib/*"],
+			"$model/*": ["src/model/*"],
+			"$server/*": ["src/server/*"]
     },
     "lib": [
       "DOM",
@@ -19,10 +21,7 @@
     "noFallthroughCasesInSwitch": true,
     "strict": true
   },
-  "include": [
-    "src/**/*",
-    "src/node_modules/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules/*",
     "static/*"
