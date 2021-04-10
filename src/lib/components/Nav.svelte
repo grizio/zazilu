@@ -27,6 +27,15 @@
     color: #333333;
   }
 
+  .container > a {
+    display: flex;
+    align-items: center;
+  }
+
+  .container > a > img {
+    margin-right: 4px;
+  }
+
   .container {
     margin: auto;
     display: flex;
@@ -81,7 +90,10 @@
 
 <nav>
   <div class="container">
-    <a href="/">Zazilu</a>
+    <a href="/">
+      <img src="/favicon.svg" alt="Zazilu icon" width="16" />
+      zazilu
+    </a>
 
     <ul>
       <UnauthenticatedRestriction>
