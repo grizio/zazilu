@@ -26,7 +26,7 @@ export function getSession({ context }: { context: Context }): Session {
 }
 
 const router = buildRouter()
-export async function handle(request: Request<Context, Session>, render: (request: Request<Context, Session>) => Promise<Response>): Promise<Response> {
+export async function handle({ request, render }: { request: Request<Context, Session>, render: (request: Request<Context, Session>) => Promise<Response> }): Promise<Response> {
   const response = router.process(request)
   if (response !== undefined) {
     return response
