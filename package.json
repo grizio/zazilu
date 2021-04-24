@@ -14,7 +14,7 @@
   "dependencies": {
     "bcrypt": "5.0.1",
     "body-parser": "1.19.0",
-    "idonttrustlikethat": "1.0.7"
+    "idonttrustlikethat": "2.0.2"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "1.0.0-next.12",

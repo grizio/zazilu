@@ -3,7 +3,7 @@ import { string } from "idonttrustlikethat"
 
 export const nonEmptyString: Validator<string> = string.filter(_ => _ !== "")
 
-export const dateTime: Validator<Date> = string.flatMap(dateString => {
+export const dateTime: Validator<Date> = string.and(dateString => {
   const dateNumber = Date.parse(dateString)
   if (isNaN(dateNumber)) {
     return { ok: false, errors: `Date expected, got: ${dateString}` }
