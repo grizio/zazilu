@@ -1,4 +1,4 @@
-import { Meet, Page } from "../../../../../../$model/Page"
+import { Meet, Page } from "$model/Page"
 import { fullPageFormObject } from "../common"
 
 describe("MeetEdit dates", () => {

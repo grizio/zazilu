@@ -24,8 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-import { XRange } from "../../src/utils/dom/Selection"
-import { XNode } from "../../src/utils/dom/XNode"
+import { XRange } from "$lib/utils/dom/Selection"
+import { XNode } from "$lib/utils/dom/XNode"
 
 Cypress.Commands.add("selectNextCharacters", { prevSubject: false }, (numberOfCharacters: number) => {
   return cy.document()

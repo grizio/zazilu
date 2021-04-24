@@ -1,6 +1,6 @@
-import { Bloc } from "~/lib/model/Page"
+import { Bloc } from "$model/Page"
 import { allPages } from "~/routes/tests/PageFormTest"
-import { repeat } from "~/utils/strings"
+import { repeat } from "$lib/utils/strings"
 
 export class BlocObject {
   protected readonly dataTestId: string

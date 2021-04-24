@@ -2,9 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "../src/*"
-      ]
+      "~/*": ["../src/*"],
+      "$lib/*": ["../src/lib/*"],
+			"$model/*": ["../src/model/*"],
+			"$server/*": ["../src/server/*"]
     },
     "target": "es5",
     "lib": ["ES2020", "dom"],
