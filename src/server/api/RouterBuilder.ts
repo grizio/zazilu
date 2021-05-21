@@ -1,4 +1,5 @@
 import type { Context } from "$model/context"
+import type { User } from "$model/User"
 import type { Request, Response } from "@sveltejs/kit"
 import type { Validation, Validator } from "idonttrustlikethat"
 import { badRequest } from "./responses"
@@ -11,9 +12,12 @@ type RouteOptionsWithBody<Params extends {}, Body> = RouteOptions<Params> & {
   body?: Validator<Body>
 }
 
+export type Locals = {
+  authenticatedUser?: User
+}
 export type Action<Params extends {}, Body> = (request: ActionRequest<Params, Body>) => Promise<Response>
 export type ActionRequest<Params extends {} = {}, Body = unknown> = {
-  request: Request<Context>
+  request: Request<Locals, Body>
   params: Params
   body: Body
 }
@@ -77,7 +81,7 @@ export class Router {
     this.routes = routes
   }
 
-  process = (request: Request): Promise<Response> | undefined => {
+  process = (request: Request<Locals>): Promise<Response> | undefined => {
     for (const route of this.routes) {
       if (request.method === route.method) {
         const result = route.pattern.exec(request.path)
@@ -89,7 +93,7 @@ export class Router {
     return undefined
   }
 
-  private processRoute = async <Params, Body>(route: Route<Params, Body>, request: Request, pathPatternResult: RegExpExecArray): Promise<Response> => {
+  private processRoute = async <Params, Body>(route: Route<Params, Body>, request: Request<Locals, Body>, pathPatternResult: RegExpExecArray): Promise<Response> => {
     const params = this.extractParams(route, pathPatternResult)
 
     if (params.ok) {

@@ -2,22 +2,14 @@ import type { Incoming, Request, Response } from "@sveltejs/kit"
 import { extractUser } from "$server/api/authentication"
 import buildRouter from "$server/api/router"
 import type { Context, Session } from "$model/context"
+import type { Locals } from "$server/api/RouterBuilder"
 
-export async function getContext(incoming: Incoming): Promise<Context> {
-  const user = await extractUser(incoming)
-  if (user !== undefined) {
-    return { authenticatedUser: user }
-  } else {
-    return {}
-  }
-}
-
-export function getSession({ context }: { context: Context }): Session {
-  if (context.authenticatedUser !== undefined) {
+export function getSession(request: Request<Locals>): Session {
+  if (request.locals.authenticatedUser !== undefined) {
     return {
       authenticatedUser: {
-        email: context.authenticatedUser.email,
-        role: context.authenticatedUser.role
+        email: request.locals.authenticatedUser.email,
+        role: request.locals.authenticatedUser.role
       }
     }
   } else {
@@ -26,7 +18,9 @@ export function getSession({ context }: { context: Context }): Session {
 }
 
 const router = buildRouter()
-export async function handle({ request, render }: { request: Request<Context, Session>, render: (request: Request<Context, Session>) => Promise<Response> }): Promise<Response> {
+export async function handle({ request, render }: { request: Request, render: (request: Request) => Promise<Response> }): Promise<Response> {
+  request.locals.authenticatedUser = await extractUser(request)
+
   const response = router.process(request)
   if (response !== undefined) {
     return response

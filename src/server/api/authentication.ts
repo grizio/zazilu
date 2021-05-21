@@ -1,4 +1,4 @@
-import type { Incoming, Response } from "@sveltejs/kit"
+import type { Request, Response } from "@sveltejs/kit"
 import { app } from "$server/app"
 import { unsignCookie } from "$lib/utils/crypto"
 import type { Role, User } from "$model/User"
@@ -6,8 +6,8 @@ import { forbidden, unauthenticated } from "./responses"
 import type { ActionRequest } from "./RouterBuilder"
 
 export async function onAuthenticated(request: ActionRequest, process: (user: User) => Promise<Response>): Promise<Response> {
-  if (request.request.context.authenticatedUser !== undefined) {
-    return await process(request.request.context.authenticatedUser)
+  if (request.request.locals.authenticatedUser !== undefined) {
+    return await process(request.request.locals.authenticatedUser)
   } else {
     return unauthenticated(undefined, { cookies: { auth: null } })
   }
@@ -27,8 +27,8 @@ export async function onAuthenticatedAdmin(request: ActionRequest, process: (use
   return await onAuthenticatedWithRole(request, "admin", process)
 }
 
-export async function extractUser(incoming: Incoming): Promise<User | undefined> {
-  const cookieHeader = incoming.headers["cookie"]
+export async function extractUser(request: Request): Promise<User | undefined> {
+  const cookieHeader = request.headers["cookie"]
   if (cookieHeader !== undefined) {
     const cookies = parseCookie(cookieHeader)
     const signedAuthCookie = cookies["auth"]
