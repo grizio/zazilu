@@ -4,6 +4,7 @@
   import { pageValidation } from "$model/validation/PageValidation"
   import type { PageActions } from "$lib/components/page/PageActions"
   import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
+  import TagList from "$lib/components/tag/TagList.svelte"
 
   export let bloc: Meet
 
@@ -55,23 +56,6 @@
   .meet .content {
     padding: 8px;
   }
-
-  /* TODO: Maybe we should have a list of tags-like items? */
-  .meet ul {
-    list-style-type: none;
-    margin: 8px 0 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .meet ul li {
-    background-color: #cccccc;
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-right: 16px;
-    margin-bottom: 16px;
-  }
 </style>
 
 <div class="meet">
@@ -82,11 +66,7 @@
   </div>
   <div class="content">
     {#if bloc.members.length > 0}
-      <ul>
-        {#each bloc.members as member}
-          <li>{member}</li>
-        {/each}
-      </ul>
+      <TagList tags={bloc.members} />
     {/if}
 
     <PrimaryButton
