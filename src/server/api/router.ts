@@ -1,19 +1,24 @@
-import { RouterBuilder, Router } from "$server/api/RouterBuilder"
-import { pageValidation } from "$model/validation/PageValidation"
 import { object, string } from "idonttrustlikethat"
-import { postLogin, postLoginBody, postLogout } from "./login"
-import { deletePage, getAllPages, getPage, postPage, putPage, postAction, actionValidator } from "./page"
+import { RouterBuilder, Router } from "$server/api/RouterBuilder"
+import { pageActionValidator } from "$server/service/PageActionService"
+import { pageValidation } from "$model/validation/PageValidation"
+import { LoginController } from "./LoginController"
+import type { PageController } from "./PageController"
 
 
-export default function buildRouter(): Router {
+type Dependencies = {
+  loginController: LoginController
+  pageController: PageController
+}
+export default function buildRouter({ loginController, pageController }: Dependencies): Router {
   return new RouterBuilder()
-    .post("/login", postLogin, { body: postLoginBody })
-    .post("/logout", postLogout)
-    .get("/pages.json", getAllPages)
-    .get("/page/:slug.json", getPage, { params: object({ slug: string }) })
-    .post("/page/:slug.json", postPage, { params: object({ slug: string }), body: pageValidation })
-    .put("/page/:slug.json", putPage, { params: object({ slug: string }), body: pageValidation })
-    .delete("/page/:slug.json", deletePage, { params: object({ slug: string }) })
-    .post("/page/:slug/action.json", postAction, { params: object({ slug: string }), body: actionValidator })
+    .post("/login", loginController.login, { body: LoginController.loginBody })
+    .post("/logout", loginController.logout)
+    .get("/pages.json", pageController.getAllPages)
+    .get("/page/:slug.json", pageController.getPage, { params: object({ slug: string }) })
+    .post("/page/:slug.json", pageController.postPage, { params: object({ slug: string }), body: pageValidation })
+    .put("/page/:slug.json", pageController.putPage, { params: object({ slug: string }), body: pageValidation })
+    .delete("/page/:slug.json", pageController.deletePage, { params: object({ slug: string }) })
+    .post("/page/:slug/action.json", pageController.postAction, { params: object({ slug: string }), body: pageActionValidator })
     .build()
 }

@@ -1,7 +1,6 @@
-import type { Context } from "$model/context"
-import type { User } from "$model/User"
-import type { Request, Response } from "@sveltejs/kit"
 import type { Validation, Validator } from "idonttrustlikethat"
+import type { Request, Response } from "@sveltejs/kit"
+import type { User } from "$model/User"
 import { badRequest } from "./responses"
 
 type RouteOptions<Params extends {}> = {

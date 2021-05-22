@@ -1,8 +1,7 @@
-import type { Incoming, Request, Response } from "@sveltejs/kit"
-import { extractUser } from "$server/api/authentication"
-import buildRouter from "$server/api/router"
-import type { Context, Session } from "$model/context"
+import type { Request, Response } from "@sveltejs/kit"
+import { buildApp } from "$server/app"
 import type { Locals } from "$server/api/RouterBuilder"
+import type { Session } from "$model/context"
 
 export function getSession(request: Request<Locals>): Session {
   if (request.locals.authenticatedUser !== undefined) {
@@ -17,9 +16,9 @@ export function getSession(request: Request<Locals>): Session {
   }
 }
 
-const router = buildRouter()
+const { authentication, router } = buildApp()
 export async function handle({ request, render }: { request: Request, render: (request: Request) => Promise<Response> }): Promise<Response> {
-  request.locals.authenticatedUser = await extractUser(request)
+  request.locals.authenticatedUser = await authentication.extractUser(request)
 
   const response = router.process(request)
   if (response !== undefined) {
