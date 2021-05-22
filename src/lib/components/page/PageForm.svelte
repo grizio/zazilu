@@ -122,7 +122,7 @@
 
 <form on:submit|preventDefault={submit}>
   <label for="title">Title</label>
-  <input type="text" name="title" id="title" bind:value={page.title} />
+  <input type="text" name="title" id="title" bind:value={page.title} class="input-component" />
 
   <label for="key">Key (authorized characters: alphanumeric, "_" and "-")</label
   >
@@ -132,6 +132,7 @@
     id="key"
     bind:value={page.key}
     pattern="^[0-9A-Za-z_-]+$"
+    class="input-component"
   />
 
   {#each page.content as bloc, index (bloc.id)}

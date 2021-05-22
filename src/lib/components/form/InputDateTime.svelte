@@ -49,6 +49,7 @@
     data-test-id={`${dataTestId}-date`}
     value={datePart(value)}
     on:change={onDateChange}
+    class="input-component"
   />
 
   <input
@@ -58,5 +59,6 @@
     data-test-id={`${dataTestId}-time`}
     value={timePart(value)}
     on:change={onTimeChange}
+    class="input-component"
   />
 </div>

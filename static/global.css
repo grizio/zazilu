@@ -67,7 +67,7 @@ p, li {
 label {
 	display: block;
 }
-input {
+.input-component {
 	width: 100%;
 	margin-bottom: 8px;
 }
@@ -104,4 +104,12 @@ button.primary[disabled] {
 	border-radius: 4px;
   background: #F8B5BE;
 	padding: 16px 8px;
+}
+
+.invisible {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
 }

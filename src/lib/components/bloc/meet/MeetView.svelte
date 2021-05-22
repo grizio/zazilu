@@ -3,21 +3,20 @@
   import type { Meet } from "$model/Page"
   import { pageValidation } from "$model/validation/PageValidation"
   import type { PageActions } from "$lib/components/page/PageActions"
-  import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
   import TagList from "$lib/components/tag/TagList.svelte"
+  import SimpleTextForm from "$lib/components/form/SimpleTextForm.svelte"
 
   export let bloc: Meet
 
   const actions = getContext<PageActions>("actions")
 
-  async function register() {
-    const name = prompt("Your name")
+  async function register(event: CustomEvent<{ value: string, clear: () => void }>) {
     const res = await fetch(`page/${actions.getKey()}/action.json`, {
       method: "POST",
       body: JSON.stringify({
         type: "meet.register",
         bloc: bloc.id,
-        name,
+        name: event.detail.value,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -29,6 +28,7 @@
       const bodyResult = pageValidation.validate(body)
       if (bodyResult.ok) {
         actions.updatePage(bodyResult.value)
+        event.detail.clear()
       } else if (bodyResult.ok === false) {
         actions.showError("Invalid body result", bodyResult.errors)
       }
@@ -69,10 +69,12 @@
       <TagList tags={bloc.members} />
     {/if}
 
-    <PrimaryButton
-      label="Register"
-      dataTestId="meet-member-add"
-      on:click={register}
+    <SimpleTextForm
+      label="Specify your name to register"
+      name="register"
+      id={`meet-${bloc.id}-register`}
+      submitLabel="Register"
+      on:submit={register}
     />
   </div>
 </div>

@@ -13,4 +13,5 @@
   id={id}
   data-test-id={dataTestId}
   bind:value={value}
+  class="input-component"
 />
