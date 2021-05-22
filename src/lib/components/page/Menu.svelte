@@ -18,6 +18,7 @@
     { key: "h6", label: "Title 6" },
     { key: "img", label: "Image" },
     { key: "meet", label: "Meet" },
+    { key: "meets", label: "Meets" },
   ]
 
   function toggleMenu() {

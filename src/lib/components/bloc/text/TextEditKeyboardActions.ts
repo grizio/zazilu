@@ -126,6 +126,11 @@ export const keyboardActions = new KeyboardListener<RequiredDetail>()
 
   .on(" ")
   .withCaret()
+  .filter(prefixPredicate("/meets"))
+  .process(blocTransformer("meets"))
+
+  .on(" ")
+  .withCaret()
   .filter(prefixPredicate("/img"))
   .process(blocTransformer("img"))
 

@@ -74,13 +74,36 @@ const initialPage: Page = {
     {
       "id": "gMOtIVioNzk1khxGplXl",
       "type": "h1",
-      "content": [text("Meets")]
+      "content": [text("Meet")]
     },
     {
       "id": "hBZZT83U4fvFaZq2I1wo",
       "type": "meet",
       "date": new Date(Date.parse("2021-03-01T20:30:00Z")),
       "members": ["John"]
+    },
+    {
+      "id": "FpJ2UnQZjd3zJbgnRNvY",
+      "type": "h1",
+      "content": [text("Meets")]
+    },
+    {
+      "id": "CHK4tT7mOwSyQ9i6XFrU",
+      "type": "meets",
+      "meets": [
+        {
+          "type": "meet",
+          "id": "jfsw9n87X51Ssz37EEIq",
+          "date": new Date(Date.parse("2021-05-22T15:30:00Z")),
+          "members": ["Edouard"]
+        },
+        {
+          "type": "meet",
+          "id": "oRCn9u4Bb89juITcjEC9",
+          "date": new Date(Date.parse("2021-05-23T20:00:00Z")),
+          "members": ["James", "Philippe"]
+        }
+      ]
     },
     {
       "id": "BzJo1laUPQWrpbb3x574",

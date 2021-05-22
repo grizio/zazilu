@@ -1,4 +1,5 @@
-import type { Bloc, Image, Meet, Text, TextPart } from "$model/Page"
+import { generateId } from "$lib/utils/strings"
+import type { Bloc, Image, Meet, Meets, Text, TextPart } from "$model/Page"
 
 export function transformBloc(bloc: Bloc, target: Bloc["type"]): Bloc {
   switch (bloc.type) {
@@ -12,6 +13,8 @@ export function transformBloc(bloc: Bloc, target: Bloc["type"]): Bloc {
       return transformText(bloc, target)
     case "meet":
       return transformMeet(bloc, target)
+    case "meets":
+      return transformMeets(bloc, target)
     case "img":
       return transformImage(bloc, target)
   }
@@ -33,6 +36,8 @@ function transformText(text: Text, target: Bloc["type"]): Bloc {
       }
     case "meet":
       return buildMeet({ id: text.id })
+    case "meets":
+      return buildMeets({ id: text.id })
     case "img":
       return buildImage({ id: text.id })
   }
@@ -54,8 +59,33 @@ function transformMeet(meet: Meet, target: Bloc["type"]): Bloc {
       }
     case "meet":
       return meet
+    case "meets":
+      return buildMeets({ id: meet.id, meets: [meet] })
     case "img":
       return buildImage({ id: meet.id })
+  }
+}
+
+function transformMeets(meets: Meets, target: Bloc["type"]): Bloc {
+  switch (target) {
+    case "p":
+    case "h1":
+    case "h2":
+    case "h3":
+    case "h4":
+    case "h5":
+    case "h6":
+      return {
+        type: target,
+        id: meets.id,
+        content: []
+      }
+    case "meet":
+      return buildMeet({ id: meets.id, date: meets.meets[0]?.date, members: meets.meets[0]?.members })
+    case "meets":
+      return meets
+    case "img":
+      return buildImage({ id: meets.id })
   }
 }
 
@@ -75,6 +105,8 @@ function transformImage(image: Image, target: Bloc["type"]): Bloc {
       }
     case "meet":
       return buildMeet({ id: image.id })
+    case "meets":
+      return buildMeets({ id: image.id })
     case "img":
       return image
   }
@@ -99,13 +131,27 @@ function buildText({ id, type, content }: BuildTextParameters): Text {
 
 type BuildMeetParameters = {
   id: string
+  date?: Date
+  members?: Array<string>
 }
-function buildMeet({ id }: BuildMeetParameters): Meet {
+function buildMeet({ id, date, members }: BuildMeetParameters): Meet {
   return {
     type: "meet",
     id: id,
-    date: new Date(Date.now()),
-    members: []
+    date: date ?? new Date(Date.now()),
+    members: members ?? []
+  }
+}
+
+type BuildMeetsParameters = {
+  id: string
+  meets?: Array<Meet>
+}
+function buildMeets({ id, meets }: BuildMeetsParameters): Meets {
+  return {
+    type: "meets",
+    id: id,
+    meets: meets ?? [buildMeet({ id: generateId() })]
   }
 }
 

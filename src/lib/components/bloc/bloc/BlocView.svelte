@@ -2,6 +2,7 @@
   import type { Bloc } from "$model/Page"
   import TextView from "../text/TextView.svelte"
   import MeetView from "../meet/MeetView.svelte"
+  import MeetsView from "../meets/MeetsView.svelte";
   import ImageView from "../image/ImageView.svelte"
 
   export let bloc: Bloc
@@ -15,6 +16,7 @@
     h5: TextView,
     h6: TextView,
     meet: MeetView,
+    meets: MeetsView,
     img: ImageView,
   }
 </script>

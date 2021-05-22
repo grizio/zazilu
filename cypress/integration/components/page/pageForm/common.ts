@@ -1,5 +1,5 @@
 /// <reference path="../../../../support/index.d.ts" />
-import { ImgBlocObject, MeetBlocObject, PageFormObject, TextBlocObject } from "./PageFormObject"
+import { ImgBlocObject, MeetBlocObject, MeetsBlocObject, PageFormObject, TextBlocObject } from "./PageFormObject"
 
 export const fullPageFormObject = new PageFormObject("initialPage", {
   title1: new TextBlocObject("s6eTVUS5LZ6O3K3FQlPB"),
@@ -14,6 +14,7 @@ export const fullPageFormObject = new PageFormObject("initialPage", {
   secondRichParagraph: new TextBlocObject("7iGFyeZlNddiRpqX3FbN"),
   thirdRichParagraph: new TextBlocObject("n9tAhhR0lup1StIFKCnE"),
   firstMeet: new MeetBlocObject("hBZZT83U4fvFaZq2I1wo"),
+  firstMeets: new MeetsBlocObject("CHK4tT7mOwSyQ9i6XFrU"),
   firstImage: new ImgBlocObject("VGa2gwdqZZ4GjIQv9gLx"),
 })
 

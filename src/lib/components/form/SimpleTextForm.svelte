@@ -5,6 +5,8 @@
   export let name: string
   export let id: string
   export let submitLabel: string
+  export let formName: string | undefined = undefined
+  export let disabled: boolean = false
 
   let value: string = ""
 
@@ -61,8 +63,8 @@
 
 </style>
 
-<form on:submit|preventDefault={submit}>
+<form on:submit|preventDefault={submit} name={formName} id={formName}>
   <label for={id}>{label}</label>
-  <input type="text" name={name} placeholder={label} bind:value required />
-  <button class="primary">{submitLabel}</button>
+  <input type="text" name={name} placeholder={label} bind:value required disabled={disabled} />
+  <button class="primary" disabled={disabled}>{submitLabel}</button>
 </form>

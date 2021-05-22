@@ -1,4 +1,4 @@
-import { literal, object, Result, Validator } from "idonttrustlikethat"
+import { array, literal, object, Result, union, Validator } from "idonttrustlikethat"
 import { app } from "$server/app"
 import type { Bloc, Page } from "$model/Page"
 import { replace } from "$lib/utils/arrays"
@@ -68,7 +68,7 @@ export async function deletePage(request: ActionRequest<{slug: string}>): Promis
   })
 }
 
-type PageAction = MeetRegisterAction
+type PageAction = MeetRegisterAction | MeetsRegisterAction
 
 type MeetRegisterAction = {
   type: "meet.register"
@@ -76,13 +76,27 @@ type MeetRegisterAction = {
   name: string
 }
 
-const meetActionValidator: Validator<MeetRegisterAction> = object({
+type MeetsRegisterAction = {
+  type: "meets.register"
+  bloc: string
+  meets: Array<string>
+  name: string
+}
+
+const meetRegisterActionValidator: Validator<MeetRegisterAction> = object({
   type: literal("meet.register"),
   bloc: nonEmptyString,
-  name: nonEmptyString
+  name: nonEmptyString,
 })
 
-export const actionValidator: Validator<PageAction> = meetActionValidator
+const meetsRegisterActionValidator: Validator<MeetsRegisterAction> = object({
+  type: literal("meets.register"),
+  bloc: nonEmptyString,
+  meets: array(nonEmptyString),
+  name: nonEmptyString,
+})
+
+export const actionValidator: Validator<PageAction> = union(meetRegisterActionValidator, meetsRegisterActionValidator)
 
 export async function postAction(request: ActionRequest<{slug: string}>): Promise<Response> {
   const validation = actionValidator.validate(request.body)
@@ -115,17 +129,41 @@ export async function postAction(request: ActionRequest<{slug: string}>): Promis
 
 function process(action: PageAction, bloc: Bloc): Result<{ message: string }, Bloc> {
   switch (action.type) {
-    case "meet.register": return processMeet(action, bloc)
+    case "meet.register": return processMeetRegister(action, bloc)
+    case "meets.register": return processMeetsRegister(action, bloc)
   }
 }
 
-function processMeet(action: MeetRegisterAction, bloc: Bloc): Result<{ message: string }, Bloc> {
+function processMeetRegister(action: MeetRegisterAction, bloc: Bloc): Result<{ message: string }, Bloc> {
   if (bloc.type === "meet") {
     return {
       ok: true,
       value: {
         ...bloc,
         members: [...bloc.members, action.name]
+      }
+    }
+  } else {
+    return {
+      ok: false,
+      errors: { message: "Bloc is not a meet" }
+    }
+  }
+}
+
+function processMeetsRegister(action: MeetsRegisterAction, bloc: Bloc): Result<{ message: string }, Bloc> {
+  if (bloc.type === "meets") {
+    return {
+      ok: true,
+      value: {
+        ...bloc,
+        meets: bloc.meets.map(meet => {
+          if (action.meets.includes(meet.id)) {
+            return { ...meet, members: [...meet.members, action.name] }
+          } else {
+            return meet
+          }
+        })
       }
     }
   } else {
