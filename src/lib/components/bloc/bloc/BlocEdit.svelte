@@ -4,6 +4,7 @@
   import type { Move } from "$lib/components/types"
   import TextEdit from "$lib/components/bloc/text/TextEdit.svelte"
   import MeetEdit from "$lib/components/bloc/meet/MeetEdit.svelte"
+  import MeetsEdit from "$lib/components/bloc/meets/MeetsEdit.svelte"
   import ImageEdit from "$lib/components/bloc/image/ImageEdit.svelte"
 
   export let bloc: Bloc
@@ -22,6 +23,7 @@
     h5: TextEdit,
     h6: TextEdit,
     meet: MeetEdit,
+    meets: MeetsEdit,
     img: ImageEdit,
   }
 

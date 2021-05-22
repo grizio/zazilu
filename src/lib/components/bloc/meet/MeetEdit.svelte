@@ -1,11 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte"
   import type { Meet } from "$model/Page"
-  import InputDateTime from "$lib/components/form/InputDateTime.svelte"
   import type { PageEditEventDispatcher } from "$lib/components/types"
-  import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
   import { menuAction } from "$lib/components/page/MenuAction"
-import TagList from "$lib/components/tag/TagList.svelte"
+  import TagList from "$lib/components/tag/TagList.svelte"
+  import EditableDate from "$lib/components/form/EditableDate.svelte"
 
   export let bloc: Meet
   export let index: number
@@ -64,21 +63,7 @@ import TagList from "$lib/components/tag/TagList.svelte"
 
 <div class="meet" data-test-id={bloc.id} use:menuAction={index}>
   <div class="header" class:edit={editingDate}>
-    {#if editingDate}
-      <InputDateTime
-        id={`${bloc.id}-date`}
-        name={`${bloc.id}.date`}
-        dataTestId={`${bloc.id}.date`}
-        value={bloc.date}
-        on:change={onChange}
-      />
-      <PrimaryButton label="✔️" on:click={() => (editingDate = false)} dataTestId={`${bloc.id}-validButton`} />
-    {:else}
-      <time datetime={bloc.date.toISOString()}>
-        {new Intl.DateTimeFormat([], { dateStyle: "full", timeStyle: "short" }).format(bloc.date)}
-      </time>
-      <PrimaryButton label="🖊" on:click={() => (editingDate = true)} dataTestId={`${bloc.id}-editButton`} />
-    {/if}
+    <EditableDate date={bloc.date} id={bloc.id} dataTestId={bloc.id} on:change={onChange} />
   </div>
 
   <div class="content">

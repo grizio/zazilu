@@ -72,17 +72,38 @@ label {
 	margin-bottom: 8px;
 }
 
-button.primary, a.primary {
-  background-color: #6B9AC4;
+button.primary, a.primary, button.danger {
 	text-decoration: none;
 	border-radius: 4px;
 	border: none;
-	color: #ffffff;
 	padding: 8px 12px;
 	font-size: 14px;
 	line-height: 16px;
 	cursor: pointer;
 	transition: all ease-in-out 250ms;
+}
+
+button.primary, a.primary {
+  background-color: #6B9AC4;
+	color: #ffffff;
+}
+
+button.primary:hover:not([disabled]), a.primary:hover {
+	box-shadow: 0px 2px 4px rgba(35, 63, 88, 0.5);
+}
+
+button.primary:active:not([disabled]), a.primary:active {
+	box-shadow: inset 0px 2px 4px rgba(35, 63, 88, 0.5);
+}
+
+button.primary[disabled] {
+	background-color: #A7C4DC;
+	cursor: not-allowed;
+}
+
+button.danger, a.danger {
+  background-color: #DB162F;
+	color: #ffffff;
 }
 
 button.primary:hover:not([disabled]), a.primary:hover {

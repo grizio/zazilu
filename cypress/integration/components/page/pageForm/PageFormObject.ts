@@ -3,7 +3,7 @@ import { allPages } from "~/routes/tests/PageFormTest"
 import { repeat } from "$lib/utils/strings"
 
 export class BlocObject {
-  protected readonly dataTestId: string
+  public readonly dataTestId: string
 
   constructor(dataTestId: string) {
     this.dataTestId = dataTestId
@@ -25,6 +25,7 @@ export class BlocObject {
     "h5": "h5",
     "h6": "h6",
     "meet": ".meet",
+    "meets": ".meets",
     "img": "figure"
   }
 
@@ -194,6 +195,64 @@ export class MeetBlocObject extends BlocObject {
 
   attributeDatetimeOfTimeShouldBe = (expectedDatetime: string): this => {
     cy.get(`[data-test-id=${this.dataTestId}] time`).should("have.attr", "datetime", expectedDatetime)
+    return this
+  }
+}
+
+export class MeetsBlocObject extends BlocObject {
+  constructor(dataTestId: string) {
+    super(dataTestId)
+  }
+
+  changeDate = (index: number, date: string): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date-editButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date\\.date-date]`).type(date)
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date-validButton]`).click()
+    return this
+  }
+
+  changeTime = (index: number, time: string): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date-editButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date\\.date-time]`).type(time)
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date-validButton]`).click()
+    return this
+  }
+
+  changeDateTime = (index: number, date: string, time: string): this => {
+    this.changeDateTimeWithoutValidating(index, date, time)
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date-validButton]`).click()
+    return this
+  }
+
+  changeDateTimeWithoutValidating = (index: number, date: string, time: string): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date-editButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date\\.date-date]`).type(date)
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date\\.date-time]`).type(time)
+    return this
+  }
+
+  attributeDatetimeOfTimeShouldBe = (index: number, expectedDatetime: string): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date]`).should("have.attr", "datetime", expectedDatetime)
+    return this
+  }
+
+  addItem = (): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-add]`).click()
+    return this
+  }
+
+  deleteItem = (index: number): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-delete]`).click()
+    return this
+  }
+
+  itemShouldExist = (index: number): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date]`).should("exist")
+    return this
+  }
+
+  itemShouldNotExist = (index: number): this => {
+    cy.get(`[data-test-id=${this.dataTestId}-meet-${index}-date]`).should("not.exist")
     return this
   }
 }
