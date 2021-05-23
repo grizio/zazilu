@@ -1,8 +1,9 @@
 import { signCookie } from "$lib/utils/crypto"
+import { removeUndefinedKeys } from "$lib/utils/objects"
 import type { Response } from "@sveltejs/kit"
 
 type Options = {
-  headers?: Record<string, string>
+  headers?: Record<string, string | undefined>
   cookies?: Record<string, string | null>
 }
 export function ok(body: any, options: Options = {}): Response {
@@ -80,9 +81,19 @@ function buildResponse({ status, headers, cookies, body }: BuildResponseOptions)
       "Content-Type": "application/json",
       // @ts-ignore cf. comment in svelte-kit code
       "Set-Cookie": buildSetCookieHeader(cookies),
-      ...(headers ?? {})
+      ...(removeUndefinedKeys(headers ?? {}))
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined
+    body: serializeBody(body)
+  }
+}
+
+function serializeBody(body: any | undefined) {
+  if (body === undefined) {
+    return undefined
+  } else if (body instanceof Buffer) {
+    return body
+  } else {
+    return JSON.stringify(body)
   }
 }
 

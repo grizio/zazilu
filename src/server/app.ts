@@ -17,6 +17,13 @@ import { MongoPageRepository } from "./persistence/mongo/MongoPageRepository"
 import { MongoUserRepository } from "./persistence/mongo/MongoUserRepository"
 import { MongoDb } from "./persistence/mongo/MongoDb"
 
+import AWS from "aws-sdk"
+import type { ImageRepository } from "./persistence/ImageRepository"
+import { ObjectStorageImageRepository } from "./persistence/object-storage/ObjectStorageImageRepository"
+import { ImageController } from "./api/ImageController"
+import { ObjectStorage } from "./persistence/object-storage/ObjectStorage"
+import { InMemoryImageRepository } from "./persistence/in-memory/InMemoryImageRepository"
+
 export type App = {
   authentication: Authentication
   router: Router
@@ -24,23 +31,25 @@ export type App = {
 
 export function buildApp(): App {
   const conf = loadConf()
-  const { userRepository, pageRepository } = buildRepositories(conf)
+  const { userRepository, pageRepository } = buildMongoOrInMemoryRepositories(conf)
+  const { imageRepository } = buildObjectStorageRepositories(conf)
 
   const authentication = new Authentication({ userRepository })
 
   const loginController = new LoginController({ userRepository })
   const pageController = new PageController({ authentication, pageRepository })
+  const imageController = new ImageController({ imageRepository })
 
-  const router = buildRouter({ loginController, pageController })
+  const router = buildRouter({ loginController, pageController, imageController })
 
   return { authentication, router }
 }
 
-type Repositories = {
+type MongoOrInMemoryRepositories = {
   pageRepository: PageRepository,
   userRepository: UserRepository
 }
-function buildRepositories(conf: Conf): Repositories {
+function buildMongoOrInMemoryRepositories(conf: Conf): MongoOrInMemoryRepositories {
   if (conf.database.type === "mongo") {
     const mongoDb = new MongoDb(conf.database)
     return {
@@ -51,6 +60,22 @@ function buildRepositories(conf: Conf): Repositories {
     return {
       pageRepository: new InMemoryPageRepository(),
       userRepository: new InMemoryUserRepository(),
+    }
+  }
+}
+
+type ObjectStorageRepositories = {
+  imageRepository: ImageRepository
+}
+function buildObjectStorageRepositories(conf: Conf): ObjectStorageRepositories {
+  if (conf.fileStorage.type === "object-storage") {
+    const objectStorage = new ObjectStorage({ conf: conf.fileStorage })
+    return {
+      imageRepository: new ObjectStorageImageRepository({ objectStorage })
+    }
+  } else {
+    return {
+      imageRepository: new InMemoryImageRepository()
     }
   }
 }

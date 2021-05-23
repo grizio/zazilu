@@ -6,7 +6,8 @@ export function loadConf(): Conf {
   dotenv.config()
 
   const validation = confValidator.validate({
-    database: loadDatabaseConf()
+    database: loadDatabaseConf(),
+    fileStorage: loadFileStorageConf(),
   })
 
   if (validation.ok) {
@@ -29,6 +30,22 @@ function loadDatabaseConf(): unknown {
   } else {
     return {
       type: process.env["DATABASE_TYPE"] ?? "in-memory",
+    }
+  }
+}
+
+function loadFileStorageConf(): unknown {
+  if (process.env["FILE_STORAGE_TYPE"] === "object-storage") {
+    return {
+      type: "object-storage",
+      endpoint: process.env["FILE_STORAGE_ENDPOINT"],
+      accessKeyId: process.env["FILE_STORAGE_ACCESS_KEY_ID"],
+      secretAccessKey: process.env["FILE_STORAGE_SECRET_ACCESS_KEY"],
+      bucket: process.env["FILE_STORAGE_BUCKET"],
+    }
+  } else {
+    return {
+      type: process.env["FILE_STORAGE_TYPE"] ?? "in-memory",
     }
   }
 }

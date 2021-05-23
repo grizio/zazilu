@@ -12,3 +12,15 @@ services:
     volumes:
       - ./volumes/mongo/data:/data/db
       - ./volumes/mongo/initdb:/docker-entrypoint-initdb.d
+
+  objectstorage:
+    image: minio/minio
+    container_name: objectstorage
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ROOT_USER: objectstorage
+      MINIO_ROOT_PASSWORD: objectstorage
+    volumes:
+      - ./volumes/objectstorage/data:/data
+    command: server /data
