@@ -2,6 +2,7 @@ import type { Request, Response } from "@sveltejs/kit"
 import { buildApp } from "$server/app"
 import type { Locals } from "$server/api/RouterBuilder"
 import type { Session } from "$model/context"
+import { ConfigurationServicePlaceholders } from "aws-sdk/lib/config_service_placeholders"
 
 export function getSession(request: Request<Locals>): Session {
   if (request.locals.authenticatedUser !== undefined) {

@@ -5,6 +5,7 @@ import { pageValidation } from "$model/validation/PageValidation"
 import { LoginController } from "./LoginController"
 import type { PageController } from "./PageController"
 import type { ImageController } from "./ImageController"
+import { nonEmptyString } from "$lib/utils/validators"
 
 
 type Dependencies = {
@@ -24,6 +25,8 @@ export default function buildRouter({ loginController, pageController, imageCont
     .delete("/page/:slug.json", pageController.deletePage, { params: object({ slug: string }) })
     .post("/page/:slug/action.json", pageController.postAction, { params: object({ slug: string }), body: pageActionValidator })
 
+    .get("/images", imageController.list)
+    .post("/image", imageController.upload, { query: object({ filename: nonEmptyString, contentType: nonEmptyString }), body: nonEmptyString })
     .get("/image/:key", imageController.get, { params: object({ key: string }) })
 
     .build()

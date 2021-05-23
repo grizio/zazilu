@@ -22,4 +22,12 @@ export class ObjectStorage {
   getObject = async (key: string): Promise<AWS.S3.Types.GetObjectOutput> => {
     return this.s3.getObject({ Bucket: this.conf.bucket, Key: key }).promise()
   }
+
+  list = async (): Promise<AWS.S3.Types.ListObjectsV2Output> => {
+    return this.s3.listObjectsV2({ Bucket: this.conf.bucket }).promise()
+  }
+
+  putObject = async (request: Omit<AWS.S3.Types.PutObjectRequest, "Bucket">): Promise<AWS.S3.Types.PutObjectOutput> => {
+    return this.s3.putObject({ ...request, Bucket: this.conf.bucket }).promise()
+  }
 }

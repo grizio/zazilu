@@ -1,7 +1,8 @@
 import type { Response } from "@sveltejs/kit"
 import type { ActionRequest } from "$server/api/RouterBuilder"
 import type { ImageRepository } from "$server/persistence/ImageRepository"
-import { notFound, ok } from "./responses"
+import { created, notFound, ok } from "./responses"
+import { randomUUID } from "crypto"
 
 type Dependencies = {
   imageRepository: ImageRepository
@@ -30,5 +31,20 @@ export class ImageController {
         }
       )
     }
+  }
+
+  list = async (_request: ActionRequest): Promise<Response> => {
+    const list = await this.imageRepository.list()
+    return ok(list)
+  }
+
+  upload = async (request: ActionRequest<{}, { filename: string, contentType: string }, string>): Promise<Response> => {
+    const key = `${randomUUID()}_${request.query.filename}`
+    await this.imageRepository.put({
+      key: key,
+      contentType: request.query.contentType,
+      content: Buffer.from(request.request.body, "base64"),
+    })
+    return created(key)
   }
 }

@@ -7,4 +7,12 @@ export class InMemoryImageRepository implements ImageRepository {
   get = async (key: string): Promise<Image | undefined> => {
     return this.inMemory.get(key)
   }
+
+  list = async (): Promise<Array<string>> => {
+    return Array.from(this.inMemory.keys())
+  }
+
+  put = async(image: Image): Promise<void> => {
+    this.inMemory.set(image.key, image)
+  }
 }
