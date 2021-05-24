@@ -122,7 +122,7 @@ export class Router {
   private extractParams = <Params extends {}>(route: Route<Params, any, any>, patternResult: RegExpExecArray): Validation<Params> => {
     if (route.params !== undefined) {
       const params: Record<string, string> = {}
-      route.keys.forEach((key, index) => params[key] = patternResult[index + 1])
+      route.keys.forEach((key, index) => params[key] = decodeURIComponent(patternResult[index + 1]))
 
       return route.params.validate(params)
     } else {

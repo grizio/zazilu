@@ -1,18 +1,14 @@
-import type { Image } from "$model/Image"
+import type { ImageObject } from "$model/Image"
 import type { ImageRepository } from "../ImageRepository"
 
 export class InMemoryImageRepository implements ImageRepository {
-  private inMemory: Map<string, Image> = new Map<string, Image>()
+  private inMemory: Map<string, ImageObject> = new Map<string, ImageObject>()
 
-  get = async (key: string): Promise<Image | undefined> => {
+  get = async (key: string): Promise<ImageObject | undefined> => {
     return this.inMemory.get(key)
   }
 
-  list = async (): Promise<Array<string>> => {
-    return Array.from(this.inMemory.keys())
-  }
-
-  put = async(image: Image): Promise<void> => {
+  put = async(image: ImageObject): Promise<void> => {
     this.inMemory.set(image.key, image)
   }
 }

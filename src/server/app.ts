@@ -23,6 +23,10 @@ import { ObjectStorageImageRepository } from "./persistence/object-storage/Objec
 import { ImageController } from "./api/ImageController"
 import { ObjectStorage } from "./persistence/object-storage/ObjectStorage"
 import { InMemoryImageRepository } from "./persistence/in-memory/InMemoryImageRepository"
+import { ImageService } from "./service/ImageService"
+import type { ImageMetadataRepository } from "./persistence/ImageMetadataRepository"
+import { MongoImageMetadataRepository } from "./persistence/mongo/MongoImageMetadataRepository"
+import { InMemoryImageMetadataRepository } from "./persistence/in-memory/InMemoryImageMetadataRepository"
 
 export type App = {
   authentication: Authentication
@@ -31,14 +35,16 @@ export type App = {
 
 export function buildApp(): App {
   const conf = loadConf()
-  const { userRepository, pageRepository } = buildMongoOrInMemoryRepositories(conf)
+  const { imageMetadataRepository, pageRepository, userRepository } = buildMongoOrInMemoryRepositories(conf)
   const { imageRepository } = buildObjectStorageRepositories(conf)
+
+  const imageService = new ImageService({ imageMetadataRepository, imageRepository })
 
   const authentication = new Authentication({ userRepository })
 
   const loginController = new LoginController({ userRepository })
   const pageController = new PageController({ authentication, pageRepository })
-  const imageController = new ImageController({ imageRepository })
+  const imageController = new ImageController({ imageService })
 
   const router = buildRouter({ loginController, pageController, imageController })
 
@@ -46,18 +52,21 @@ export function buildApp(): App {
 }
 
 type MongoOrInMemoryRepositories = {
-  pageRepository: PageRepository,
+  imageMetadataRepository: ImageMetadataRepository
+  pageRepository: PageRepository
   userRepository: UserRepository
 }
 function buildMongoOrInMemoryRepositories(conf: Conf): MongoOrInMemoryRepositories {
   if (conf.database.type === "mongo") {
     const mongoDb = new MongoDb(conf.database)
     return {
+      imageMetadataRepository: new MongoImageMetadataRepository({ mongoDb }),
       pageRepository: new MongoPageRepository({ mongoDb }),
       userRepository: new MongoUserRepository({ mongoDb }),
     }
   } else {
     return {
+      imageMetadataRepository: new InMemoryImageMetadataRepository(),
       pageRepository: new InMemoryPageRepository(),
       userRepository: new InMemoryUserRepository(),
     }

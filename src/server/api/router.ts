@@ -25,7 +25,7 @@ export default function buildRouter({ loginController, pageController, imageCont
     .delete("/page/:slug.json", pageController.deletePage, { params: object({ slug: string }) })
     .post("/page/:slug/action.json", pageController.postAction, { params: object({ slug: string }), body: pageActionValidator })
 
-    .get("/images", imageController.list)
+    .get("/images", imageController.search, { query: object({ filename: string.optional() }) })
     .post("/image", imageController.upload, { query: object({ filename: nonEmptyString, contentType: nonEmptyString }), body: nonEmptyString })
     .get("/image/:key", imageController.get, { params: object({ key: string }) })
 

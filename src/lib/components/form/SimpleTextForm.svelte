@@ -7,6 +7,7 @@
   export let submitLabel: string
   export let formName: string | undefined = undefined
   export let disabled: boolean = false
+  export let required: boolean = true
 
   let value: string = ""
 
@@ -65,6 +66,6 @@
 
 <form on:submit|preventDefault={submit} name={formName} id={formName}>
   <label for={id}>{label}</label>
-  <input type="text" name={name} placeholder={label} bind:value required disabled={disabled} />
+  <input type="text" name={name} placeholder={label} bind:value required={required} disabled={disabled} />
   <button class="primary" disabled={disabled}>{submitLabel}</button>
 </form>

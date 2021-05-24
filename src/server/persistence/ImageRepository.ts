@@ -1,9 +1,7 @@
-import type { Image } from "$model/Image"
+import type { ImageObject } from "$model/Image"
 
 export interface ImageRepository {
-  get(key: string): Promise<Image | undefined>
+  get(key: string): Promise<ImageObject | undefined>
 
-  list(): Promise<Array<string>>
-
-  put(image: Image): Promise<void>
+  put(image: ImageObject): Promise<void>
 }
