@@ -30,18 +30,24 @@
 </script>
 
 <style>
-  section {
-    box-shadow: 0 0 2px #aaaaaa;
-    padding: 8px;
+  .image-selector {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+  }
+
+  .header {
+    padding-bottom: 8px;
   }
 
   .elements {
-    max-height: 50vh;
+    flex-grow: 1;
+    flex-shrink: 1;
     overflow: auto;
   }
 
   .grid {
-    margin: 16px 0;
+    margin: 0;
     display: grid;
     grid-template-columns: repeat(5, calc(20% - 16px));
     gap: 16px;
@@ -51,22 +57,28 @@
     text-align: center;
   }
 
+  .footer {
+    padding-top: 8px;
+  }
+
 </style>
 
-<section>
-  <SimpleTextForm
-    id="image-selector-search"
-    label="Search (press Enter to validate)"
-    name="search"
-    submitLabel="Search"
-    required={false}
-    on:submit={search}
-  />
+<div class="image-selector">
+  <div class="header">
+    <SimpleTextForm
+      id="image-selector-search"
+      label="Search (press Enter to validate)"
+      name="search"
+      submitLabel="Search"
+      required={false}
+      on:submit={search}
+    />
+  </div>
 
   <div class="elements">
     <div class="grid">
       {#each $store.elements as image}
-        <ImageSelectorItem image={image} />
+        <ImageSelectorItem image={image} on:select />
       {/each}
     </div>
 
@@ -86,5 +98,7 @@
     </div>
   </div>
 
-  <ImageUpload on:uploaded={reload} />
-</section>
+  <div class="footer">
+    <ImageUpload on:uploaded={reload} />
+  </div>
+</div>

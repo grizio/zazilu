@@ -31,7 +31,7 @@ export class MongoPageRepository implements PageRepository {
 
   put = async (page: Page): Promise<void> => {
     const collection = await this.getCollection()
-    await collection.updateOne({ key: page.key }, page)
+    await collection.updateOne({ key: page.key }, { $set: page })
   }
 
   remove = async (key: string): Promise<void> => {

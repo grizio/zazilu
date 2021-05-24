@@ -51,7 +51,7 @@ const meetsValidator: Validator<Meets> = object({
 const imageValidator: Validator<Image> = object({
   type: literal("img"),
   id: nonEmptyString,
-  src: nonEmptyString,
+  key: nonEmptyString,
   alt: string.optional(),
   caption: string.optional()
 })

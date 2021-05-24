@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ImageMetadata } from "$model/Image"
-import PrimaryButton from "../button/PrimaryButton.svelte"
+  import { createEventDispatcher } from "svelte"
+  import PrimaryButton from "../button/PrimaryButton.svelte"
   import SimpleTextForm from "../form/SimpleTextForm.svelte"
   import type { SimpleTextFormSubmitEvent } from "../form/types"
 
@@ -8,11 +9,13 @@ import PrimaryButton from "../button/PrimaryButton.svelte"
 
   let editingName: boolean = false
 
+  const dispatch = createEventDispatcher<{ select: ImageMetadata }>()
+
   async function submitNameEdition(event: SimpleTextFormSubmitEvent) {
     await fetch(`/image/${image.key}/rename`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ filename: event.detail.value }),
     })
@@ -21,13 +24,19 @@ import PrimaryButton from "../button/PrimaryButton.svelte"
     editingName = false
   }
 
+  function select() {
+    dispatch("select", image)
+  }
+
 </script>
 
 <style>
   figure {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     margin: 0;
     padding: 8px;
-    cursor: pointer;
     transition: box-shadow ease-in-out 250ms;
     text-align: center;
   }
@@ -39,10 +48,18 @@ import PrimaryButton from "../button/PrimaryButton.svelte"
   img {
     max-width: 100%;
     max-height: 300px;
+    margin-top: 16px;
   }
+
+  figcaption {
+    margin-top: 8px;
+  }
+
 </style>
 
 <figure>
+  <PrimaryButton label="Select" on:click={select} />
+
   <img src={`/image/${image.key}`} alt={image.filename} />
   <figcaption>
     {#if editingName}
@@ -55,7 +72,12 @@ import PrimaryButton from "../button/PrimaryButton.svelte"
         on:submit={submitNameEdition}
       />
     {:else}
-      {image.filename} <PrimaryButton label="🖊" size="small" on:click={() => (editingName = true)} />
+      {image.filename}
+      <PrimaryButton
+        label="🖊"
+        size="small"
+        on:click={() => (editingName = true)}
+      />
     {/if}
   </figcaption>
 </figure>

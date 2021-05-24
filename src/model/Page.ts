@@ -84,7 +84,7 @@ export type Meets = {
 export type Image = {
   type: "img"
   id: string
-  src: string
+  key: string
   alt?: string
   caption?: string
 }

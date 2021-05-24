@@ -157,15 +157,15 @@ function buildMeets({ id, meets }: BuildMeetsParameters): Meets {
 
 type BuildImageParameters = {
   id: string
-  src?: string
+  key?: string
   alt?: string
   caption?: string
 }
-function buildImage({ id, src, alt, caption }: BuildImageParameters): Image {
+function buildImage({ id, key, alt, caption }: BuildImageParameters): Image {
   return {
     type: "img",
     id: id,
-    src: src ?? "/noimg.svg",
+    key: key ?? "",
     alt: alt,
     caption: caption ?? "legend",
   }

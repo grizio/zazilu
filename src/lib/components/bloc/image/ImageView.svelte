@@ -22,6 +22,6 @@
 </style>
 
 <figure data-test-id={bloc.id}>
-  <img src={bloc.src} alt={bloc.alt} />
+  <img src={`/image/${bloc.key}`} alt={bloc.alt} />
   <figcaption>{bloc.caption}</figcaption>
 </figure>
