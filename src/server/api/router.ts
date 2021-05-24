@@ -28,6 +28,7 @@ export default function buildRouter({ loginController, pageController, imageCont
     .get("/images", imageController.search, { query: ImageController.searchQuery })
     .post("/image", imageController.upload, { query: object({ filename: nonEmptyString, contentType: nonEmptyString }), body: nonEmptyString })
     .get("/image/:key", imageController.get, { params: object({ key: string }) })
+    .post("/image/:key/rename", imageController.rename, { params: object({ key: nonEmptyString }), body: object({ filename: nonEmptyString }) })
 
     .build()
 }

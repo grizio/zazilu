@@ -57,4 +57,19 @@ export class ImageController {
     })
     return created(key)
   }
+
+  rename = async (request: ActionRequest<{ key: string }, {}, { filename: string }>): Promise<Response> => {
+    const result = await this.imageService.rename({
+      key: request.params.key,
+      filename: request.body.filename
+    })
+    if (result.ok) {
+      return ok(result.value)
+    } else {
+      switch (result.errors) {
+        case "not-found":
+          return notFound("")
+      }
+    }
+  }
 }

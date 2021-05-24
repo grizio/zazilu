@@ -5,11 +5,10 @@
   export let name: string
   export let id: string
   export let submitLabel: string
+  export let value: string = ""
   export let formName: string | undefined = undefined
   export let disabled: boolean = false
   export let required: boolean = true
-
-  let value: string = ""
 
   const dispatch = createEventDispatcher()
 

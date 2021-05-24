@@ -83,6 +83,10 @@ button.primary, a.primary, button.danger {
 	transition: all ease-in-out 250ms;
 }
 
+button.primary.small, a.primary.small, button.danger.small {
+	padding: 4px 8px;
+}
+
 button.primary, a.primary {
   background-color: #6B9AC4;
 	color: #ffffff;

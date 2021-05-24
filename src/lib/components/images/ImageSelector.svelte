@@ -6,6 +6,7 @@
   import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
   import SimpleFileForm from "../form/SimpleFileForm.svelte"
   import SimpleTextForm from "../form/SimpleTextForm.svelte"
+import ImageSelectorItem from "./ImageSelectorItem.svelte";
 
   const store = new PaginatedStore("/images", imageMetadataValidator)
 
@@ -92,23 +93,6 @@
     gap: 16px;
   }
 
-  figure {
-    margin: 0;
-    padding: 8px;
-    cursor: pointer;
-    transition: box-shadow ease-in-out 250ms;
-    text-align: center;
-  }
-
-  figure:hover {
-    box-shadow: 0 0 5px #aaaaaa;
-  }
-
-  img {
-    max-width: 100%;
-    max-height: 300px;
-  }
-
   .more {
     text-align: center;
   }
@@ -128,10 +112,7 @@
   <div class="elements">
     <div class="grid">
       {#each $store.elements as image}
-        <figure>
-          <img src={`/image/${image.key}`} alt={image.filename} />
-          <figcaption>{image.filename}</figcaption>
-        </figure>
+        <ImageSelectorItem image={image} />
       {/each}
     </div>
 

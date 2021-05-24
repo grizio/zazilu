@@ -1,6 +1,7 @@
 import type { Image, ImageMetadata } from "$model/Image"
 import type { ImageRepository } from "$server/persistence/ImageRepository"
 import type { ImageMetadataRepository, SearchParameters } from "$server/persistence/ImageMetadataRepository"
+import type { Result } from "idonttrustlikethat"
 
 type Dependencies = {
   imageRepository: ImageRepository
@@ -53,5 +54,19 @@ export class ImageService {
       key: image.key,
       filename: image.filename,
     })
+  }
+
+  rename = async ({ key, filename }: { key: string, filename: string }): Promise<Result<"not-found", ImageMetadata>> => {
+    const imageMetadata = await this.imageMetadataRepository.get(key)
+    if (imageMetadata !== undefined) {
+      const newImageMetadata = {
+        ...imageMetadata,
+        filename: filename
+      }
+      await this.imageMetadataRepository.put(newImageMetadata)
+      return { ok: true, value: newImageMetadata }
+    } else {
+      return { ok: false, errors: "not-found" }
+    }
   }
 }
