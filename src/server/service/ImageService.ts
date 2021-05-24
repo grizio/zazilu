@@ -1,7 +1,6 @@
 import type { Image, ImageMetadata } from "$model/Image"
 import type { ImageRepository } from "$server/persistence/ImageRepository"
-import type { ImageMetadataRepository } from "$server/persistence/ImageMetadataRepository"
-import { ManagedBlockchain } from "aws-sdk"
+import type { ImageMetadataRepository, SearchParameters } from "$server/persistence/ImageMetadataRepository"
 
 type Dependencies = {
   imageRepository: ImageRepository
@@ -34,8 +33,12 @@ export class ImageService {
     }
   }
 
-  search = async (filename: string): Promise<Array<ImageMetadata>> => {
-    return this.imageMetadataRepository.search(filename)
+  search = async (parameters: SearchParameters): Promise<{ elements: Array<ImageMetadata>, next?: string }> => {
+    const result = await this.imageMetadataRepository.search(parameters)
+    return {
+      elements: result.elements,
+      next: result.nextSearchIdentifier
+    }
   }
 
   put = async (image: Image): Promise<void> => {

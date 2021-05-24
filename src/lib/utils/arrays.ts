@@ -34,3 +34,22 @@ export function uniqueBy<A, B>(array: Array<A>, by: (value: A) => B): boolean {
 export function isDefined<A>(value: A | undefined): value is A {
   return value !== undefined
 }
+
+export function keepAfter<A>(array: Array<A>, predicate: (value: A) => boolean): Array<A> {
+  const result = []
+  let found = false
+  for (let value of array) {
+    if (found) {
+      result.push(value)
+    } else {
+      found = predicate(value)
+    }
+  }
+  return result
+}
+
+export function slice<A>(array: Array<A>, start?: number, end?: number): Array<A> {
+  const result = [...array]
+  result.slice(start, end)
+  return result
+}

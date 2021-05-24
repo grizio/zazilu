@@ -4,7 +4,7 @@ import { pageActionValidator } from "$server/service/PageActionService"
 import { pageValidation } from "$model/validation/PageValidation"
 import { LoginController } from "./LoginController"
 import type { PageController } from "./PageController"
-import type { ImageController } from "./ImageController"
+import { ImageController } from "./ImageController"
 import { nonEmptyString } from "$lib/utils/validators"
 
 
@@ -25,7 +25,7 @@ export default function buildRouter({ loginController, pageController, imageCont
     .delete("/page/:slug.json", pageController.deletePage, { params: object({ slug: string }) })
     .post("/page/:slug/action.json", pageController.postAction, { params: object({ slug: string }), body: pageActionValidator })
 
-    .get("/images", imageController.search, { query: object({ filename: string.optional() }) })
+    .get("/images", imageController.search, { query: ImageController.searchQuery })
     .post("/image", imageController.upload, { query: object({ filename: nonEmptyString, contentType: nonEmptyString }), body: nonEmptyString })
     .get("/image/:key", imageController.get, { params: object({ key: string }) })
 

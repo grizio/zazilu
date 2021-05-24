@@ -10,3 +10,9 @@ export function removeUndefinedKeys<Value>(record: { [key: string]: Value | unde
 
   return result
 }
+
+export function omit<K extends keyof any, T extends Record<K, any>>(value: T, ...keys: Array<K>): Omit<T, K> {
+  const result = { ...value }
+  keys.forEach(key => delete result[key])
+  return result
+}

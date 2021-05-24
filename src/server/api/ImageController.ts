@@ -3,6 +3,8 @@ import type { ActionRequest } from "$server/api/RouterBuilder"
 import type { ImageService } from "$server/service/ImageService"
 import { created, notFound, ok } from "./responses"
 import { randomUUID } from "crypto"
+import { object, string } from "idonttrustlikethat"
+import { buildUrl } from "$lib/utils/url"
 
 type Dependencies = {
   imageService: ImageService
@@ -33,9 +35,16 @@ export class ImageController {
     }
   }
 
-  search = async (request: ActionRequest<{}, { filename?: string }>): Promise<Response> => {
-    const list = await this.imageService.search(request.query.filename ?? "")
-    return ok(list)
+  static searchQuery = object({
+    filename: string.optional(),
+    next: string.optional()
+  })
+  search = async (request: ActionRequest<{}, typeof ImageController.searchQuery["T"]>): Promise<Response> => {
+    const result = await this.imageService.search({ filename: request.query.filename, nextSearchIdentifier: request.query.next })
+    return ok({
+      elements: result.elements,
+      next: result.next !== undefined ? buildUrl("/images", { filename: request.query.filename, next: result.next }) : undefined,
+    })
   }
 
   upload = async (request: ActionRequest<{}, { filename: string, contentType: string }, string>): Promise<Response> => {

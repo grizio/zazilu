@@ -1,41 +1,28 @@
 <script lang="ts">
-  import { array } from "idonttrustlikethat"
   import { onMount } from "svelte"
   import { browser } from "$app/env"
+  import { imageMetadataValidator } from "$model/validation/ImageValidation"
+  import { PaginatedStore } from "$lib/stores/PaginatedStore"
+  import PrimaryButton from "$lib/components/button/PrimaryButton.svelte"
   import SimpleFileForm from "../form/SimpleFileForm.svelte"
   import SimpleTextForm from "../form/SimpleTextForm.svelte"
-  import type { ImageMetadata } from "$model/Image";
-  import { imageMetadataValidator } from "$model/validation/ImageValidation";
 
+  const store = new PaginatedStore("/images", imageMetadataValidator)
 
-  let searchValue: string = ""
-  let imagesPromise: Promise<Array<ImageMetadata>> = Promise.resolve([])
+  let searchValue = ""
 
   type Uploading = { uploaded: number; total: number }
   let uploading: Uploading | undefined = undefined
 
-  onMount(() => reloadImages())
-
-  function reloadImages() {
-    imagesPromise = loadImages()
-  }
-
-  async function loadImages(): Promise<Array<ImageMetadata>> {
+  onMount(() => {
     if (browser) {
-      const response = await fetch(`/images?filename=${encodeURIComponent(searchValue)}`)
-      const json = await response.json()
-      const validation = array(imageMetadataValidator).validate(json)
-      if (validation.ok) {
-        return validation.value
-      } else {
-        throw new Error(JSON.stringify(validation.errors))
-      }
-    } else {
-      return Promise.resolve([])
+      store.initialize({ filename: searchValue })
     }
-  }
+  })
 
-  async function uploadImages(event: CustomEvent<{ value: Array<File>; clear: () => void }>): Promise<void> {
+  async function uploadImages(
+    event: CustomEvent<{ value: Array<File>; clear: () => void }>,
+  ): Promise<void> {
     event.detail.clear()
     uploading = { uploaded: 0, total: event.detail.value.length }
     const allUploads = event.detail.value.map(async (file) => {
@@ -61,7 +48,7 @@
     })
     Promise.all(allUploads).then(() => {
       uploading = undefined
-      reloadImages()
+      store.initialize({ filename: searchValue })
     })
   }
 
@@ -82,9 +69,9 @@
   }
 
   function search(event: CustomEvent<{ value: string }>) {
-    searchValue = event.detail.value
-    reloadImages()
+    store.initialize({ filename: event.detail.value })
   }
+
 </script>
 
 <style>
@@ -93,12 +80,16 @@
     padding: 8px;
   }
 
+  .elements {
+    max-height: 50vh;
+    overflow: auto;
+  }
+
   .grid {
     margin: 16px 0;
     display: grid;
     grid-template-columns: repeat(5, calc(20% - 16px));
     gap: 16px;
-    max-height: calc(100vh - 50%);
   }
 
   figure {
@@ -118,6 +109,10 @@
     max-height: 300px;
   }
 
+  .more {
+    text-align: center;
+  }
+
 </style>
 
 <section>
@@ -130,21 +125,33 @@
     on:submit={search}
   />
 
-  {#await imagesPromise then images}
+  <div class="elements">
     <div class="grid">
-      {#each images as image}
+      {#each $store.elements as image}
         <figure>
           <img src={`/image/${image.key}`} alt={image.filename} />
           <figcaption>{image.filename}</figcaption>
         </figure>
       {/each}
     </div>
-  {/await}
 
-  <p>
-    You do not find the image of your choice?
-    Upload it:
-  </p>
+    <div class="more">
+      <PrimaryButton
+        label="More"
+        disabled={$store.next === undefined}
+        on:click={store.loadNext}
+      />
+
+      {#if $store.next === undefined && $store.elements.length !== 0 && !$store.loading}
+        <p>
+          No more images to load. Change your search criteria or upload a new
+          image.
+        </p>
+      {/if}
+    </div>
+  </div>
+
+  <p>You do not find the image of your choice? Upload it:</p>
 
   <SimpleFileForm
     id="image-selector-upload"

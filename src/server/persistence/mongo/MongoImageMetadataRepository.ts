@@ -1,6 +1,8 @@
+import { omit, removeUndefinedKeys } from "$lib/utils/objects"
 import type { ImageMetadata } from "$model/Image"
 import type { Collection } from "mongodb"
-import type { ImageMetadataRepository } from "../ImageMetadataRepository"
+import mongodb from "mongodb"
+import type { ImageMetadataRepository, SearchParameters, SearchResult } from "../ImageMetadataRepository"
 import type { MongoDb } from "./MongoDb"
 
 type Dependencies = {
@@ -19,12 +21,22 @@ export class MongoImageMetadataRepository implements ImageMetadataRepository {
     return result ?? undefined
   }
 
-  search = async (filename: string): Promise<Array<ImageMetadata>> => {
+  search = async ({ filename, nextSearchIdentifier }: SearchParameters): Promise<SearchResult> => {
     const collection = await this.getCollection()
-    if (filename === "") {
-      return collection.find().toArray()
+
+    const filter = removeUndefinedKeys({
+      _id: nextSearchIdentifier !== undefined ? { $gt: new mongodb.ObjectId(nextSearchIdentifier) } : undefined,
+      filename: filename !== undefined ? new RegExp(`.*${filename}.*`, "gi") : undefined,
+    })
+    const elements = await collection.find(filter).limit(20).toArray()
+
+    if (elements.length === 0) {
+      return { elements: [] }
     } else {
-      return collection.find({ filename: new RegExp(`.*${filename}.*`, "gi") }).toArray()
+      return {
+        elements: elements.map(element => omit(element, "_id")),
+        nextSearchIdentifier: elements[elements.length - 1]._id.toHexString(),
+      }
     }
   }
 
@@ -33,7 +45,7 @@ export class MongoImageMetadataRepository implements ImageMetadataRepository {
     await collection.updateOne({ key: image.key }, { $set: image }, { upsert: true })
   }
 
-  private getCollection = async (): Promise<Collection<ImageMetadata>> => {
+  private getCollection = async (): Promise<Collection<ImageMetadata & { _id: mongodb.ObjectID }>> => {
     return this.mongoDb.getDb().then(_ => _.collection("imageMetadata"))
   }
 }
