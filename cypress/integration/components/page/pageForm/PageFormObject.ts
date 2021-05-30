@@ -167,27 +167,27 @@ export class MeetBlocObject extends BlocObject {
   }
 
   changeDate = (date: string): this => {
-    cy.get(`[data-test-id=${this.dataTestId}-editButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-date-editButton]`).click()
     cy.get(`#${this.dataTestId}-date-date`).type(date)
-    cy.get(`[data-test-id=${this.dataTestId}-validButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-date-validButton]`).click()
     return this
   }
 
   changeTime = (time: string): this => {
-    cy.get(`[data-test-id=${this.dataTestId}-editButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-date-editButton]`).click()
     cy.get(`#${this.dataTestId}-date-time`).type(time)
-    cy.get(`[data-test-id=${this.dataTestId}-validButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-date-validButton]`).click()
     return this
   }
 
   changeDateTime = (date: string, time: string): this => {
     this.changeDateTimeWithoutValidating(date, time)
-    cy.get(`[data-test-id=${this.dataTestId}-validButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-date-validButton]`).click()
     return this
   }
 
   changeDateTimeWithoutValidating = (date: string, time: string): this => {
-    cy.get(`[data-test-id=${this.dataTestId}-editButton]`).click()
+    cy.get(`[data-test-id=${this.dataTestId}-date-editButton]`).click()
     cy.get(`#${this.dataTestId}-date-date`).type(date)
     cy.get(`#${this.dataTestId}-date-time`).type(time)
     return this

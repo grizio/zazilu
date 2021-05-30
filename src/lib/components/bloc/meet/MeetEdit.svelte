@@ -63,7 +63,7 @@
 
 <div class="meet" data-test-id={bloc.id} use:menuAction={index}>
   <div class="header" class:edit={editingDate}>
-    <EditableDate date={bloc.date} id={bloc.id} dataTestId={bloc.id} on:change={onChange} />
+    <EditableDate date={bloc.date} id={bloc.id} dataTestId={`${bloc.id}-date`} on:change={onChange} />
   </div>
 
   <div class="content">
