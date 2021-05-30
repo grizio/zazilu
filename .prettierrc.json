@@ -4,5 +4,6 @@
   "trailingComma": "all",
   "svelteAllowShorthand": false,
   "svelteSortOrder": "scripts-styles-options-markup",
-  "svelteIndentScriptAndStyle": true
+  "svelteIndentScriptAndStyle": true,
+  "printWidth": 120
 }

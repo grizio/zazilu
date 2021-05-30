@@ -10,11 +10,12 @@
     OnMergeDetail,
     OnMoveDetail,
     OnNewDetail,
+    OnRemoveDetail,
     OnTransformDetail,
     OnUpdateDetail,
   } from "$lib/components/types"
   import { withGeneratedId } from "$lib/components/types"
-  import Menu from "./Menu.svelte"
+  import MenuBloc from "./MenuBloc.svelte"
   import { transformBloc } from "$lib/components/bloc/bloc/BlocTransformer";
 
   export let page: Page
@@ -115,6 +116,16 @@
     }
   }
 
+  function onRemoveBloc(event: CustomEvent<OnRemoveDetail>) {
+    const { index } = event.detail
+    if (0 <= index && index < page.content.length) {
+      page = normalize({
+        ...page,
+        content: remove(page.content, index),
+      })
+    }
+  }
+
   function submit() {
     dispatchEvent("submit", page)
   }
@@ -150,4 +161,4 @@
   <PrimaryButton label="Save" dataTestId="pageForm-submit" />
 </form>
 
-<Menu on:transform={transform} />
+<MenuBloc on:transform={transform} on:new={onNewBloc} on:remove={onRemoveBloc} />
